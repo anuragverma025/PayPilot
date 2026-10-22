@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -42,7 +42,9 @@ export function OrderReviewModal({
 
   // PayPal Configuration & Order References
   const [paypalConfig, setPaypalConfig] = useState(null);
+  const [isConfigLoading, setIsConfigLoading] = useState(true);
   const [orderDraft, setOrderDraft] = useState(null);
+  const [activeOrderId, setActiveOrderId] = useState(null);
   const [completedOrder, setCompletedOrder] = useState(null);
 
   // Fetch PayPal public config when modal opens
@@ -53,6 +55,7 @@ export function OrderReviewModal({
       setErrorMessage(null);
       setCompletedOrder(null);
       setApprovalConfirmed(false);
+      setIsConfigLoading(true);
 
       api.getPayPalConfig()
         .then((res) => {
@@ -62,6 +65,9 @@ export function OrderReviewModal({
         })
         .catch((err) => {
           console.warn('Failed to fetch PayPal config:', err);
+        })
+        .finally(() => {
+          setIsConfigLoading(false);
         });
     }
   }, [isOpen]);
@@ -92,12 +98,24 @@ export function OrderReviewModal({
   const subtotal = orderDraft ? orderDraft.subtotal : unitPrice * quantity;
   const total = orderDraft ? orderDraft.total : subtotal;
 
+  // Memoized PayPal SDK options
+  const paypalScriptOptions = useMemo(() => {
+    if (!paypalConfig?.clientId) return null;
+    return {
+      clientId: paypalConfig.clientId,
+      currency: paypalConfig.currency || 'USD',
+      intent: 'capture',
+      components: 'buttons'
+    };
+  }, [paypalConfig?.clientId, paypalConfig?.currency]);
+
   // Handler for creating PayPal order in backend
   const handleCreatePayPalOrder = async () => {
     setLoading(true);
     setErrorMessage(null);
     try {
       const res = await api.createPayPalOrder({
+        orderId: orderDraft?._id,
         productId: product.id,
         quantity,
         buyer: {
@@ -112,6 +130,7 @@ export function OrderReviewModal({
         throw new Error(res.error?.message || 'Failed to initialize PayPal Sandbox order.');
       }
 
+      setActiveOrderId(res.data.orderId);
       return res.data.paypalOrderId;
     } catch (err) {
       setErrorMessage(err.message || 'PayPal order creation failed.');
@@ -128,7 +147,7 @@ export function OrderReviewModal({
     setLoading(true);
     setErrorMessage(null);
     try {
-      const orderIdToCapture = orderDraft?._id || data.orderID;
+      const orderIdToCapture = activeOrderId || orderDraft?._id || data.orderID;
       const res = await api.capturePayPalOrder({
         orderId: orderIdToCapture,
         paypalOrderId: data.orderID
@@ -195,6 +214,7 @@ export function OrderReviewModal({
       // Build simulated verified order record
       const simulatedCompleted = {
         ...draft,
+        isSimulated: true,
         status: 'COMPLETED',
         isPaid: true,
         paidAt: new Date().toISOString(),
@@ -400,23 +420,24 @@ export function OrderReviewModal({
             {/* PAYPAL CHECKOUT BUTTONS / SANDBOX SIMULATION */}
             {approvalConfirmed ? (
               <div className="pt-2 space-y-4">
-                {paypalConfig?.isConfigured && paypalConfig?.clientId ? (
+                {isConfigLoading ? (
+                  <div className="p-6 rounded-2xl bg-white border border-paypilot-border text-center space-y-2">
+                    <div className="w-6 h-6 border-2 border-paypilot-brand border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p className="text-xs text-paypilot-muted">Verifying PayPal Sandbox configuration...</p>
+                  </div>
+                ) : paypalConfig?.isConfigured && paypalConfig?.clientId && paypalScriptOptions ? (
                   <div className="p-4 rounded-2xl bg-white border-2 border-paypilot-brand/40 shadow-card space-y-3">
                     <div className="flex items-center justify-between text-xs text-paypilot-muted pb-2 border-b border-paypilot-border">
                       <span className="flex items-center gap-1 font-semibold text-paypilot-text">
                         <Lock className="w-3.5 h-3.5 text-paypilot-success" />
                         <span>Official PayPal Sandbox JS SDK</span>
                       </span>
-                      <span className="text-paypilot-brand font-bold">Encrypted REST API</span>
+                      <span className="text-paypilot-brand font-bold text-[11px] bg-paypilot-subtleViolet px-2 py-0.5 rounded-full">
+                        Live Sandbox Mode
+                      </span>
                     </div>
 
-                    <PayPalScriptProvider
-                      options={{
-                        clientId: paypalConfig.clientId,
-                        currency: paypalConfig.currency || 'USD',
-                        intent: 'capture'
-                      }}
-                    >
+                    <PayPalScriptProvider options={paypalScriptOptions}>
                       <PayPalButtons
                         style={{ layout: 'vertical', shape: 'rect', color: 'gold', height: 44 }}
                         createOrder={handleCreatePayPalOrder}
@@ -424,7 +445,9 @@ export function OrderReviewModal({
                         onCancel={handleCancelPayPalOrder}
                         onError={(err) => {
                           console.error('PayPal Buttons Error:', err);
-                          setErrorMessage('PayPal Sandbox SDK error occurred. Check browser console.');
+                          setErrorMessage(
+                            `PayPal Sandbox error: ${err?.message || 'Unable to open PayPal payment modal. Check sandbox credentials or pop-up blocker.'}`
+                          );
                           setStage('ERROR');
                         }}
                       />
@@ -438,10 +461,10 @@ export function OrderReviewModal({
                       </div>
                       <div className="space-y-1">
                         <h4 className="text-xs font-bold text-paypilot-navy">
-                          PayPal Sandbox Credentials Setup
+                          Demo Simulation Mode (Credentials Not Active)
                         </h4>
                         <p className="text-xs text-paypilot-muted leading-relaxed">
-                          To connect real PayPal developer accounts, configure <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-paypilot-brand">PAYPAL_CLIENT_ID</code> and <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-paypilot-brand">PAYPAL_CLIENT_SECRET</code> in <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono">backend/.env</code>.
+                          Live PayPal Sandbox credentials were not detected by the server. To enable genuine PayPal checkout, verify <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-paypilot-brand">PAYPAL_CLIENT_ID</code> and <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-paypilot-brand">PAYPAL_CLIENT_SECRET</code> in <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono">backend/.env</code> and restart the server.
                         </p>
                       </div>
                     </div>
@@ -455,10 +478,10 @@ export function OrderReviewModal({
                         loading={loading}
                         icon={Sparkles}
                       >
-                        Simulate PayPal Sandbox Approval & Verification
+                        Simulate Sandbox Approval & Verification (Demo Mode)
                       </Button>
                       <p className="text-[11px] text-center text-paypilot-muted mt-2">
-                        Executes full server-side price verification, order creation, and receipt audit trail.
+                        Simulates the server price calculation, order creation, and receipt audit trail for testing.
                       </p>
                     </div>
                   </div>
@@ -515,10 +538,25 @@ export function OrderReviewModal({
                     {completedOrder.orderNumber}
                   </div>
                 </div>
-                <Badge variant="success" size="md">
-                  VERIFIED PAID
-                </Badge>
+                {completedOrder.isSimulated ? (
+                  <Badge variant="neutral" size="md" className="bg-amber-100 text-amber-900 border-amber-300">
+                    SIMULATED DEMO (TEST ONLY)
+                  </Badge>
+                ) : (
+                  <Badge variant="success" size="md">
+                    PAYPAL SANDBOX VERIFIED
+                  </Badge>
+                )}
               </div>
+
+              {completedOrder.isSimulated && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                  <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Evaluation Demo:</strong> This order was completed in local simulation mode. To execute genuine PayPal Sandbox transactions, ensure <code className="font-mono">PAYPAL_CLIENT_ID</code> and <code className="font-mono">PAYPAL_CLIENT_SECRET</code> are configured in <code className="font-mono">backend/.env</code> and restart the server.
+                  </span>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>

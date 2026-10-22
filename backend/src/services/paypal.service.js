@@ -11,7 +11,11 @@ export class PayPalService {
   static isConfigured() {
     const { clientId, clientSecret } = config.paypal;
     if (!clientId || !clientSecret) return false;
-    if (clientId.includes('your_paypal') || clientSecret.includes('your_paypal')) return false;
+    const cleanId = String(clientId).trim();
+    const cleanSecret = String(clientSecret).trim();
+    if (cleanId === '' || cleanSecret === '') return false;
+    if (cleanId.includes('your_paypal') || cleanSecret.includes('your_paypal')) return false;
+    if (cleanId.includes('your_') || cleanSecret.includes('your_')) return false;
     return true;
   }
 

@@ -120,7 +120,10 @@ export async function captureOrder(req, res, next) {
     const { orderId, paypalOrderId } = validated;
 
     // 1. Look up authoritative database order
-    const order = await OrderService.getOrderById(orderId);
+    let order = await OrderService.getOrderById(orderId);
+    if (!order && paypalOrderId) {
+      order = await OrderService.getOrderById(paypalOrderId);
+    }
     if (!order) {
       return res.status(404).json({
         success: false,
