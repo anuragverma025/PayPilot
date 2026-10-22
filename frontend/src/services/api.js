@@ -83,5 +83,14 @@ export const api = {
     fetchJson('/compare', {
       method: 'POST',
       body: JSON.stringify({ productIds })
+    }),
+
+  /**
+   * Ask the AI Shopping Assistant for a grounded Shopping Decision Report
+   */
+  askAssistant: (message) =>
+    fetchJson('/assistant/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message })
     })
 };

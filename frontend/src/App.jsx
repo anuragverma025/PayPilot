@@ -9,7 +9,9 @@ import { ProductGrid } from './components/products/ProductGrid';
 import { ProductDetailModal } from './components/products/ProductDetailModal';
 import { ComparisonDrawer } from './components/comparison/ComparisonDrawer';
 import { ComparisonModal } from './components/comparison/ComparisonModal';
+import { ShoppingDecisionReport } from './components/assistant/ShoppingDecisionReport';
 import { api } from './services/api';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -32,6 +34,11 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [backendConnected, setBackendConnected] = useState(false);
+
+  // AI Assistant State
+  const [decisionReport, setDecisionReport] = useState(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
 
   // Modals & Comparison State
   const [detailProduct, setDetailProduct] = useState(null);
@@ -83,6 +90,45 @@ export default function App() {
 
   const handleResetFilters = () => {
     setFilters(DEFAULT_FILTERS);
+    setDecisionReport(null);
+    setAiError(null);
+  };
+
+  // AI Assistant Handler
+  const handleAskAi = async (message) => {
+    setIsAiLoading(true);
+    setAiError(null);
+    try {
+      const res = await api.askAssistant(message);
+      if (res.success && res.data) {
+        setDecisionReport(res.data);
+      } else {
+        throw new Error(res.error?.message || 'Could not generate decision report.');
+      }
+    } catch (err) {
+      console.error('Assistant error:', err);
+      setAiError(err.message || 'Failed to contact AI Shopping Assistant.');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  // Apply extracted requirements from Decision Report into the catalog filters
+  const handleApplyAiFilters = (requirements) => {
+    setFilters((prev) => ({
+      ...prev,
+      maxBudget: requirements.maxBudget || prev.maxBudget,
+      minRam: requirements.minRam || prev.minRam,
+      gpuType: requirements.gpuPreference || 'any',
+      upgradableOnly: Boolean(requirements.prioritizeUpgradability),
+      search: ''
+    }));
+  };
+
+  // Direct comparison trigger from Decision Report
+  const handleCompareDirectly = (primaryId, altId) => {
+    setComparedIds([primaryId, altId]);
+    setIsCompareModalOpen(true);
   };
 
   // Compare Toggle
@@ -108,6 +154,16 @@ export default function App() {
 
   const comparedProducts = products.filter((p) => comparedIds.includes(p.id));
 
+  // Determine active workflow step
+  let currentWorkflowStep = 1;
+  if (decisionReport) {
+    currentWorkflowStep = 3;
+  } else if (comparedIds.length >= 2) {
+    currentWorkflowStep = 3;
+  } else if (products.length > 0) {
+    currentWorkflowStep = 2;
+  }
+
   return (
     <div className="min-h-screen flex bg-paypilot-bg text-paypilot-text">
       {/* Sidebar Navigation */}
@@ -131,15 +187,48 @@ export default function App() {
 
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 pb-28">
           {/* Visual Workflow Steps Bar */}
-          <WorkflowSteps currentStep={comparedIds.length >= 2 ? 3 : 2} />
+          <WorkflowSteps currentStep={currentWorkflowStep} />
 
-          {/* Search Hero Area */}
+          {/* Search & AI Assistant Hero Area */}
           <SearchHero
             searchQuery={filters.search}
             onSearchChange={(val) => handleFilterChange('search', val)}
             onSelectExample={handleSelectExample}
             onReset={handleResetFilters}
+            onAskAi={handleAskAi}
+            isAiLoading={isAiLoading}
+            aiError={aiError}
           />
+
+          {/* AI Analyzing Loading State */}
+          {isAiLoading && (
+            <div className="bg-gradient-to-r from-paypilot-subtleViolet via-white to-paypilot-subtleViolet border-2 border-paypilot-brand/30 rounded-3xl p-8 text-center space-y-4 mb-8 shadow-card animate-pulse">
+              <div className="w-12 h-12 rounded-2xl bg-paypilot-brand text-white mx-auto flex items-center justify-center shadow-subtle">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-paypilot-navy">
+                  Analyzing Your Shopping Goal with Google Gemini...
+                </h3>
+                <p className="text-xs text-paypilot-muted max-w-md mx-auto">
+                  Extracting workload requirements, matching across 32 verified laptop records, and synthesizing your grounded Shopping Decision Report.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Grounded Shopping Decision Report */}
+          {decisionReport && !isAiLoading && (
+            <ShoppingDecisionReport
+              report={decisionReport}
+              onClose={() => setDecisionReport(null)}
+              onViewDetails={setDetailProduct}
+              onToggleCompare={handleToggleCompare}
+              comparedIds={comparedIds}
+              onApplyFilters={handleApplyAiFilters}
+              onCompareDirectly={handleCompareDirectly}
+            />
+          )}
 
           {/* Filter and Sorting Controls */}
           <FilterBar
