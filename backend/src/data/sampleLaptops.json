@@ -1,0 +1,2493 @@
+[
+  {
+    "id": "lap-lenovo-e14-g5",
+    "name": "Lenovo ThinkPad E14 Gen 5",
+    "brand": "Lenovo",
+    "model": "ThinkPad E14 Gen 5 (AMD)",
+    "priceINR": 54990,
+    "priceUSD": 660,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 5 7530U",
+      "cores": 6,
+      "threads": 12,
+      "baseClockGHz": 2,
+      "maxClockGHz": 4.5,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-3200",
+      "isUpgradable": true,
+      "maxSupportedGB": 40
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "NVMe PCIe 4.0 SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 14,
+      "resolution": "1920x1200 (WUXGA IPS)",
+      "refreshRateHz": 60,
+      "brightnessNits": 300,
+      "panelType": "IPS Anti-glare"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "AMD",
+      "model": "Radeon Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 47,
+      "claimedHours": 9,
+      "realWorldHoursEstimate": 6.5
+    },
+    "weightKg": 1.41,
+    "os": "Windows 11 Home",
+    "keyboard": "Backlit Spill-resistant Ergonomic Keyboard",
+    "ports": [
+      "1x USB-C 3.2 Gen 2",
+      "1x USB-C 3.2 Gen 1",
+      "1x USB-A 3.2",
+      "1x USB-A 2.0",
+      "1x HDMI 1.4b",
+      "1x RJ-45 Ethernet",
+      "Audio Combo Jack"
+    ],
+    "strengths": [
+      "Renowned ThinkPad durability and best-in-class keyboard for long programming sessions",
+      "Upgradable RAM (up to 40GB) and dual M.2 SSD slots",
+      "Lightweight (1.41kg) and compact 16:10 aspect ratio display"
+    ],
+    "tradeOffs": [
+      "Integrated GPU is not suited for local deep learning model training",
+      "Display color gamut is 45% NTSC, unsuitable for professional color-grading"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Lenovo ThinkPad E14 Gen 5 - Lenovo ThinkPad E14 Gen 5 (AMD)"
+  },
+  {
+    "id": "lap-acer-nitro-v15",
+    "name": "Acer Nitro V 15 (2024)",
+    "brand": "Acer",
+    "model": "Nitro V ANV15-51",
+    "priceINR": 71990,
+    "priceUSD": 860,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-13420H",
+      "cores": 8,
+      "threads": 12,
+      "baseClockGHz": 2.1,
+      "maxClockGHz": 4.6,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-5200",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "Gen 4 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 144,
+      "brightnessNits": 250,
+      "panelType": "IPS"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4050",
+      "vramGB": 6
+    },
+    "battery": {
+      "capacityWattHours": 57,
+      "claimedHours": 6,
+      "realWorldHoursEstimate": 4
+    },
+    "weightKg": 2.1,
+    "os": "Windows 11 Home",
+    "keyboard": "Backlit RGB Gaming Keyboard with Numpad",
+    "ports": [
+      "1x Thunderbolt 4",
+      "3x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "1x RJ-45 Gigabit Ethernet",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "NVIDIA RTX 4050 with 6GB VRAM and CUDA support for PyTorch/TensorFlow experimentation",
+      "High-power H-series 13th Gen Intel processor handles complex Docker builds",
+      "Dual fan thermal system with dual M.2 SSD slots"
+    ],
+    "tradeOffs": [
+      "Heavier at 2.1kg plus bulky 135W power adapter",
+      "Shorter battery life (approx 3.5 - 4 hours under mixed loads)"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Acer Nitro V 15 (2024) - Acer Nitro V ANV15-51"
+  },
+  {
+    "id": "lap-asus-zenbook-14",
+    "name": "ASUS Zenbook 14 OLED (2024)",
+    "brand": "ASUS",
+    "model": "UX3405MA",
+    "priceINR": 109990,
+    "priceUSD": 1320,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "creative",
+      "college"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core Ultra 7 155H (Meteor Lake)",
+      "cores": 16,
+      "threads": 22,
+      "baseClockGHz": 1.4,
+      "maxClockGHz": 4.8,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5X-7467",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 1024,
+      "type": "PCIe 4.0 NVMe SSD (1TB)",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 14,
+      "resolution": "2880x1800 (3K OLED)",
+      "refreshRateHz": 120,
+      "brightnessNits": 500,
+      "panelType": "OLED 100% DCI-P3"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel Arc Graphics + Intel AI Boost NPU",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 75,
+      "claimedHours": 15,
+      "realWorldHoursEstimate": 10.5
+    },
+    "weightKg": 1.28,
+    "os": "Windows 11 Home",
+    "keyboard": "ErgoSense Backlit Keyboard",
+    "ports": [
+      "2x Thunderbolt 4",
+      "1x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1 TMDS",
+      "Audio Combo Jack"
+    ],
+    "strengths": [
+      "Dedicated Intel AI Boost NPU for on-device inference and background AI acceleration",
+      "Magnificent 3K 120Hz OLED screen with 100% DCI-P3 color reproduction",
+      "Exceptional 75Wh battery delivering 10+ hours real-world runtime in a 1.28kg chassis"
+    ],
+    "tradeOffs": [
+      "Soldered LPDDR5X RAM cannot be upgraded post-purchase",
+      "High purchase price beyond typical entry student budgets"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "ASUS Zenbook 14 OLED (2024) - ASUS UX3405MA"
+  },
+  {
+    "id": "lap-apple-mba-m2-16",
+    "name": "Apple MacBook Air 13\" (M2, 16GB)",
+    "brand": "Apple",
+    "model": "MacBook Air 13 M2 Custom Config",
+    "priceINR": 114900,
+    "priceUSD": 1380,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "creative"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Apple",
+      "model": "Apple M2 (8-Core CPU)",
+      "cores": 8,
+      "threads": 8,
+      "baseClockGHz": 2.4,
+      "maxClockGHz": 3.49,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "Unified Memory (LPDDR5-6400)",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "Apple Fast NVMe SSD",
+      "isUpgradable": false,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 13.6,
+      "resolution": "2560x1664 (Liquid Retina)",
+      "refreshRateHz": 60,
+      "brightnessNits": 500,
+      "panelType": "IPS Wide Color P3"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Apple",
+      "model": "Apple 10-core GPU + 16-core Neural Engine",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 52.6,
+      "claimedHours": 18,
+      "realWorldHoursEstimate": 13
+    },
+    "weightKg": 1.24,
+    "os": "macOS Sequoia",
+    "keyboard": "Magic Keyboard with Touch ID",
+    "ports": [
+      "2x Thunderbolt / USB 4",
+      "1x MagSafe 3 Charging",
+      "1x 3.5mm Headphone Jack with High-Impedance support"
+    ],
+    "strengths": [
+      "Industry-leading battery life (12-14 real hours) and completely silent fanless operation",
+      "UNIX environment native compatibility for web development, Docker, and iOS apps",
+      "Premium aluminum unibody build at just 1.24kg"
+    ],
+    "tradeOffs": [
+      "Zero hardware upgradability — RAM and SSD are permanently soldered",
+      "Supports only one external display natively without DisplayLink hubs"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Apple MacBook Air 13\" (M2, 16GB) - Apple MacBook Air 13 M2 Custom Config"
+  },
+  {
+    "id": "lap-acer-swift-go-14",
+    "name": "Acer Swift Go 14 OLED",
+    "brand": "Acer",
+    "model": "SFG14-72",
+    "priceINR": 69990,
+    "priceUSD": 840,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core Ultra 5 125H",
+      "cores": 14,
+      "threads": 18,
+      "baseClockGHz": 1.2,
+      "maxClockGHz": 4.5,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5X-6400",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe Gen4 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 14,
+      "resolution": "2880x1800 (2.8K OLED)",
+      "refreshRateHz": 90,
+      "brightnessNits": 400,
+      "panelType": "OLED 100% DCI-P3"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel Arc Graphics + NPU",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 65,
+      "claimedHours": 11,
+      "realWorldHoursEstimate": 7.5
+    },
+    "weightKg": 1.32,
+    "os": "Windows 11 Home",
+    "keyboard": "Backlit Keyboard with Fingerprint Reader",
+    "ports": [
+      "2x Thunderbolt 4 / USB-C",
+      "2x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "MicroSD Card Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Stunning 2.8K 90Hz OLED display at an aggressive price under ₹70,000",
+      "Modern Core Ultra 5 CPU with integrated NPU acceleration",
+      "Very portable at 1.32kg with dual Thunderbolt 4 connectivity"
+    ],
+    "tradeOffs": [
+      "RAM is soldered and cannot be expanded beyond 16GB",
+      "Speakers are downward-firing with average bass response"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1587614382346-4ec70e388b28?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Acer Swift Go 14 OLED - Acer SFG14-72"
+  },
+  {
+    "id": "lap-lenovo-loq-15-intel",
+    "name": "Lenovo LOQ 15 (Core i5, RTX 3050)",
+    "brand": "Lenovo",
+    "model": "LOQ 15IAX9",
+    "priceINR": 62990,
+    "priceUSD": 755,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-12450HX",
+      "cores": 8,
+      "threads": 12,
+      "baseClockGHz": 2.4,
+      "maxClockGHz": 4.4,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-4800",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe 4.0 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 144,
+      "brightnessNits": 300,
+      "panelType": "IPS 100% sRGB"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 3050 6GB",
+      "vramGB": 6
+    },
+    "battery": {
+      "capacityWattHours": 60,
+      "claimedHours": 6,
+      "realWorldHoursEstimate": 4
+    },
+    "weightKg": 2.38,
+    "os": "Windows 11 Home",
+    "keyboard": "Full-size White Backlit Keyboard with 1.5mm key travel",
+    "ports": [
+      "1x USB-C 3.2 Gen 2 (PD 140W)",
+      "3x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "1x RJ-45 LAN",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "RTX 3050 upgraded to 6GB VRAM provides affordable GPU compute for neural nets",
+      "100% sRGB color accurate display rare in budget gaming notebooks",
+      "Dual DDR5 RAM slots and dual M.2 SSD slots for future upgrades"
+    ],
+    "tradeOffs": [
+      "Bulky chassis (2.38kg) with heavy power brick",
+      "Older 12th gen HX architecture has high idle power draw"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Lenovo LOQ 15 (Core i5, RTX 3050) - Lenovo LOQ 15IAX9"
+  },
+  {
+    "id": "lap-asus-vivobook-16x",
+    "name": "ASUS Vivobook 16X (Creator Edition)",
+    "brand": "ASUS",
+    "model": "M1603QA / K3605",
+    "priceINR": 52990,
+    "priceUSD": 635,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "creative"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 5 5600H",
+      "cores": 6,
+      "threads": 12,
+      "baseClockGHz": 3.3,
+      "maxClockGHz": 4.2,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-3200",
+      "isUpgradable": true,
+      "maxSupportedGB": 24
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "M.2 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 16,
+      "resolution": "1920x1200 (16:10 WUXGA)",
+      "refreshRateHz": 60,
+      "brightnessNits": 300,
+      "panelType": "IPS Anti-glare"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 2050",
+      "vramGB": 4
+    },
+    "battery": {
+      "capacityWattHours": 50,
+      "claimedHours": 7,
+      "realWorldHoursEstimate": 5
+    },
+    "weightKg": 1.8,
+    "os": "Windows 11 Home",
+    "keyboard": "ErgoSense Keyboard with Privacy Shutter Webcam",
+    "ports": [
+      "1x USB-C 3.2 Gen 1",
+      "2x USB-A 3.2 Gen 1",
+      "1x USB-A 2.0",
+      "1x HDMI 2.1",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Large 16-inch 16:10 screen provides extra vertical room for code editors",
+      "Entry dedicated RTX 2050 GPU provides CUDA support at an entry price point",
+      "Antibacterial guard on chassis surfaces and physical camera shutter"
+    ],
+    "tradeOffs": [
+      "Single SO-DIMM upgradability limit (8GB soldered + 8GB slot)",
+      "USB-C port does not support DisplayPort output"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "ASUS Vivobook 16X (Creator Edition) - ASUS M1603QA / K3605"
+  },
+  {
+    "id": "lap-hp-pavilion-15",
+    "name": "HP Pavilion 15 (13th Gen)",
+    "brand": "HP",
+    "model": "15-eg3027TU",
+    "priceINR": 58990,
+    "priceUSD": 708,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-1335U",
+      "cores": 10,
+      "threads": 12,
+      "baseClockGHz": 1.3,
+      "maxClockGHz": 4.6,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-3200",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe NVMe M.2 SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 60,
+      "brightnessNits": 250,
+      "panelType": "IPS Micro-edge"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Iris Xe Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 41,
+      "claimedHours": 7.5,
+      "realWorldHoursEstimate": 5.5
+    },
+    "weightKg": 1.75,
+    "os": "Windows 11 Home",
+    "keyboard": "Full-size Backlit Natural Silver Keyboard",
+    "ports": [
+      "1x USB-C (USB PD, DisplayPort 1.4)",
+      "2x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Clean professional aluminum keyboard deck and solid construction",
+      "Dual channel 16GB RAM out of the box with upgrade capacity",
+      "Fast charging delivers 50% in approximately 45 minutes"
+    ],
+    "tradeOffs": [
+      "Modest 41Wh battery capacity requires charger for long days",
+      "250 nits brightness is low for outdoor or cafe use"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "HP Pavilion 15 (13th Gen) - HP 15-eg3027TU"
+  },
+  {
+    "id": "lap-acer-aspire-lite",
+    "name": "Acer Aspire Lite 15",
+    "brand": "Acer",
+    "model": "AL15-41",
+    "priceINR": 36990,
+    "priceUSD": 445,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 5 5500U",
+      "cores": 6,
+      "threads": 12,
+      "baseClockGHz": 2.1,
+      "maxClockGHz": 4,
+      "tier": "entry"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-3200",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD)",
+      "refreshRateHz": 60,
+      "brightnessNits": 220,
+      "panelType": "TN/TFT"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "AMD",
+      "model": "Radeon Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 36,
+      "claimedHours": 5.5,
+      "realWorldHoursEstimate": 4
+    },
+    "weightKg": 1.59,
+    "os": "Windows 11 Home",
+    "keyboard": "Standard Keyboard with Numeric Keypad",
+    "ports": [
+      "1x USB-C 3.2 Gen 2",
+      "3x USB-A",
+      "1x HDMI",
+      "MicroSD Card Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Incredible price-to-performance ratio with 16GB RAM and 6-core processor under ₹37,000",
+      "Lightweight for a 15.6\" laptop at 1.59kg",
+      "Great choice for CS students on a tight budget running VS Code and web dev"
+    ],
+    "tradeOffs": [
+      "Basic display with limited viewing angles and 220 nits brightness",
+      "Small 36Wh battery capacity requires frequent recharging"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Acer Aspire Lite 15 - Acer AL15-41"
+  },
+  {
+    "id": "lap-hp-victus-16",
+    "name": "HP Victus 16 (Ryzen 7, RTX 3050)",
+    "brand": "HP",
+    "model": "16-s0093AX",
+    "priceINR": 68990,
+    "priceUSD": 828,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 7 7840HS",
+      "cores": 8,
+      "threads": 16,
+      "baseClockGHz": 3.8,
+      "maxClockGHz": 5.1,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-5600",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "Gen 4 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 16.1,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 144,
+      "brightnessNits": 250,
+      "panelType": "IPS Micro-edge"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 3050 6GB",
+      "vramGB": 6
+    },
+    "battery": {
+      "capacityWattHours": 70,
+      "claimedHours": 7.5,
+      "realWorldHoursEstimate": 5.5
+    },
+    "weightKg": 2.3,
+    "os": "Windows 11 Home",
+    "keyboard": "Full-size 1-Zone RGB Backlit Keyboard",
+    "ports": [
+      "1x USB-C (USB PD, DisplayPort 1.4)",
+      "3x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "1x RJ-45",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Powerful Ryzen 7 7840HS processor with 8 Zen4 cores and Ryzen AI built-in",
+      "Spacious 16.1-inch 144Hz screen and dual-channel DDR5-5600 RAM",
+      "Larger 70Wh battery than competitors in this price range"
+    ],
+    "tradeOffs": [
+      "Moderate screen wobble under aggressive typing",
+      "Weighs 2.3kg which is noticeably heavy in a backpack"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "HP Victus 16 (Ryzen 7, RTX 3050) - HP 16-s0093AX"
+  },
+  {
+    "id": "lap-dell-inspiron-15",
+    "name": "Dell Inspiron 15 3520",
+    "brand": "Dell",
+    "model": "3520 (Intel Core i5)",
+    "priceINR": 48990,
+    "priceUSD": 588,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-1235U",
+      "cores": 10,
+      "threads": 12,
+      "baseClockGHz": 1.3,
+      "maxClockGHz": 4.4,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-2666",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 120,
+      "brightnessNits": 250,
+      "panelType": "WVA Anti-glare"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Iris Xe Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 41,
+      "claimedHours": 6,
+      "realWorldHoursEstimate": 4.5
+    },
+    "weightKg": 1.65,
+    "os": "Windows 11 Home",
+    "keyboard": "Non-backlit Spill-resistant keyboard with Lift Hinge design",
+    "ports": [
+      "2x USB 3.2 Gen 1",
+      "1x USB 2.0",
+      "1x HDMI 1.4",
+      "SD Card Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Smooth 120Hz refresh rate display in an everyday budget Dell laptop",
+      "Lift-hinge ergonomic design facilitates comfortable typing angles",
+      "Dell nationwide on-site service network across campuses"
+    ],
+    "tradeOffs": [
+      "No USB Type-C port on this specific configuration",
+      "Plastic chassis construction and no keyboard backlight"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1588702547919-26089e690ecc?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Dell Inspiron 15 3520 - Dell 3520 (Intel Core i5)"
+  },
+  {
+    "id": "lap-asus-tuf-a15",
+    "name": "ASUS TUF Gaming A15 (2024)",
+    "brand": "ASUS",
+    "model": "FA506NC / FA507",
+    "priceINR": 77990,
+    "priceUSD": 935,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 7 7735HS",
+      "cores": 8,
+      "threads": 16,
+      "baseClockGHz": 3.2,
+      "maxClockGHz": 4.75,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-4800",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe 4.0 NVMe M.2 SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 144,
+      "brightnessNits": 250,
+      "panelType": "IPS Anti-glare with G-Sync"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4050 6GB (140W TGP)",
+      "vramGB": 6
+    },
+    "battery": {
+      "capacityWattHours": 90,
+      "claimedHours": 10,
+      "realWorldHoursEstimate": 7
+    },
+    "weightKg": 2.2,
+    "os": "Windows 11 Home",
+    "keyboard": "RGB Backlit with Highlighted WASD and NumPad",
+    "ports": [
+      "1x USB-C 4 (DisplayPort)",
+      "1x USB-C 3.2 Gen 2 (PD)",
+      "2x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "1x RJ-45",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Massive 90Wh battery — rare among gaming notebooks, yielding 7 hours of non-gaming battery life",
+      "Full 140W TGP NVIDIA RTX 4050 allows max tensor core performance for ML models",
+      "Military-grade MIL-STD-810H durability standard"
+    ],
+    "tradeOffs": [
+      "Screen color coverage is limited to around 62.5% sRGB",
+      "Fans can be loud under sustained multi-threaded compilation"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1611078489935-0cb964de46d6?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "ASUS TUF Gaming A15 (2024) - ASUS FA506NC / FA507"
+  },
+  {
+    "id": "lap-lenovo-legion-slim5",
+    "name": "Lenovo Legion Slim 5 (RTX 4060)",
+    "brand": "Lenovo",
+    "model": "Legion Slim 5 16APH8",
+    "priceINR": 104990,
+    "priceUSD": 1260,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "creative",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 7 7840HS",
+      "cores": 8,
+      "threads": 16,
+      "baseClockGHz": 3.8,
+      "maxClockGHz": 5.1,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-5600",
+      "isUpgradable": true,
+      "maxSupportedGB": 64
+    },
+    "storage": {
+      "capacityGB": 1024,
+      "type": "M.2 PCIe 4.0 SSD (1TB)",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 16,
+      "resolution": "2560x1600 (WQXGA IPS 16:10)",
+      "refreshRateHz": 165,
+      "brightnessNits": 350,
+      "panelType": "IPS 100% sRGB Dolby Vision"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4060 8GB (140W TGP)",
+      "vramGB": 8
+    },
+    "battery": {
+      "capacityWattHours": 80,
+      "claimedHours": 8,
+      "realWorldHoursEstimate": 6.5
+    },
+    "weightKg": 2.3,
+    "os": "Windows 11 Home",
+    "keyboard": "Legion TrueStrike 4-Zone RGB Keyboard",
+    "ports": [
+      "2x USB-C 3.2 Gen 2 (1x 140W PD)",
+      "2x USB-A 3.2 Gen 2",
+      "1x HDMI 2.1",
+      "1x RJ-45",
+      "4-in-1 SD Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "RTX 4060 with 8GB VRAM is ideal for local LLM inference (e.g. LLaMA-3 8B 4-bit) and PyTorch",
+      "Gorgeous 16:10 2.5K 165Hz color-accurate display with 350 nits",
+      "Dual DDR5 slots upgradable up to 64GB RAM and 80Wh battery with fast charging"
+    ],
+    "tradeOffs": [
+      "Premium price bracket above ₹1 Lakh",
+      "Weighs 2.3kg; power adapter adds another 0.6kg"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Lenovo Legion Slim 5 (RTX 4060) - Lenovo Legion Slim 5 16APH8"
+  },
+  {
+    "id": "lap-apple-mba-m3",
+    "name": "Apple MacBook Air 13\" (M3, 16GB)",
+    "brand": "Apple",
+    "model": "MacBook Air M3 (2024)",
+    "priceINR": 134900,
+    "priceUSD": 1620,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "creative"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Apple",
+      "model": "Apple M3 (8-Core CPU)",
+      "cores": 8,
+      "threads": 8,
+      "baseClockGHz": 2.75,
+      "maxClockGHz": 4.05,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "Unified Memory",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "Dual-NAND Apple Fast SSD",
+      "isUpgradable": false,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 13.6,
+      "resolution": "2560x1664 (Liquid Retina)",
+      "refreshRateHz": 60,
+      "brightnessNits": 500,
+      "panelType": "IPS Wide Color P3"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Apple",
+      "model": "Apple 10-core GPU with Hardware Ray Tracing",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 52.6,
+      "claimedHours": 18,
+      "realWorldHoursEstimate": 14
+    },
+    "weightKg": 1.24,
+    "os": "macOS Sequoia",
+    "keyboard": "Magic Keyboard with Touch ID",
+    "ports": [
+      "2x Thunderbolt / USB 4",
+      "1x MagSafe 3",
+      "1x Headphone Jack"
+    ],
+    "strengths": [
+      "Support for dual external displays in clamshell mode (overcoming M2 limitation)",
+      "3nm Apple M3 chip with accelerated hardware ray tracing and enhanced Neural Engine",
+      "Superb 14-hour battery life and anodization seal against fingerprints"
+    ],
+    "tradeOffs": [
+      "Zero component modularity or upgradability",
+      "High cost per gigabyte of memory and storage"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Apple MacBook Air 13\" (M3, 16GB) - Apple MacBook Air M3 (2024)"
+  },
+  {
+    "id": "lap-msi-modern-14",
+    "name": "MSI Modern 14 (Core i5)",
+    "brand": "MSI",
+    "model": "C12M-047IN",
+    "priceINR": 42990,
+    "priceUSD": 515,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-1235U",
+      "cores": 10,
+      "threads": 12,
+      "baseClockGHz": 1.3,
+      "maxClockGHz": 4.4,
+      "tier": "entry"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-3200",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "NVMe PCIe Gen3 SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 14,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 60,
+      "brightnessNits": 250,
+      "panelType": "IPS-level Thin Bezel"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel Iris Xe Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 39.3,
+      "claimedHours": 6,
+      "realWorldHoursEstimate": 4.5
+    },
+    "weightKg": 1.4,
+    "os": "Windows 11 Home",
+    "keyboard": "White Backlit Keyboard with 180-degree lay-flat hinge",
+    "ports": [
+      "1x USB-C 3.2 Gen 2 (PD Charging)",
+      "1x USB-A 3.2 Gen 2",
+      "2x USB-A 2.0",
+      "1x HDMI",
+      "MicroSD Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Ultra-portable 1.4kg design with 180-degree lay-flat hinge at ₹42,990",
+      "Full 16GB RAM included out of the box for comfortable web and Python coding",
+      "USB-C port supports Power Delivery fast charging"
+    ],
+    "tradeOffs": [
+      "On-board soldered RAM cannot be expanded",
+      "Modest 39.3Wh battery requires carrying a charger for long campus days"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "MSI Modern 14 (Core i5) - MSI C12M-047IN"
+  },
+  {
+    "id": "lap-msi-cyborg-15",
+    "name": "MSI Cyborg 15 (RTX 4050)",
+    "brand": "MSI",
+    "model": "A12VE-070IN",
+    "priceINR": 65990,
+    "priceUSD": 790,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-12450H",
+      "cores": 8,
+      "threads": 12,
+      "baseClockGHz": 2,
+      "maxClockGHz": 4.4,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-4800",
+      "isUpgradable": true,
+      "maxSupportedGB": 64
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe Gen4 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS-Level)",
+      "refreshRateHz": 144,
+      "brightnessNits": 250,
+      "panelType": "IPS"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4050 6GB (45W TGP)",
+      "vramGB": 6
+    },
+    "battery": {
+      "capacityWattHours": 53.5,
+      "claimedHours": 5,
+      "realWorldHoursEstimate": 3.5
+    },
+    "weightKg": 1.98,
+    "os": "Windows 11 Home",
+    "keyboard": "Blue Backlit Translucent Gaming Keyboard",
+    "ports": [
+      "1x USB-C 3.2 Gen 1 (DP)",
+      "2x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "1x RJ-45",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "RTX 4050 6GB VRAM at a competitive ₹65,990 price tag",
+      "Under 2kg (1.98kg) which is lighter than typical gaming laptops",
+      "Dual DDR5 slots supporting expansion up to 64GB RAM"
+    ],
+    "tradeOffs": [
+      "RTX 4050 is limited to 45W TGP; lower sustained compute than 100W+ models",
+      "Single M.2 storage slot means replacing the existing drive to upgrade storage"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "MSI Cyborg 15 (RTX 4050) - MSI A12VE-070IN"
+  },
+  {
+    "id": "lap-dell-g15-5530",
+    "name": "Dell G15 5530 (Core i7, RTX 4050)",
+    "brand": "Dell",
+    "model": "G15 5530 Dark Shadow Gray",
+    "priceINR": 86990,
+    "priceUSD": 1045,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i7-13650HX",
+      "cores": 14,
+      "threads": 20,
+      "baseClockGHz": 2.6,
+      "maxClockGHz": 4.9,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-4800",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 1024,
+      "type": "PCIe NVMe M.2 SSD (1TB)",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 120,
+      "brightnessNits": 250,
+      "panelType": "IPS Anti-glare"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4050 6GB (140W TGP)",
+      "vramGB": 6
+    },
+    "battery": {
+      "capacityWattHours": 86,
+      "claimedHours": 6.5,
+      "realWorldHoursEstimate": 4.5
+    },
+    "weightKg": 2.81,
+    "os": "Windows 11 Home",
+    "keyboard": "US English 1-Zone RGB Backlit with Numeric Keypad",
+    "ports": [
+      "1x USB-C 3.2 Gen 2 (DisplayPort)",
+      "3x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "1x RJ-45",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "14-core Intel Core i7 HX enthusiast processor provides superior multi-threaded compiling speeds",
+      "Large 86Wh battery and full 140W TGP on the RTX 4050 GPU",
+      "Generous 1TB high-speed SSD with open secondary M.2 slot"
+    ],
+    "tradeOffs": [
+      "Very heavy at 2.81kg (over 3.5kg with charging brick) — cumbersome for daily commuting",
+      "Display is 250 nits with 45% NTSC color gamut"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Dell G15 5530 (Core i7, RTX 4050) - Dell G15 5530 Dark Shadow Gray"
+  },
+  {
+    "id": "lap-samsung-galaxy-book4",
+    "name": "Samsung Galaxy Book4",
+    "brand": "Samsung",
+    "model": "Galaxy Book4 Gray",
+    "priceINR": 64990,
+    "priceUSD": 780,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core 5 120U",
+      "cores": 10,
+      "threads": 12,
+      "baseClockGHz": 1.4,
+      "maxClockGHz": 5,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 60,
+      "brightnessNits": 300,
+      "panelType": "IPS Anti-glare"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 54,
+      "claimedHours": 10,
+      "realWorldHoursEstimate": 7
+    },
+    "weightKg": 1.55,
+    "os": "Windows 11 Home",
+    "keyboard": "Pro Keyboard with Numeric Keypad and Dolby Atmos sound",
+    "ports": [
+      "2x USB-C",
+      "2x USB-A 3.2",
+      "1x HDMI 1.4",
+      "MicroSD Slot",
+      "RJ-45 LAN",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Slim metal chassis with dual SSD slots and RJ-45 LAN rarely found on thin laptops",
+      "Seamless Samsung Galaxy phone/tablet ecosystem integration (Second Screen, Quick Share)",
+      "Solid battery life and lightweight 1.55kg 15.6-inch form factor"
+    ],
+    "tradeOffs": [
+      "RAM is soldered LPDDR5 and not upgradable",
+      "Standard 60Hz display"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Samsung Galaxy Book4 - Samsung Galaxy Book4 Gray"
+  },
+  {
+    "id": "lap-hp-15s-budget",
+    "name": "HP 15s (Ryzen 3 Budget)",
+    "brand": "HP",
+    "model": "15s-eq2143AU",
+    "priceINR": 32990,
+    "priceUSD": 395,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 3 5300U",
+      "cores": 4,
+      "threads": 8,
+      "baseClockGHz": 2.6,
+      "maxClockGHz": 3.8,
+      "tier": "entry"
+    },
+    "ram": {
+      "capacityGB": 8,
+      "type": "DDR4-3200",
+      "isUpgradable": true,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe NVMe M.2 SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD)",
+      "refreshRateHz": 60,
+      "brightnessNits": 250,
+      "panelType": "Micro-edge Anti-glare"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "AMD",
+      "model": "AMD Radeon Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 41,
+      "claimedHours": 7,
+      "realWorldHoursEstimate": 5
+    },
+    "weightKg": 1.69,
+    "os": "Windows 11 Home",
+    "keyboard": "Full-size Natural Silver with Numeric Keypad",
+    "ports": [
+      "1x USB-C 5Gbps",
+      "2x USB-A 5Gbps",
+      "1x HDMI 1.4b",
+      "1x Multi-format SD Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Extremely affordable entry point (₹32,990) for note-taking, lecture viewing, and light scripts",
+      "Decent 512GB SSD storage at this price tier",
+      "SO-DIMM RAM slot allows upgrading to 16GB"
+    ],
+    "tradeOffs": [
+      "Only 8GB RAM out of the box will struggle with heavy browser tab counts or Android Studio",
+      "4-core CPU is not built for heavy local compilation or virtualization"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "HP 15s (Ryzen 3 Budget) - HP 15s-eq2143AU"
+  },
+  {
+    "id": "lap-acer-predator-neo-16",
+    "name": "Acer Predator Helios Neo 16",
+    "brand": "Acer",
+    "model": "PHN16-71",
+    "priceINR": 114990,
+    "priceUSD": 1380,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i7-13700HX",
+      "cores": 16,
+      "threads": 24,
+      "baseClockGHz": 2.1,
+      "maxClockGHz": 5,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-4800",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 1024,
+      "type": "PCIe Gen4 NVMe RAID 0 SSD (1TB)",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 16,
+      "resolution": "2560x1600 (WQXGA IPS 16:10)",
+      "refreshRateHz": 165,
+      "brightnessNits": 500,
+      "panelType": "IPS 100% sRGB 3ms"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4060 8GB (140W TGP)",
+      "vramGB": 8
+    },
+    "battery": {
+      "capacityWattHours": 90,
+      "claimedHours": 6,
+      "realWorldHoursEstimate": 4
+    },
+    "weightKg": 2.6,
+    "os": "Windows 11 Home",
+    "keyboard": "4-Zone RGB Backlit Keyboard with PredatorSense key",
+    "ports": [
+      "2x Thunderbolt 4 / USB-C",
+      "3x USB-A 3.2 Gen 2",
+      "1x HDMI 2.1",
+      "1x MicroSD Reader",
+      "1x Killer Ethernet E2600",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "16-core i7-13700HX paired with 140W RTX 4060 provides exceptional AI model training throughput",
+      "Ultra-bright 500 nits 2.5K 165Hz screen with liquid metal thermal compound",
+      "Dual Thunderbolt 4 ports and 90Wh battery"
+    ],
+    "tradeOffs": [
+      "Heavy at 2.6kg with a massive 330W power adapter",
+      "Aggressive gaming styling may not appeal to corporate or minimalist tastes"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Acer Predator Helios Neo 16 - Acer PHN16-71"
+  },
+  {
+    "id": "lap-dell-xps-13",
+    "name": "Dell XPS 13 (Intel Core Ultra 7)",
+    "brand": "Dell",
+    "model": "XPS 13 9340",
+    "priceINR": 139990,
+    "priceUSD": 1680,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "creative",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core Ultra 7 155H",
+      "cores": 16,
+      "threads": 22,
+      "baseClockGHz": 1.4,
+      "maxClockGHz": 4.8,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5X-7467",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe 4.0 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 13.4,
+      "resolution": "1920x1200 (FHD+ InfinityEdge)",
+      "refreshRateHz": 120,
+      "brightnessNits": 500,
+      "panelType": "IPS 100% sRGB with EyeSafe"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel Arc Graphics + NPU",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 55,
+      "claimedHours": 18,
+      "realWorldHoursEstimate": 11
+    },
+    "weightKg": 1.19,
+    "os": "Windows 11 Home",
+    "keyboard": "Capacitive touch function row with seamless glass haptic touchpad",
+    "ports": [
+      "2x Thunderbolt 4 (DisplayPort and Power Delivery)"
+    ],
+    "strengths": [
+      "Ultra-compact CNC machined aluminum chassis weighing only 1.19kg",
+      "Bright 500 nits 120Hz InfinityEdge screen with outstanding battery life (11 hours)",
+      "Dual Thunderbolt 4 with Intel AI Boost NPU"
+    ],
+    "tradeOffs": [
+      "Only 2 Thunderbolt ports with no 3.5mm headphone jack or USB-A without dongles",
+      "Capacitive touch function keys take getting used to for developers accustomed to physical Fn keys"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1593642532400-2682810df593?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Dell XPS 13 (Intel Core Ultra 7) - Dell XPS 13 9340"
+  },
+  {
+    "id": "lap-asus-zephyrus-g14",
+    "name": "ASUS ROG Zephyrus G14 OLED",
+    "brand": "ASUS",
+    "model": "GA403UV (2024)",
+    "priceINR": 149990,
+    "priceUSD": 1800,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "creative",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 9 8945HS",
+      "cores": 8,
+      "threads": 16,
+      "baseClockGHz": 4,
+      "maxClockGHz": 5.2,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5X-6400",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 1024,
+      "type": "PCIe 4.0 NVMe M.2 SSD (1TB)",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 14,
+      "resolution": "2880x1800 (3K OLED 16:10)",
+      "refreshRateHz": 120,
+      "brightnessNits": 500,
+      "panelType": "ROG Nebula OLED 0.2ms G-Sync"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4060 8GB (90W TGP)",
+      "vramGB": 8
+    },
+    "battery": {
+      "capacityWattHours": 73,
+      "claimedHours": 10,
+      "realWorldHoursEstimate": 8
+    },
+    "weightKg": 1.5,
+    "os": "Windows 11 Home",
+    "keyboard": "Backlit Chiclet with Slash Lighting LED rear array",
+    "ports": [
+      "1x USB-C 4 (DisplayPort/PD)",
+      "1x USB-C 3.2 Gen 2",
+      "2x USB-A 3.2 Gen 2",
+      "1x HDMI 2.1 FRL",
+      "MicroSD Card Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "The gold standard for portable engineering laptops: 1.5kg chassis with RTX 4060 and Ryzen 9",
+      "Breathtaking 3K 120Hz OLED display with 500 nits and 100% DCI-P3",
+      "AMD Ryzen AI NPU up to 39 TOPS combined processing power"
+    ],
+    "tradeOffs": [
+      "Soldered LPDDR5X memory cannot be upgraded beyond 16GB",
+      "Premium price bracket"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1618424181497-157f25b6ddd5?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "ASUS ROG Zephyrus G14 OLED - ASUS GA403UV (2024)"
+  },
+  {
+    "id": "lap-hp-envy-x360",
+    "name": "HP Envy x360 14 2-in-1",
+    "brand": "HP",
+    "model": "14-fc0079TU",
+    "priceINR": 82990,
+    "priceUSD": 995,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "creative"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core Ultra 5 125U",
+      "cores": 12,
+      "threads": 14,
+      "baseClockGHz": 1.3,
+      "maxClockGHz": 4.3,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5-6400",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe Gen4 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 14,
+      "resolution": "1920x1200 (WUXGA Touchscreen)",
+      "refreshRateHz": 60,
+      "brightnessNits": 300,
+      "panelType": "IPS Corning Gorilla Glass NBT"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel Graphics + NPU",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 59,
+      "claimedHours": 12,
+      "realWorldHoursEstimate": 8
+    },
+    "weightKg": 1.39,
+    "os": "Windows 11 Home",
+    "keyboard": "Backlit Keyboard with HP Rechargeable MPP2.0 Tilt Pen support",
+    "ports": [
+      "1x Thunderbolt 4",
+      "1x USB-C 10Gbps (PD/DP)",
+      "2x USB-A 10Gbps",
+      "1x HDMI 2.1",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Versatile 360-degree convertible hinge with active stylus support for handwritten math and diagrams",
+      "All-aluminum chassis with quiet thermal performance and 8-hour real battery life",
+      "Equipped with dedicated Copilot key and Intel AI Boost NPU"
+    ],
+    "tradeOffs": [
+      "Glossy touchscreen reflects overhead fluorescent lab lights",
+      "RAM is non-upgradable"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "HP Envy x360 14 2-in-1 - HP 14-fc0079TU"
+  },
+  {
+    "id": "lap-asus-vivobook-s15-snapdragon",
+    "name": "ASUS Vivobook S 15 (Snapdragon X Elite)",
+    "brand": "ASUS",
+    "model": "S5507QA Copilot+ PC",
+    "priceINR": 119990,
+    "priceUSD": 1440,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Qualcomm",
+      "model": "Snapdragon X Elite X1E-78-100",
+      "cores": 12,
+      "threads": 12,
+      "baseClockGHz": 3.4,
+      "maxClockGHz": 3.4,
+      "tier": "flagship"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5X-8448",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 1024,
+      "type": "PCIe 4.0 NVMe SSD (1TB)",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "2880x1620 (3K 120Hz OLED)",
+      "refreshRateHz": 120,
+      "brightnessNits": 600,
+      "panelType": "OLED 100% DCI-P3 0.2ms"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Qualcomm",
+      "model": "Adreno GPU + 45 TOPS Qualcomm Hexagon NPU",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 70,
+      "claimedHours": 18,
+      "realWorldHoursEstimate": 14.5
+    },
+    "weightKg": 1.42,
+    "os": "Windows 11 on ARM",
+    "keyboard": "Single-zone RGB Backlit with dedicated Copilot Key",
+    "ports": [
+      "2x USB-4 Type-C (40Gbps)",
+      "2x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1 TMDS",
+      "MicroSD Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Industry-leading 45 TOPS NPU for running local SLMs and AI workloads power-efficiently",
+      "Extraordinary battery life exceeding 14+ hours of real developer workflows",
+      "Remarkable 3K 120Hz OLED screen with peak 600 nits HDR brightness"
+    ],
+    "tradeOffs": [
+      "ARM64 Windows compatibility: certain legacy x86 virtualization or niche kernel drivers require emulation",
+      "No discrete NVIDIA GPU for CUDA-based PyTorch training"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1537498425277-c283d32ef9db?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "ASUS Vivobook S 15 (Snapdragon X Elite) - ASUS S5507QA Copilot+ PC"
+  },
+  {
+    "id": "lap-framework-13",
+    "name": "Framework Laptop 13 (Intel Core Ultra)",
+    "brand": "Framework",
+    "model": "Laptop 13 DIY / Pre-built Edition",
+    "priceINR": 108000,
+    "priceUSD": 1299,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core Ultra 5 125H",
+      "cores": 14,
+      "threads": 18,
+      "baseClockGHz": 1.2,
+      "maxClockGHz": 4.5,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-5600 SO-DIMM",
+      "isUpgradable": true,
+      "maxSupportedGB": 96
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe Gen4 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 13.5,
+      "resolution": "2880x1920 (2.8K 3:2)",
+      "refreshRateHz": 120,
+      "brightnessNits": 500,
+      "panelType": "Matte Anti-glare 100% sRGB"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel Arc Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 61,
+      "claimedHours": 10,
+      "realWorldHoursEstimate": 7.5
+    },
+    "weightKg": 1.3,
+    "os": "Fedora / Ubuntu / Windows 11",
+    "keyboard": "Modular Backlit Keyboard with captive screws",
+    "ports": [
+      "4x Modular Expansion Cards (USB-C, USB-A, HDMI, MicroSD)",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Unmatched right-to-repair: every single part is user-replaceable with QR code guides",
+      "Modular swappable IO ports and up to 96GB DDR5 RAM upgrade capacity",
+      "Superb 3:2 aspect ratio display designed specifically for reading code"
+    ],
+    "tradeOffs": [
+      "Import logistics and availability may be constrained compared to major OEMs",
+      "Integrated GPU not suited for heavy local neural network training"
+    ],
+    "imageUrl": null,
+    "hasVerifiedImage": false,
+    "imageAlt": "Framework Laptop 13 (Intel Core Ultra) - Framework Laptop 13 DIY / Pre-built Edition"
+  },
+  {
+    "id": "lap-dell-inspiron-14-5430",
+    "name": "Dell Inspiron 14 5430 (Core i7)",
+    "brand": "Dell",
+    "model": "Inspiron 14 5430 Platinum Silver",
+    "priceINR": 76990,
+    "priceUSD": 925,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i7-1360P",
+      "cores": 12,
+      "threads": 16,
+      "baseClockGHz": 2.2,
+      "maxClockGHz": 5,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5-4800",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 1024,
+      "type": "PCIe NVMe M.2 SSD (1TB)",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 14,
+      "resolution": "2560x1600 (2.5K 16:10)",
+      "refreshRateHz": 60,
+      "brightnessNits": 300,
+      "panelType": "WVA Anti-glare ComfortView Plus"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Iris Xe Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 54,
+      "claimedHours": 8,
+      "realWorldHoursEstimate": 6
+    },
+    "weightKg": 1.53,
+    "os": "Windows 11 Home",
+    "keyboard": "Backlit Keyboard with Fingerprint Reader",
+    "ports": [
+      "1x Thunderbolt 4 (DisplayPort/PD)",
+      "2x USB-A 3.2 Gen 1",
+      "1x HDMI 1.4",
+      "SD Card Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Sharp 16:10 2.5K high-resolution display with ComfortView blue light filter",
+      "High-performance 12-core Core i7-1360P and 1TB SSD included standard",
+      "Upward-firing stereo speakers with Waves MaxxAudio Pro"
+    ],
+    "tradeOffs": [
+      "Soldered LPDDR5 memory cannot be expanded",
+      "No discrete GPU for local deep learning models"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Dell Inspiron 14 5430 (Core i7) - Dell Inspiron 14 5430 Platinum Silver"
+  },
+  {
+    "id": "lap-asus-tuf-f15-budget",
+    "name": "ASUS TUF Gaming F15 (Core i5, RTX 2050)",
+    "brand": "ASUS",
+    "model": "FX506HF-HN024W",
+    "priceINR": 49990,
+    "priceUSD": 600,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-11400H",
+      "cores": 6,
+      "threads": 12,
+      "baseClockGHz": 2.7,
+      "maxClockGHz": 4.5,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-3200",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe Gen3 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 144,
+      "brightnessNits": 250,
+      "panelType": "IPS Anti-glare"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 2050 4GB",
+      "vramGB": 4
+    },
+    "battery": {
+      "capacityWattHours": 48,
+      "claimedHours": 5,
+      "realWorldHoursEstimate": 3.5
+    },
+    "weightKg": 2.3,
+    "os": "Windows 11 Home",
+    "keyboard": "RGB Backlit Chiclet Keyboard with Overstroke technology",
+    "ports": [
+      "1x Thunderbolt 4",
+      "3x USB-A 3.2 Gen 1",
+      "1x HDMI 2.0b",
+      "1x RJ-45 LAN",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Dedicated NVIDIA RTX GPU under ₹50,000 providing CUDA acceleration for beginner ML students",
+      "Thunderbolt 4 support rare at this entry budget level",
+      "Dual SO-DIMM RAM slots and dual M.2 SSD slots"
+    ],
+    "tradeOffs": [
+      "Older 11th Gen Intel CPU architecture with lower battery endurance",
+      "Heavier at 2.3kg with basic 45% NTSC color display"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1611078489935-0cb964de46d6?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "ASUS TUF Gaming F15 (Core i5, RTX 2050) - ASUS FX506HF-HN024W"
+  },
+  {
+    "id": "lap-lenovo-ideapad1-budget",
+    "name": "Lenovo IdeaPad 1 15 (Ryzen 3)",
+    "brand": "Lenovo",
+    "model": "IdeaPad 1 15AMN7 Cloud Grey",
+    "priceINR": 34990,
+    "priceUSD": 420,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 3 7320U",
+      "cores": 4,
+      "threads": 8,
+      "baseClockGHz": 2.4,
+      "maxClockGHz": 4.1,
+      "tier": "entry"
+    },
+    "ram": {
+      "capacityGB": 8,
+      "type": "LPDDR5-5500",
+      "isUpgradable": false,
+      "maxSupportedGB": 8
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe 4.0 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD)",
+      "refreshRateHz": 60,
+      "brightnessNits": 220,
+      "panelType": "TN Anti-glare"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "AMD",
+      "model": "Radeon 610M",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 42,
+      "claimedHours": 8,
+      "realWorldHoursEstimate": 5.5
+    },
+    "weightKg": 1.58,
+    "os": "Windows 11 Home",
+    "keyboard": "Non-backlit Keyboard with Numeric Keypad",
+    "ports": [
+      "1x USB-C 3.2 Gen 1 (data only)",
+      "1x USB-A 3.2 Gen 1",
+      "1x USB-A 2.0",
+      "1x HDMI 1.4b",
+      "SD Card Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Very affordable ₹34,990 entry laptop for note-taking, reading documentation, and Git basics",
+      "Modern 6nm Mendocino architecture with low power consumption and fast LPDDR5 RAM",
+      "Physical webcam privacy shutter"
+    ],
+    "tradeOffs": [
+      "Fixed 8GB soldered RAM cannot be upgraded",
+      "TN display panel has narrow viewing angles"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Lenovo IdeaPad 1 15 (Ryzen 3) - Lenovo IdeaPad 1 15AMN7 Cloud Grey"
+  },
+  {
+    "id": "lap-lenovo-ideapad-slim3-12450h",
+    "name": "Lenovo IdeaPad Slim 3 15 (Core i5-12450H)",
+    "brand": "Lenovo",
+    "model": "Slim 3 15IAH8 Arctic Grey",
+    "priceINR": 51990,
+    "priceUSD": 625,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i5-12450H",
+      "cores": 8,
+      "threads": 12,
+      "baseClockGHz": 2,
+      "maxClockGHz": 4.4,
+      "tier": "mid"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "LPDDR5-4800",
+      "isUpgradable": false,
+      "maxSupportedGB": 16
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe 4.0 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 60,
+      "brightnessNits": 300,
+      "panelType": "IPS Anti-glare"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Intel",
+      "model": "Intel UHD Graphics",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 47,
+      "claimedHours": 7,
+      "realWorldHoursEstimate": 5
+    },
+    "weightKg": 1.62,
+    "os": "Windows 11 Home",
+    "keyboard": "Backlit Keyboard with Numeric Keypad and Fingerprint Reader",
+    "ports": [
+      "1x USB-C 3.2 Gen 1 (PD and DisplayPort)",
+      "2x USB-A 3.2 Gen 1",
+      "1x HDMI 1.4",
+      "SD Card Reader",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "High-power 45W H-series Core i5-12450H processor provides quick compiler performance",
+      "Bright 300 nits IPS panel with blue light reduction",
+      "Full-function USB-C port with Power Delivery and DisplayPort"
+    ],
+    "tradeOffs": [
+      "Soldered LPDDR5 RAM cannot be upgraded past 16GB",
+      "No discrete GPU for CUDA-accelerated tasks"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Lenovo IdeaPad Slim 3 15 (Core i5-12450H) - Lenovo Slim 3 15IAH8 Arctic Grey"
+  },
+  {
+    "id": "lap-msi-thin-15",
+    "name": "MSI Thin 15 (Core i7, RTX 3050)",
+    "brand": "MSI",
+    "model": "Thin 15 B12UCX-1448IN",
+    "priceINR": 59990,
+    "priceUSD": 720,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Intel",
+      "model": "Core i7-12650H",
+      "cores": 10,
+      "threads": 16,
+      "baseClockGHz": 2.3,
+      "maxClockGHz": 4.7,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR4-3200",
+      "isUpgradable": true,
+      "maxSupportedGB": 64
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "NVMe PCIe Gen4 SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS-Level)",
+      "refreshRateHz": 144,
+      "brightnessNits": 250,
+      "panelType": "IPS-Level"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 3050 4GB (45W TGP)",
+      "vramGB": 4
+    },
+    "battery": {
+      "capacityWattHours": 52.4,
+      "claimedHours": 5.5,
+      "realWorldHoursEstimate": 3.8
+    },
+    "weightKg": 1.86,
+    "os": "Windows 11 Home",
+    "keyboard": "Single Backlit Red Keyboard",
+    "ports": [
+      "1x USB-C 3.2 Gen 1 (DP)",
+      "3x USB-A 3.2 Gen 1",
+      "1x HDMI",
+      "1x RJ-45 LAN",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "10-core Core i7-12650H with RTX 3050 under ₹60,000",
+      "Under 1.9kg (1.86kg) thin profile for a gaming laptop",
+      "Two DDR4 RAM slots upgradable to 64GB"
+    ],
+    "tradeOffs": [
+      "Red-only backlight may not suit professional settings",
+      "45W TGP limits GPU peak rendering performance"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "MSI Thin 15 (Core i7, RTX 3050) - MSI Thin 15 B12UCX-1448IN"
+  },
+  {
+    "id": "lap-apple-mba-m2-base",
+    "name": "Apple MacBook Air 13\" (M2, 8GB)",
+    "brand": "Apple",
+    "model": "MacBook Air 13 Midnight M2",
+    "priceINR": 89900,
+    "priceUSD": 1080,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "college",
+      "everyday"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "Apple",
+      "model": "Apple M2 (8-Core CPU)",
+      "cores": 8,
+      "threads": 8,
+      "baseClockGHz": 2.4,
+      "maxClockGHz": 3.49,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 8,
+      "type": "Unified Memory",
+      "isUpgradable": false,
+      "maxSupportedGB": 8
+    },
+    "storage": {
+      "capacityGB": 256,
+      "type": "Apple NVMe SSD",
+      "isUpgradable": false,
+      "extraSlot": false
+    },
+    "display": {
+      "sizeInches": 13.6,
+      "resolution": "2560x1664 (Liquid Retina)",
+      "refreshRateHz": 60,
+      "brightnessNits": 500,
+      "panelType": "IPS Wide Color P3"
+    },
+    "gpu": {
+      "type": "integrated",
+      "brand": "Apple",
+      "model": "Apple 8-core GPU + Neural Engine",
+      "vramGB": 0
+    },
+    "battery": {
+      "capacityWattHours": 52.6,
+      "claimedHours": 18,
+      "realWorldHoursEstimate": 13
+    },
+    "weightKg": 1.24,
+    "os": "macOS Sequoia",
+    "keyboard": "Magic Keyboard with Touch ID",
+    "ports": [
+      "2x Thunderbolt / USB 4",
+      "1x MagSafe 3",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Accessible entry into Apple Silicon ecosystem with 13+ hour battery life",
+      "Silent fanless thermal design and slim 11.3mm profile",
+      "High-res 500 nits Liquid Retina display"
+    ],
+    "tradeOffs": [
+      "8GB memory can swap under multiple heavy Docker containers or emulator instances",
+      "256GB base storage fills up rapidly with large SDKs and datasets"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Apple MacBook Air 13\" (M2, 8GB) - Apple MacBook Air 13 Midnight M2"
+  },
+  {
+    "id": "lap-lenovo-loq-amd-4060",
+    "name": "Lenovo LOQ 15 (Ryzen 7, RTX 4060)",
+    "brand": "Lenovo",
+    "model": "LOQ 15ARP9 Luna Grey",
+    "priceINR": 84990,
+    "priceUSD": 1020,
+    "currency": "INR",
+    "category": "laptop",
+    "targetAudience": [
+      "coding",
+      "ai-ml",
+      "gaming"
+    ],
+    "isSampleData": true,
+    "sampleDataNotice": "Verified sample record compiled for PayPilot hackathon demonstration.",
+    "processor": {
+      "brand": "AMD",
+      "model": "Ryzen 7 7435HS",
+      "cores": 8,
+      "threads": 16,
+      "baseClockGHz": 3.1,
+      "maxClockGHz": 4.5,
+      "tier": "high"
+    },
+    "ram": {
+      "capacityGB": 16,
+      "type": "DDR5-4800",
+      "isUpgradable": true,
+      "maxSupportedGB": 32
+    },
+    "storage": {
+      "capacityGB": 512,
+      "type": "PCIe 4.0 NVMe SSD",
+      "isUpgradable": true,
+      "extraSlot": true
+    },
+    "display": {
+      "sizeInches": 15.6,
+      "resolution": "1920x1080 (FHD IPS)",
+      "refreshRateHz": 144,
+      "brightnessNits": 300,
+      "panelType": "IPS 100% sRGB G-Sync"
+    },
+    "gpu": {
+      "type": "dedicated",
+      "brand": "NVIDIA",
+      "model": "GeForce RTX 4060 8GB (105W TGP)",
+      "vramGB": 8
+    },
+    "battery": {
+      "capacityWattHours": 60,
+      "claimedHours": 5.5,
+      "realWorldHoursEstimate": 3.5
+    },
+    "weightKg": 2.38,
+    "os": "Windows 11 Home",
+    "keyboard": "Full-size White Backlit Keyboard with 1.5mm travel",
+    "ports": [
+      "1x USB-C 3.2 Gen 2 (140W PD/DP)",
+      "3x USB-A 3.2 Gen 1",
+      "1x HDMI 2.1",
+      "1x RJ-45 LAN",
+      "Audio Jack"
+    ],
+    "strengths": [
+      "Full 8GB RTX 4060 under ₹85,000 makes it the top value machine for running quantized 8B local LLMs",
+      "100% sRGB color-accurate 144Hz panel with G-Sync",
+      "High build quality with dual DDR5 and dual NVMe slots"
+    ],
+    "tradeOffs": [
+      "Ryzen 7 7435HS has no integrated GPU; dedicated RTX runs continuously, reducing battery life to approx 3-3.5 hours",
+      "Heavier laptop requiring carrying the 170W power brick"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
+    "imageAlt": "Lenovo LOQ 15 (Ryzen 7, RTX 4060) - Lenovo LOQ 15ARP9 Luna Grey"
+  }
+]
