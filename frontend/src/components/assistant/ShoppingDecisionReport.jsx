@@ -11,7 +11,8 @@ import {
   HardDrive,
   Battery,
   Sliders,
-  DollarSign
+  DollarSign,
+  CreditCard
 } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
@@ -24,6 +25,7 @@ export function ShoppingDecisionReport({
   onClose,
   onViewDetails,
   onToggleCompare,
+  onProceedToOrder,
   comparedIds = [],
   onApplyFilters,
   onCompareDirectly
@@ -245,22 +247,34 @@ export function ShoppingDecisionReport({
               )}
 
               {/* Primary Actions */}
-              <div className="flex items-center gap-3 pt-3 border-t border-paypilot-border">
+              <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-paypilot-border">
+                {onProceedToOrder && (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => onProceedToOrder(primaryProduct)}
+                    icon={CreditCard}
+                    className="flex-1 bg-gradient-to-r from-paypilot-brand to-paypilot-navy"
+                  >
+                    Proceed to Order
+                  </Button>
+                )}
                 <Button
                   variant={isPrimaryCompared ? 'primary' : 'secondary'}
                   size="md"
                   onClick={() => onToggleCompare(primaryProduct.id)}
                   icon={Layers}
-                  className="flex-1"
+                  className="px-3"
                 >
-                  {isPrimaryCompared ? 'In Compare Tray' : 'Add to Compare'}
+                  {isPrimaryCompared ? 'In Compare Tray' : 'Compare'}
                 </Button>
                 <Button
                   variant="subtle"
                   size="md"
                   onClick={() => onViewDetails(primaryProduct)}
+                  className="px-3"
                 >
-                  View Full Specs
+                  Specs
                 </Button>
               </div>
             </div>

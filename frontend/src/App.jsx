@@ -10,6 +10,7 @@ import { ProductDetailModal } from './components/products/ProductDetailModal';
 import { ComparisonDrawer } from './components/comparison/ComparisonDrawer';
 import { ComparisonModal } from './components/comparison/ComparisonModal';
 import { ShoppingDecisionReport } from './components/assistant/ShoppingDecisionReport';
+import { OrderReviewModal } from './components/checkout/OrderReviewModal';
 import { api } from './services/api';
 import { Sparkles, Loader2 } from 'lucide-react';
 
@@ -40,10 +41,12 @@ export default function App() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
 
-  // Modals & Comparison State
+  // Modals, Comparison & Checkout State
   const [detailProduct, setDetailProduct] = useState(null);
   const [comparedIds, setComparedIds] = useState([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  const [orderProduct, setOrderProduct] = useState(null);
+  const [latestPaidOrder, setLatestPaidOrder] = useState(null);
 
   // Fetch catalog products
   const loadProducts = useCallback(async () => {
@@ -156,7 +159,11 @@ export default function App() {
 
   // Determine active workflow step
   let currentWorkflowStep = 1;
-  if (decisionReport) {
+  if (latestPaidOrder) {
+    currentWorkflowStep = 5;
+  } else if (orderProduct) {
+    currentWorkflowStep = 4;
+  } else if (decisionReport) {
     currentWorkflowStep = 3;
   } else if (comparedIds.length >= 2) {
     currentWorkflowStep = 3;
@@ -224,6 +231,7 @@ export default function App() {
               onClose={() => setDecisionReport(null)}
               onViewDetails={setDetailProduct}
               onToggleCompare={handleToggleCompare}
+              onProceedToOrder={setOrderProduct}
               comparedIds={comparedIds}
               onApplyFilters={handleApplyAiFilters}
               onCompareDirectly={handleCompareDirectly}
@@ -250,6 +258,7 @@ export default function App() {
                 onResetFilters={handleResetFilters}
                 onViewDetails={setDetailProduct}
                 onToggleCompare={handleToggleCompare}
+                onProceedToOrder={setOrderProduct}
                 comparedIds={comparedIds}
               />
             </div>
@@ -280,6 +289,7 @@ export default function App() {
         isOpen={Boolean(detailProduct)}
         onClose={() => setDetailProduct(null)}
         onToggleCompare={handleToggleCompare}
+        onProceedToOrder={setOrderProduct}
         isCompared={detailProduct ? comparedIds.includes(detailProduct.id) : false}
       />
 
@@ -289,6 +299,16 @@ export default function App() {
         onClose={() => setIsCompareModalOpen(false)}
         productIds={comparedIds}
         onRemoveProduct={handleRemoveCompare}
+      />
+
+      {/* PayPal Sandbox Order Review & Checkout Modal */}
+      <OrderReviewModal
+        product={orderProduct}
+        isOpen={Boolean(orderProduct)}
+        onClose={() => setOrderProduct(null)}
+        onOrderSuccess={(order) => {
+          setLatestPaidOrder(order);
+        }}
       />
     </div>
   );

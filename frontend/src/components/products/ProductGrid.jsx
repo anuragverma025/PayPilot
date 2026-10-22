@@ -12,6 +12,7 @@ export function ProductGrid({
   onResetFilters,
   onViewDetails,
   onToggleCompare,
+  onProceedToOrder,
   comparedIds = []
 }) {
   if (loading) {
@@ -71,6 +72,7 @@ export function ProductGrid({
           product={product}
           onViewDetails={onViewDetails}
           onToggleCompare={onToggleCompare}
+          onProceedToOrder={onProceedToOrder}
           isCompared={comparedIds.includes(product.id)}
           compareDisabled={isCompareFull}
         />

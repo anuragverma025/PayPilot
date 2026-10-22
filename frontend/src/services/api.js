@@ -92,5 +92,51 @@ export const api = {
     fetchJson('/assistant/chat', {
       method: 'POST',
       body: JSON.stringify({ message })
-    })
+    }),
+
+  /**
+   * Fetch PayPal public configuration (client ID, currency, mode)
+   */
+  getPayPalConfig: () => fetchJson('/paypal/config'),
+
+  /**
+   * Create an authoritative order draft for review
+   */
+  createOrderDraft: (payload) =>
+    fetchJson('/orders/draft', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  /**
+   * Create PayPal Sandbox order after buyer approval
+   */
+  createPayPalOrder: (payload) =>
+    fetchJson('/paypal/create-order', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  /**
+   * Capture PayPal Sandbox order and verify server-side
+   */
+  capturePayPalOrder: (payload) =>
+    fetchJson('/paypal/capture-order', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  /**
+   * Cancel PayPal Sandbox checkout
+   */
+  cancelPayPalOrder: (payload) =>
+    fetchJson('/paypal/cancel-order', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  /**
+   * Retrieve order details by ID
+   */
+  getOrder: (id) => fetchJson(`/orders/${id}`)
 };

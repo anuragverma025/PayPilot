@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   Layers,
-  Info
+  Info,
+  CreditCard
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Badge } from '../common/Badge';
@@ -22,6 +23,7 @@ export function ProductDetailModal({
   isOpen,
   onClose,
   onToggleCompare,
+  onProceedToOrder,
   isCompared = false
 }) {
   if (!product) return null;
@@ -211,18 +213,35 @@ export function ProductDetailModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="flex justify-end gap-3 pt-3 border-t border-paypilot-border">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-paypilot-border">
           <Button variant="secondary" size="md" onClick={onClose}>
             Close
           </Button>
-          <Button
-            variant={isCompared ? 'primary' : 'subtle'}
-            size="md"
-            icon={Layers}
-            onClick={() => onToggleCompare(product.id)}
-          >
-            {isCompared ? 'Remove from Compare' : 'Add to Compare'}
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isCompared ? 'primary' : 'subtle'}
+              size="md"
+              icon={Layers}
+              onClick={() => onToggleCompare(product.id)}
+            >
+              {isCompared ? 'Remove from Compare' : 'Add to Compare'}
+            </Button>
+
+            {onProceedToOrder && (
+              <Button
+                variant="primary"
+                size="md"
+                icon={CreditCard}
+                onClick={() => {
+                  onClose();
+                  onProceedToOrder(product);
+                }}
+              >
+                Order with PayPal
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Modal>

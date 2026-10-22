@@ -13,7 +13,9 @@ export const config = {
   },
   paypal: {
     mode: process.env.PAYPAL_MODE || 'sandbox',
+    baseUrl: process.env.PAYPAL_BASE_URL || 'https://api-m.sandbox.paypal.com',
     clientId: process.env.PAYPAL_CLIENT_ID || '',
-    clientSecret: process.env.PAYPAL_CLIENT_SECRET || ''
+    clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
+    currency: process.env.PAYPAL_CURRENCY || 'USD'
   }
 };
