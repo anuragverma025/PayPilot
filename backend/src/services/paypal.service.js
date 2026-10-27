@@ -93,7 +93,12 @@ export class PayPalService {
     const { baseUrl } = config.paypal;
 
     const unitAmount = Number(order.product.unitPrice).toFixed(2);
-    const totalAmount = Number(order.total).toFixed(2);
+    // Recompute item_total from unitAmount × quantity to match PayPal's own server-side validation.
+    // PayPal independently checks: unit_amount × quantity === item_total (to 2 decimal places).
+    // Using order.total directly can diverge by floating-point rounding; recomputing ensures consistency.
+    const itemTotal = (parseFloat(unitAmount) * order.quantity).toFixed(2);
+    // amount.value must also equal item_total (no tax/shipping in sandbox demo).
+    const totalAmount = itemTotal;
 
     const payload = {
       intent: 'CAPTURE',
@@ -108,7 +113,7 @@ export class PayPalService {
             breakdown: {
               item_total: {
                 currency_code: order.currency,
-                value: totalAmount
+                value: itemTotal
               }
             }
           },
@@ -132,6 +137,9 @@ export class PayPalService {
       }
     };
 
+    // Log the amounts we are sending so mismatches are visible in backend output
+    console.log(`[PayPal Service] createOrder payload amounts: unitAmount=${unitAmount}, qty=${order.quantity}, itemTotal=${itemTotal}, totalAmount=${totalAmount}, currency=${order.currency}`);
+
     const res = await fetch(`${baseUrl}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
@@ -142,18 +150,30 @@ export class PayPalService {
       body: JSON.stringify(payload)
     });
 
+    const debugId = res.headers.get('paypal-debug-id');
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
+      // Log PayPal's validation details without exposing tokens or secrets
+      console.error(`[PayPal Service] createOrder failed: HTTP ${res.status} | debug_id=${debugId} | name=${data.name} | message=${data.message}`);
+      if (Array.isArray(data.details) && data.details.length > 0) {
+        console.error('[PayPal Service] createOrder validation details:', JSON.stringify(data.details));
+      }
       const error = new Error(
         data.message || `PayPal order creation failed with status HTTP ${res.status}`
       );
       error.code = data.name || 'PAYPAL_ORDER_CREATION_FAILED';
       error.details = data.details || [];
+      error.debugId = debugId;
       error.status = res.status >= 500 ? 502 : 400;
       throw error;
     }
 
+    const approveLink = data.links?.find((l) => l.rel === 'approve')?.href;
+    console.log(`[PayPal Service] createOrder success: PayPal Order ID=${data.id}, status=${data.status}, debug_id=${debugId}`);
+    if (approveLink) {
+      console.log(`[PayPal Service] approve link host: ${new URL(approveLink).origin}${new URL(approveLink).pathname}`);
+    }
     return data;
   }
 

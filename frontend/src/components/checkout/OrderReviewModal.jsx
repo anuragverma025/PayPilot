@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -50,6 +50,7 @@ export function OrderReviewModal({
   const [isConfigLoading, setIsConfigLoading] = useState(true);
   const [orderDraft, setOrderDraft] = useState(null);
   const [activeOrderId, setActiveOrderId] = useState(null);
+  const activeOrderIdRef = useRef(null);
   const [completedOrder, setCompletedOrder] = useState(null);
 
   // Memoized PayPal SDK options (must be called unconditionally at top level)
@@ -91,6 +92,7 @@ export function OrderReviewModal({
       setErrorMessage(null);
       setApprovalConfirmed(false);
       setTouched({ name: false, email: false });
+      activeOrderIdRef.current = null;
     }
   }, [isOpen]);
 
@@ -155,27 +157,46 @@ export function OrderReviewModal({
       throw new Error(msg);
     }
 
+    const orderPayload = {
+      orderId: orderDraft?._id,
+      productId: product.id,
+      quantity,
+      buyer: {
+        name: buyerName.trim(),
+        email: buyerEmail.trim()
+      },
+      approvalConfirmed: true,
+      currency
+    };
+
+    console.log('[PayPal Frontend] createOrder initiated:', {
+      orderDraftId: orderDraft?._id,
+      productId: product.id,
+      quantity,
+      currency
+    });
+
     try {
-      const res = await api.createPayPalOrder({
-        orderId: orderDraft?._id,
-        productId: product.id,
-        quantity,
-        buyer: {
-          name: buyerName.trim(),
-          email: buyerEmail.trim()
-        },
-        approvalConfirmed: true,
-        currency
-      });
+      const res = await api.createPayPalOrder(orderPayload);
 
       if (!res.success || !res.data?.paypalOrderId) {
         throw new Error(res.error?.message || 'Failed to initialize PayPal Sandbox order.');
       }
 
+      activeOrderIdRef.current = res.data.orderId;
       setActiveOrderId(res.data.orderId);
+
+      console.log('[PayPal Frontend] createOrder success:', {
+        paypalOrderId: res.data.paypalOrderId,
+        internalOrderId: res.data.orderId,
+        orderNumber: res.data.orderNumber,
+        amount: res.data.amount,
+        currency: res.data.currency
+      });
+
       return res.data.paypalOrderId;
     } catch (err) {
-      console.error('PayPal Order Creation Failed:', err);
+      console.error('[PayPal Frontend] createOrder failed:', err.message || err);
       setErrorMessage(err.message || 'PayPal Sandbox order creation failed. Please try again.');
       throw err;
     } finally {
@@ -185,17 +206,37 @@ export function OrderReviewModal({
 
   // Handler for capturing PayPal order in backend
   const handleApprovePayPalOrder = async (data) => {
+    console.log('[PayPal Frontend] onApprove received from PayPal popup:', {
+      orderID: data?.orderID,
+      payerID: data?.payerID
+    });
+
     setStage('PROCESSING');
     setLoading(true);
     setErrorMessage(null);
+
+    const orderIdToCapture = activeOrderIdRef.current || activeOrderId || orderDraft?._id || data?.orderID;
+
+    console.log('[PayPal Frontend] captureOrder sending request to backend:', {
+      internalOrderId: orderIdToCapture,
+      paypalOrderId: data?.orderID
+    });
+
     try {
-      const orderIdToCapture = activeOrderId || orderDraft?._id || data.orderID;
       const res = await api.capturePayPalOrder({
         orderId: orderIdToCapture,
         paypalOrderId: data.orderID
       });
 
       if (res.success && res.data?.order) {
+        console.log('[PayPal Frontend] captureOrder successfully verified by server:', {
+          orderNumber: res.data.order.orderNumber,
+          captureId: res.data.order.paypalCaptureId,
+          total: res.data.order.total,
+          currency: res.data.order.currency,
+          status: res.data.order.status
+        });
+
         setCompletedOrder(res.data.order);
         setStage('COMPLETED');
         if (onOrderSuccess) {
@@ -205,7 +246,7 @@ export function OrderReviewModal({
         throw new Error(res.error?.message || 'Server verification failed.');
       }
     } catch (err) {
-      console.error('Capture verification error:', err);
+      console.error('[PayPal Frontend] captureOrder failed:', err.message || err);
       setErrorMessage(err.message || 'Failed to capture and verify PayPal Sandbox payment.');
       setStage('ERROR');
     } finally {
@@ -215,15 +256,22 @@ export function OrderReviewModal({
 
   // Handler for buyer cancellation
   const handleCancelPayPalOrder = async (data) => {
-    if (orderDraft?._id) {
+    const orderIdToCancel = activeOrderIdRef.current || activeOrderId || orderDraft?._id || data?.orderID;
+    console.log('[PayPal Frontend] onCancel received from PayPal popup:', {
+      internalOrderId: orderIdToCancel,
+      paypalOrderId: data?.orderID
+    });
+
+    if (orderIdToCancel) {
       try {
         await api.cancelPayPalOrder({
-          orderId: orderDraft._id,
+          orderId: orderIdToCancel,
           paypalOrderId: data?.orderID,
           reason: 'Buyer closed PayPal popup window'
         });
+        console.log('[PayPal Frontend] cancelOrder recorded by backend.');
       } catch (err) {
-        console.warn('Error reporting order cancellation:', err);
+        console.warn('[PayPal Frontend] cancelOrder recording warning:', err.message || err);
       }
     }
     setErrorMessage('Checkout was cancelled in the PayPal window. You can review your details and try again.');
@@ -505,6 +553,14 @@ export function OrderReviewModal({
                     )}
                   </div>
                 </div>
+
+                {/* Sandbox Buyer Guidance Tip */}
+                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-paypilot-muted">
+                  <Info className="w-3.5 h-3.5 text-paypilot-brand flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Sandbox Checkout Guide:</strong> When the PayPal popup appears, log in using a <strong>Sandbox Personal (Buyer) account</strong> created in your PayPal Developer Dashboard. Do not use your merchant/seller login, as PayPal blocks self-payment.
+                  </span>
+                </div>
               </div>
 
               {/* MANDATORY USER APPROVAL CHECKBOX */}
@@ -558,7 +614,12 @@ export function OrderReviewModal({
                             onApprove={handleApprovePayPalOrder}
                             onCancel={handleCancelPayPalOrder}
                             onError={(err) => {
-                              console.error('PayPal Buttons Error:', err);
+                              console.error('[PayPal Frontend] onError triggered from PayPal SDK:', {
+                                message: err?.message,
+                                stack: err?.stack,
+                                name: err?.name,
+                                details: err
+                              });
                               setErrorMessage(
                                 `PayPal Sandbox error: ${err?.message || 'Unable to open PayPal payment modal. Check sandbox credentials or pop-up blocker.'}`
                               );

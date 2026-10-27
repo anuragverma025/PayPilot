@@ -13,6 +13,7 @@ import {
  */
 export async function getPayPalConfig(req, res) {
   const isConfigured = PayPalService.isConfigured();
+  console.log(`[PayPal Backend] GET /api/paypal/config -> isConfigured: ${isConfigured}, mode: ${config.paypal.mode}, currency: ${config.paypal.currency}`);
 
   return res.status(200).json({
     success: true,
@@ -38,11 +39,22 @@ export async function createOrder(req, res, next) {
     if (validated.orderId) {
       order = await OrderService.getOrderById(validated.orderId);
       if (!order) {
+        console.warn(`[PayPal Backend] POST /api/paypal/create-order: Draft order '${validated.orderId}' not found.`);
         return res.status(404).json({
           success: false,
           error: {
             code: 'ORDER_NOT_FOUND',
             message: `Order '${validated.orderId}' not found.`
+          }
+        });
+      }
+      if (order.status === 'COMPLETED' && order.isPaid) {
+        console.warn(`[PayPal Backend] POST /api/paypal/create-order: Order ${order.orderNumber} is already completed and paid.`);
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'ORDER_ALREADY_COMPLETED',
+            message: 'Cannot re-create payment for an order that is already completed and verified.'
           }
         });
       }
@@ -59,11 +71,15 @@ export async function createOrder(req, res, next) {
       });
     }
 
+    console.log(`[PayPal Backend] POST /api/paypal/create-order: Initiating PayPal Sandbox order for draft ${order._id} (${order.orderNumber}), amount: ${order.total} ${order.currency}`);
+
     // 2. Call PayPal Sandbox REST API
     let paypalOrder;
     try {
       paypalOrder = await PayPalService.createOrder(order);
+      console.log(`[PayPal Backend] POST /api/paypal/create-order: PayPal Sandbox order created successfully: ${paypalOrder.id} (Status: ${paypalOrder.status})`);
     } catch (err) {
+      console.error(`[PayPal Backend] POST /api/paypal/create-order: PayPal Sandbox API call failed: ${err.message}`);
       // Record failure in order timeline if order was saved
       await OrderService.updateOrder(
         order._id,
@@ -122,12 +138,15 @@ export async function captureOrder(req, res, next) {
     const validated = capturePayPalOrderSchema.parse(req.body);
     const { orderId, paypalOrderId } = validated;
 
+    console.log(`[PayPal Backend] POST /api/paypal/capture-order: Capturing PayPal order ${paypalOrderId} for internal order ${orderId}`);
+
     // 1. Look up authoritative database order
     let order = await OrderService.getOrderById(orderId);
     if (!order && paypalOrderId) {
       order = await OrderService.getOrderById(paypalOrderId);
     }
     if (!order) {
+      console.warn(`[PayPal Backend] POST /api/paypal/capture-order: Order with ID '${orderId}' not found.`);
       return res.status(404).json({
         success: false,
         error: {
@@ -139,6 +158,7 @@ export async function captureOrder(req, res, next) {
 
     // 2. Idempotency check: if order is already captured and completed, return it safely
     if (order.status === 'COMPLETED' && order.isPaid) {
+      console.log(`[PayPal Backend] POST /api/paypal/capture-order: Order ${order.orderNumber} is already COMPLETED (idempotent response).`);
       return res.status(200).json({
         success: true,
         data: {
@@ -153,7 +173,9 @@ export async function captureOrder(req, res, next) {
     let captureResult;
     try {
       captureResult = await PayPalService.captureOrder(paypalOrderId);
+      console.log(`[PayPal Backend] POST /api/paypal/capture-order: PayPal REST capture returned status: ${captureResult.status}`);
     } catch (err) {
+      console.error(`[PayPal Backend] POST /api/paypal/capture-order: PayPal REST capture failed: ${err.message}`);
       await OrderService.updateOrder(
         order._id,
         { status: 'FAILED', errorMessage: err.message },
@@ -171,7 +193,9 @@ export async function captureOrder(req, res, next) {
     let verification;
     try {
       verification = PayPalService.verifyCaptureResult(order, captureResult);
+      console.log(`[PayPal Backend] POST /api/paypal/capture-order: Capture verified strictly on server: Capture ID = ${verification.captureId}, Amount = ${verification.capturedAmount} ${verification.capturedCurrency}`);
     } catch (verifyErr) {
+      console.error(`[PayPal Backend] POST /api/paypal/capture-order: Server verification rejected: ${verifyErr.message}`);
       // Severe: amount or currency mismatch! Mark order as FAILED
       await OrderService.updateOrder(
         order._id,
@@ -219,6 +243,8 @@ export async function captureOrder(req, res, next) {
       }
     );
 
+    console.log(`[PayPal Backend] POST /api/paypal/capture-order: Order ${completedOrder.orderNumber} marked COMPLETED & PAID.`);
+
     return res.status(200).json({
       success: true,
       data: {
@@ -241,8 +267,11 @@ export async function cancelOrder(req, res, next) {
     const validated = cancelPayPalOrderSchema.parse(req.body);
     const { orderId, reason } = validated;
 
+    console.log(`[PayPal Backend] POST /api/paypal/cancel-order: Processing cancellation for order ${orderId}, reason: "${reason || 'Buyer closed popup'}"`);
+
     const order = await OrderService.getOrderById(orderId);
     if (!order) {
+      console.warn(`[PayPal Backend] POST /api/paypal/cancel-order: Order '${orderId}' not found.`);
       return res.status(404).json({
         success: false,
         error: {
@@ -254,6 +283,7 @@ export async function cancelOrder(req, res, next) {
 
     // Do not cancel already completed orders
     if (order.status === 'COMPLETED') {
+      console.warn(`[PayPal Backend] POST /api/paypal/cancel-order: Cannot cancel already COMPLETED order ${order.orderNumber}.`);
       return res.status(400).json({
         success: false,
         error: {
@@ -275,6 +305,8 @@ export async function cancelOrder(req, res, next) {
         details: { reason: reason || 'User dismissed PayPal modal' }
       }
     );
+
+    console.log(`[PayPal Backend] POST /api/paypal/cancel-order: Order ${cancelledOrder.orderNumber} successfully marked CANCELLED.`);
 
     return res.status(200).json({
       success: true,
