@@ -252,7 +252,13 @@ export function ShoppingDecisionReport({
                   <Button
                     variant="primary"
                     size="md"
-                    onClick={() => onProceedToOrder(primaryProduct)}
+                    onClick={(e) => {
+                      if (e && typeof e.preventDefault === 'function') e.preventDefault();
+                      if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+                      if (primaryProduct) {
+                        onProceedToOrder(primaryProduct);
+                      }
+                    }}
                     icon={CreditCard}
                     className="flex-1 bg-gradient-to-r from-paypilot-brand to-paypilot-navy"
                   >

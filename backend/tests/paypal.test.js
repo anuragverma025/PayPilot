@@ -325,4 +325,47 @@ describe('PayPal Sandbox Checkout & Order Verification', () => {
     expect(checkRes.body.data.paidAt).toBeNull();
     expect(checkRes.body.data.paypalCaptureId).toBeUndefined();
   });
+
+  it('10. Validates buyer information and updates order draft with buyer details on order creation', async () => {
+    PayPalService.setMockTransport({
+      createOrder: () => ({ id: 'PAYPAL-BUYER-TEST-10', status: 'CREATED' })
+    });
+
+    // 1. Create draft
+    const draftRes = await request(app)
+      .post('/api/orders/draft')
+      .send({ productId: 'lap-asus-zenbook-14', quantity: 2 });
+
+    expect(draftRes.status).toBe(201);
+    const draftId = draftRes.body.data._id;
+    const expectedUnitPrice = draftRes.body.data.product.unitPrice;
+    const expectedTotal = expectedUnitPrice * 2;
+    expect(draftRes.body.data.total).toBe(expectedTotal);
+
+    // 2. Create PayPal order with buyer details
+    const createRes = await request(app)
+      .post('/api/paypal/create-order')
+      .send({
+        orderId: draftId,
+        productId: 'lap-asus-zenbook-14',
+        quantity: 2,
+        buyer: {
+          name: 'Jane Doe',
+          email: 'jane.doe@sandbox.example.com'
+        },
+        approvalConfirmed: true
+      });
+
+    expect(createRes.status).toBe(200);
+    expect(createRes.body.success).toBe(true);
+    expect(createRes.body.data.paypalOrderId).toBe('PAYPAL-BUYER-TEST-10');
+
+    // 3. Verify buyer was attached to the order and authoritative total is preserved
+    const orderRes = await request(app).get(`/api/orders/${draftId}`);
+    expect(orderRes.status).toBe(200);
+    expect(orderRes.body.data.buyer.name).toBe('Jane Doe');
+    expect(orderRes.body.data.buyer.email).toBe('jane.doe@sandbox.example.com');
+    expect(orderRes.body.data.total).toBe(expectedTotal);
+    expect(orderRes.body.data.status).toBe('CREATED');
+  });
 });

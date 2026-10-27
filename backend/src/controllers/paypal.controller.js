@@ -46,6 +46,9 @@ export async function createOrder(req, res, next) {
           }
         });
       }
+      if (validated.buyer) {
+        order = await OrderService.updateOrder(order._id, { buyer: validated.buyer });
+      }
     } else {
       order = await OrderService.createOrderDraft({
         productId: validated.productId,

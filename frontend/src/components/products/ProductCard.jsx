@@ -136,7 +136,13 @@ export function ProductCard({
             <Button
               variant="primary"
               size="sm"
-              onClick={() => onProceedToOrder(product)}
+              onClick={(e) => {
+                if (e && typeof e.preventDefault === 'function') e.preventDefault();
+                if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+                if (product && onProceedToOrder) {
+                  onProceedToOrder(product);
+                }
+              }}
               icon={CreditCard}
               className="flex-1 text-xs"
               title="Review order and checkout with PayPal Sandbox"

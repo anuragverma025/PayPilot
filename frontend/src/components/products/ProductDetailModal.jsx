@@ -233,9 +233,13 @@ export function ProductDetailModal({
                 variant="primary"
                 size="md"
                 icon={CreditCard}
-                onClick={() => {
+                onClick={(e) => {
+                  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+                  if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
                   onClose();
-                  onProceedToOrder(product);
+                  if (product) {
+                    onProceedToOrder(product);
+                  }
                 }}
               >
                 Order with PayPal
