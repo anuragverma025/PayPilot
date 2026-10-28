@@ -24,6 +24,7 @@ import { ErrorBoundary } from '../common/ErrorBoundary';
 import { ProductImage } from '../products/ProductImage';
 import { formatINR, formatUSD } from '../../utils/formatters';
 import { api } from '../../services/api';
+import { guestSession } from '../../utils/session';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -102,11 +103,15 @@ export function OrderReviewModal({
       api.createOrderDraft({
         productId: product.id,
         quantity,
-        currency: paypalConfig?.currency || 'USD'
+        currency: paypalConfig?.currency || 'USD',
+        guestToken: guestSession.getToken() || undefined
       })
         .then((res) => {
           if (res.success && res.data) {
             setOrderDraft(res.data);
+            if (res.data.guestToken) {
+              guestSession.setToken(res.data.guestToken);
+            }
           }
         })
         .catch((err) => {
@@ -166,7 +171,8 @@ export function OrderReviewModal({
         email: buyerEmail.trim()
       },
       approvalConfirmed: true,
-      currency
+      currency,
+      guestToken: guestSession.getToken() || undefined
     };
 
     console.log('[PayPal Frontend] createOrder initiated:', {

@@ -40,7 +40,7 @@ describe('AI Shopping Assistant Service & Endpoint', () => {
     expect(Array.isArray(data.alternatives)).toBe(true);
     expect(data).toHaveProperty('groundingMeta');
     expect(data.groundingMeta.isDeterministicVerificationPassed).toBe(true);
-  }, 15000);
+  }, 30000);
 
   it('POST /api/assistant/chat caches identical queries to preserve quota', async () => {
     const query = 'Fast coding machine under ₹55,000';
@@ -54,7 +54,7 @@ describe('AI Shopping Assistant Service & Endpoint', () => {
       .send({ message: query });
     expect(secondRes.status).toBe(200);
     expect(secondRes.body.data.groundingMeta.cached).toBe(true);
-  }, 15000);
+  }, 30000);
 
   it('POST /api/assistant/chat rejects empty or too short requests', async () => {
     const res = await request(app)

@@ -11,7 +11,8 @@ export const createOrderDraftSchema = z.object({
     })
     .optional(),
   approvalConfirmed: z.boolean().optional().default(false),
-  currency: z.enum(['USD', 'INR']).optional()
+  currency: z.enum(['USD', 'INR']).optional(),
+  guestToken: z.string().min(16).max(128).optional()
 });
 
 export const createPayPalOrderSchema = z.object({
@@ -28,16 +29,19 @@ export const createPayPalOrderSchema = z.object({
   approvalConfirmed: z.literal(true, {
     errorMap: () => ({ message: 'Explicit buyer approval is required to create a PayPal Sandbox order.' })
   }),
-  currency: z.enum(['USD', 'INR']).optional()
+  currency: z.enum(['USD', 'INR']).optional(),
+  guestToken: z.string().min(16).max(128).optional()
 });
 
 export const capturePayPalOrderSchema = z.object({
   orderId: z.string({ required_error: 'Order ID is required.' }).min(1),
-  paypalOrderId: z.string({ required_error: 'PayPal Order ID is required.' }).min(1)
+  paypalOrderId: z.string({ required_error: 'PayPal Order ID is required.' }).min(1),
+  guestToken: z.string().min(16).max(128).optional()
 });
 
 export const cancelPayPalOrderSchema = z.object({
   orderId: z.string({ required_error: 'Order ID is required.' }).min(1),
   paypalOrderId: z.string().optional(),
-  reason: z.string().optional()
+  reason: z.string().optional(),
+  guestToken: z.string().min(16).max(128).optional()
 });

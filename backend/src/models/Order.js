@@ -83,6 +83,11 @@ const orderSchema = new mongoose.Schema(
       email: { type: String, default: '' },
       notes: { type: String, default: '' }
     },
+    guestTokenHash: {
+      type: String,
+      index: true,
+      sparse: true
+    },
     payer: {
       payerId: { type: String },
       email: { type: String },

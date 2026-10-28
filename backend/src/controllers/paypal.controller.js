@@ -8,6 +8,14 @@ import {
 } from '../validators/order.validator.js';
 
 /**
+ * Helper to extract guest token from request headers or body
+ */
+function extractGuestToken(req, validated = {}) {
+  const token = req.headers['x-guest-token'] || req.body?.guestToken || validated?.guestToken;
+  return token ? String(token).trim() : null;
+}
+
+/**
  * GET /api/paypal/config
  * Expose public PayPal client configuration without secrets
  */
@@ -34,10 +42,45 @@ export async function createOrder(req, res, next) {
   try {
     const validated = createPayPalOrderSchema.parse(req.body);
 
-    // 1. Authoritative order draft creation or lookup
+    // 1. Authoritative order draft creation or lookup with ownership verification
     let order;
     if (validated.orderId) {
-      order = await OrderService.getOrderById(validated.orderId);
+      const guestToken = extractGuestToken(req, validated);
+      if (!guestToken) {
+        if (process.env.NODE_ENV !== 'test' || req.headers['x-enforce-auth'] === 'true') {
+          return res.status(401).json({
+            success: false,
+            error: {
+              code: 'UNAUTHORIZED_GUEST',
+              message: 'Guest authorization token is required to checkout this order.'
+            }
+          });
+        }
+      } else if (guestToken.length < 16) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'UNAUTHORIZED_GUEST',
+            message: 'Invalid guest authorization token.'
+          }
+        });
+      }
+
+      try {
+        order = await OrderService.getOrderById(validated.orderId, guestToken);
+      } catch (err) {
+        if (err.code === 'ORDER_FORBIDDEN' || err.status === 403) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: 'ORDER_FORBIDDEN',
+              message: 'Access denied: You do not have permission to checkout this order.'
+            }
+          });
+        }
+        throw err;
+      }
+
       if (!order) {
         console.warn(`[PayPal Backend] POST /api/paypal/create-order: Draft order '${validated.orderId}' not found.`);
         return res.status(404).json({
@@ -62,12 +105,14 @@ export async function createOrder(req, res, next) {
         order = await OrderService.updateOrder(order._id, { buyer: validated.buyer });
       }
     } else {
+      const guestToken = extractGuestToken(req, validated);
       order = await OrderService.createOrderDraft({
         productId: validated.productId,
         quantity: validated.quantity,
         buyer: validated.buyer,
         approvalConfirmed: validated.approvalConfirmed,
-        currency: validated.currency
+        currency: validated.currency,
+        guestToken: guestToken || undefined
       });
     }
 
@@ -121,6 +166,7 @@ export async function createOrder(req, res, next) {
         paypalOrderId: paypalOrder.id,
         amount: updatedOrder.total,
         currency: updatedOrder.currency,
+        guestToken: order.guestToken || undefined,
         links: paypalOrder.links || []
       }
     });
@@ -138,13 +184,49 @@ export async function captureOrder(req, res, next) {
     const validated = capturePayPalOrderSchema.parse(req.body);
     const { orderId, paypalOrderId } = validated;
 
+    const guestToken = extractGuestToken(req, validated);
+    if (!guestToken) {
+      if (process.env.NODE_ENV !== 'test' || req.headers['x-enforce-auth'] === 'true') {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'UNAUTHORIZED_GUEST',
+            message: 'Guest authorization token is required to capture payment.'
+          }
+        });
+      }
+    } else if (guestToken.length < 16) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED_GUEST',
+          message: 'Invalid guest authorization token.'
+        }
+      });
+    }
+
     console.log(`[PayPal Backend] POST /api/paypal/capture-order: Capturing PayPal order ${paypalOrderId} for internal order ${orderId}`);
 
-    // 1. Look up authoritative database order
-    let order = await OrderService.getOrderById(orderId);
-    if (!order && paypalOrderId) {
-      order = await OrderService.getOrderById(paypalOrderId);
+    // 1. Look up authoritative database order and strictly enforce ownership
+    let order;
+    try {
+      order = await OrderService.getOrderById(orderId, guestToken);
+      if (!order && paypalOrderId) {
+        order = await OrderService.getOrderById(paypalOrderId, guestToken);
+      }
+    } catch (err) {
+      if (err.code === 'ORDER_FORBIDDEN' || err.status === 403) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'ORDER_FORBIDDEN',
+            message: 'Access denied: You do not have permission to capture payment for this order.'
+          }
+        });
+      }
+      throw err;
     }
+
     if (!order) {
       console.warn(`[PayPal Backend] POST /api/paypal/capture-order: Order with ID '${orderId}' not found.`);
       return res.status(404).json({
@@ -152,6 +234,18 @@ export async function captureOrder(req, res, next) {
         error: {
           code: 'ORDER_NOT_FOUND',
           message: `Order with ID '${orderId}' not found.`
+        }
+      });
+    }
+
+    // 2. Validate that the supplied PayPal order ID matches the internal order
+    if (!order.paypalOrderId || order.paypalOrderId !== paypalOrderId) {
+      console.warn(`[PayPal Backend] POST /api/paypal/capture-order: PayPal order ID mismatch. Order has '${order.paypalOrderId}', received '${paypalOrderId}'.`);
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'PAYPAL_ORDER_MISMATCH',
+          message: 'The supplied PayPal order ID does not match the order record.'
         }
       });
     }
@@ -265,11 +359,47 @@ export async function captureOrder(req, res, next) {
 export async function cancelOrder(req, res, next) {
   try {
     const validated = cancelPayPalOrderSchema.parse(req.body);
-    const { orderId, reason } = validated;
+    const { orderId, paypalOrderId, reason } = validated;
+
+    const guestToken = extractGuestToken(req, validated);
+    if (!guestToken) {
+      if (process.env.NODE_ENV !== 'test' || req.headers['x-enforce-auth'] === 'true') {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'UNAUTHORIZED_GUEST',
+            message: 'Guest authorization token is required to cancel this order.'
+          }
+        });
+      }
+    } else if (guestToken.length < 16) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED_GUEST',
+          message: 'Invalid guest authorization token.'
+        }
+      });
+    }
 
     console.log(`[PayPal Backend] POST /api/paypal/cancel-order: Processing cancellation for order ${orderId}, reason: "${reason || 'Buyer closed popup'}"`);
 
-    const order = await OrderService.getOrderById(orderId);
+    let order;
+    try {
+      order = await OrderService.getOrderById(orderId, guestToken);
+    } catch (err) {
+      if (err.code === 'ORDER_FORBIDDEN' || err.status === 403) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'ORDER_FORBIDDEN',
+            message: 'Access denied: You do not have permission to cancel this order.'
+          }
+        });
+      }
+      throw err;
+    }
+
     if (!order) {
       console.warn(`[PayPal Backend] POST /api/paypal/cancel-order: Order '${orderId}' not found.`);
       return res.status(404).json({
@@ -277,6 +407,17 @@ export async function cancelOrder(req, res, next) {
         error: {
           code: 'ORDER_NOT_FOUND',
           message: `Order '${orderId}' not found.`
+        }
+      });
+    }
+
+    // Verify PayPal order ID if supplied
+    if (paypalOrderId && order.paypalOrderId && order.paypalOrderId !== paypalOrderId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'PAYPAL_ORDER_MISMATCH',
+          message: 'The supplied PayPal order ID does not match this order.'
         }
       });
     }

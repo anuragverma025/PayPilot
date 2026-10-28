@@ -23,6 +23,9 @@ export class PayPalService {
    * Set mock transport for automated test isolation
    */
   static setMockTransport(transport) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Mock transport cannot be used in production.');
+    }
     mockTransport = transport;
   }
 

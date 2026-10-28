@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { Order } from '../models/Order.js';
 import { CatalogService } from './catalog.service.js';
 import { config } from '../config/index.js';
+import { generateGuestToken, hashGuestToken } from '../utils/token.util.js';
 
 // In-memory order store for testing or offline environments
 const memoryOrders = new Map();
@@ -26,7 +27,7 @@ export class OrderService {
   /**
    * Create an initial order review draft with authoritative catalog prices
    */
-  static async createOrderDraft({ productId, quantity = 1, buyer = {}, approvalConfirmed = false, currency }) {
+  static async createOrderDraft({ productId, quantity = 1, buyer = {}, approvalConfirmed = false, currency, guestToken }) {
     // 1. Authoritative product lookup from catalog
     const product = await CatalogService.getProductById(productId);
     if (!product) {
@@ -47,6 +48,14 @@ export class OrderService {
     const total = subtotal + shipping + tax;
 
     const orderNumber = this.generateOrderNumber();
+
+    // 3. Secure Guest Token issuance or binding
+    // If client supplied an existing valid guestToken from their session, re-use it to bind multiple orders.
+    // Otherwise, generate a fresh cryptographically secure guest token.
+    const issuedGuestToken = (guestToken && typeof guestToken === 'string' && guestToken.trim().length >= 16)
+      ? guestToken.trim()
+      : generateGuestToken();
+    const guestTokenHash = hashGuestToken(issuedGuestToken);
 
     const orderData = {
       orderNumber,
@@ -79,6 +88,7 @@ export class OrderService {
         email: buyer?.email || '',
         notes: buyer?.notes || ''
       },
+      guestTokenHash,
       timeline: [
         {
           action: 'ORDER_DRAFT_CREATED',
@@ -97,7 +107,9 @@ export class OrderService {
     if (this.isMongoConnected()) {
       try {
         const order = await Order.create(orderData);
-        return order.toObject();
+        const obj = order.toObject();
+        // Return issuedGuestToken in the creation response (and never save raw token to db)
+        return { ...obj, guestToken: issuedGuestToken };
       } catch (err) {
         console.warn('MongoDB order creation failed, falling back to in-memory store:', err.message);
       }
@@ -108,7 +120,8 @@ export class OrderService {
       ...orderData,
       _id: `mem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      guestToken: issuedGuestToken
     };
     memoryOrders.set(inMemOrder._id, inMemOrder);
     memoryOrders.set(inMemOrder.orderNumber, inMemOrder);
@@ -116,10 +129,58 @@ export class OrderService {
   }
 
   /**
-   * Retrieve order by ID or orderNumber
+   * Retrieve orders owned by a verified guest token, with optional status filter
    */
-  static async getOrderById(idOrNumber) {
+  static async getOrders(filters = {}) {
+    const { status, guestToken, limit = 50 } = filters;
+
+    // Strict guest ownership enforcement: If no valid guest token provided, return empty list
+    if (!guestToken || typeof guestToken !== 'string' || guestToken.trim().length < 16) {
+      return [];
+    }
+
+    const tokenHash = hashGuestToken(guestToken);
+    const query = {
+      guestTokenHash: tokenHash
+    };
+
+    if (status && status !== 'ALL') {
+      query.status = status.toUpperCase();
+    }
+
+    if (this.isMongoConnected()) {
+      try {
+        const orders = await Order.find(query)
+          .select('-guestTokenHash')
+          .sort({ createdAt: -1 })
+          .limit(Math.min(limit, 100))
+          .lean();
+        return orders;
+      } catch (err) {
+        console.warn('MongoDB orders list failed, falling back to memory store:', err.message);
+      }
+    }
+
+    // In-memory fallback
+    const all = Array.from(new Set(Array.from(memoryOrders.values())));
+    return all
+      .filter((o) => {
+        if (o.guestTokenHash !== tokenHash) return false;
+        if (query.status && o.status !== query.status) return false;
+        return true;
+      })
+      .map(({ guestTokenHash: _, ...rest }) => rest)
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, limit);
+  }
+
+  /**
+   * Retrieve order by ID or orderNumber, with optional guest token ownership enforcement
+   */
+  static async getOrderById(idOrNumber, guestToken = null) {
     if (!idOrNumber) return null;
+
+    let order = null;
 
     if (this.isMongoConnected()) {
       try {
@@ -127,20 +188,37 @@ export class OrderService {
           ? { $or: [{ _id: idOrNumber }, { orderNumber: idOrNumber }, { paypalOrderId: idOrNumber }] }
           : { $or: [{ orderNumber: idOrNumber }, { paypalOrderId: idOrNumber }] };
 
-        const order = await Order.findOne(query).lean();
-        if (order) return order;
+        order = await Order.findOne(query).lean();
       } catch (err) {
         console.warn('MongoDB order lookup failed, checking in-memory store:', err.message);
       }
     }
 
-    return (
-      memoryOrders.get(idOrNumber) ||
-      Array.from(memoryOrders.values()).find(
-        (o) => o.orderNumber === idOrNumber || o.paypalOrderId === idOrNumber || o._id === idOrNumber
-      ) ||
-      null
-    );
+    if (!order) {
+      order =
+        memoryOrders.get(idOrNumber) ||
+        Array.from(memoryOrders.values()).find(
+          (o) => o.orderNumber === idOrNumber || o.paypalOrderId === idOrNumber || o._id === idOrNumber
+        ) ||
+        null;
+    }
+
+    if (!order) return null;
+
+    // If caller provided guestToken, strictly verify ownership
+    if (guestToken !== undefined && guestToken !== null) {
+      const candidateHash = hashGuestToken(guestToken);
+      if (!order.guestTokenHash || order.guestTokenHash !== candidateHash) {
+        const error = new Error('Access denied: You do not have permission to view this order.');
+        error.code = 'ORDER_FORBIDDEN';
+        error.status = 403;
+        throw error;
+      }
+    }
+
+    // Strip internal guestTokenHash from returned data
+    const { guestTokenHash: _, ...sanitized } = order;
+    return sanitized;
   }
 
   /**
@@ -190,9 +268,22 @@ export class OrderService {
   }
 
   /**
-   * Clear in-memory orders (utility for tests)
+   * Set an in-memory order (utility for tests only)
+   */
+  static setMemoryOrder(key, order) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Test helper setMemoryOrder cannot be used in production.');
+    }
+    memoryOrders.set(key, order);
+  }
+
+  /**
+   * Clear in-memory orders (utility for tests only)
    */
   static clearMemoryOrders() {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Test helper clearMemoryOrders cannot be used in production.');
+    }
     memoryOrders.clear();
   }
 }

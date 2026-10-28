@@ -11,6 +11,7 @@ import { ComparisonDrawer } from './components/comparison/ComparisonDrawer';
 import { ComparisonModal } from './components/comparison/ComparisonModal';
 import { ShoppingDecisionReport } from './components/assistant/ShoppingDecisionReport';
 import { OrderReviewModal } from './components/checkout/OrderReviewModal';
+import { OrdersPage } from './components/orders/OrdersPage';
 import { api } from './services/api';
 import { Sparkles, Loader2 } from 'lucide-react';
 
@@ -47,6 +48,48 @@ export default function App() {
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [orderProduct, setOrderProduct] = useState(null);
   const [latestPaidOrder, setLatestPaidOrder] = useState(null);
+  const [ordersCount, setOrdersCount] = useState(null);
+
+  // Synchronize route with window.location.pathname (/orders)
+  useEffect(() => {
+    const checkRoute = () => {
+      const path = window.location.pathname;
+      if (path === '/orders' || path === '/orders/') {
+        setActiveView('orders');
+      } else if (path === '/compare' || path === '/compare/') {
+        setActiveView('compare');
+      } else {
+        // default workspace
+      }
+    };
+
+    checkRoute();
+    window.addEventListener('popstate', checkRoute);
+    return () => window.removeEventListener('popstate', checkRoute);
+  }, []);
+
+  // Update browser URL on activeView change
+  const handleNavigateView = (view) => {
+    setActiveView(view);
+    if (view === 'orders') {
+      window.history.pushState(null, '', '/orders');
+    } else if (view === 'compare') {
+      window.history.pushState(null, '', '/compare');
+    } else {
+      window.history.pushState(null, '', '/');
+    }
+  };
+
+  // Fetch total completed / verified orders count for sidebar badge
+  useEffect(() => {
+    api.getOrders()
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setOrdersCount(res.data.length);
+        }
+      })
+      .catch(() => {});
+  }, [latestPaidOrder]);
 
   // Fetch catalog products
   const loadProducts = useCallback(async () => {
@@ -176,10 +219,11 @@ export default function App() {
       {/* Sidebar Navigation */}
       <Sidebar
         activeView={activeView}
-        setActiveView={setActiveView}
+        setActiveView={handleNavigateView}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         compareCount={comparedIds.length}
+        ordersCount={ordersCount}
         onNewSession={handleResetFilters}
       />
 
@@ -193,85 +237,92 @@ export default function App() {
         />
 
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 pb-28">
-          {/* Visual Workflow Steps Bar */}
-          <WorkflowSteps currentStep={currentWorkflowStep} />
+          {/* VIEW: MY ORDERS */}
+          {activeView === 'orders' ? (
+            <OrdersPage onNavigateToShopping={() => handleNavigateView('workspace')} />
+          ) : (
+            <>
+              {/* Visual Workflow Steps Bar */}
+              <WorkflowSteps currentStep={currentWorkflowStep} />
 
-          {/* Search & AI Assistant Hero Area */}
-          <SearchHero
-            searchQuery={filters.search}
-            onSearchChange={(val) => handleFilterChange('search', val)}
-            onSelectExample={handleSelectExample}
-            onReset={handleResetFilters}
-            onAskAi={handleAskAi}
-            isAiLoading={isAiLoading}
-            aiError={aiError}
-          />
-
-          {/* AI Analyzing Loading State */}
-          {isAiLoading && (
-            <div className="bg-gradient-to-r from-paypilot-subtleViolet via-white to-paypilot-subtleViolet border-2 border-paypilot-brand/30 rounded-3xl p-8 text-center space-y-4 mb-8 shadow-card animate-pulse">
-              <div className="w-12 h-12 rounded-2xl bg-paypilot-brand text-white mx-auto flex items-center justify-center shadow-subtle">
-                <Loader2 className="w-6 h-6 animate-spin" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-bold text-paypilot-navy">
-                  Analyzing Your Shopping Goal with Google Gemini...
-                </h3>
-                <p className="text-xs text-paypilot-muted max-w-md mx-auto">
-                  Extracting workload requirements, matching across 32 verified laptop records, and synthesizing your grounded Shopping Decision Report.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Grounded Shopping Decision Report */}
-          {decisionReport && !isAiLoading && (
-            <ShoppingDecisionReport
-              report={decisionReport}
-              onClose={() => setDecisionReport(null)}
-              onViewDetails={setDetailProduct}
-              onToggleCompare={handleToggleCompare}
-              onProceedToOrder={setOrderProduct}
-              comparedIds={comparedIds}
-              onApplyFilters={handleApplyAiFilters}
-              onCompareDirectly={handleCompareDirectly}
-            />
-          )}
-
-          {/* Filter and Sorting Controls */}
-          <FilterBar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onResetFilters={handleResetFilters}
-            totalResults={products.length}
-          />
-
-          {/* Workspace Layout: Grid + Preferences Sidebar */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Products Grid (8 cols on desktop) */}
-            <div className="lg:col-span-8">
-              <ProductGrid
-                products={products}
-                loading={loading}
-                error={error}
-                onRetry={loadProducts}
-                onResetFilters={handleResetFilters}
-                onViewDetails={setDetailProduct}
-                onToggleCompare={handleToggleCompare}
-                onProceedToOrder={setOrderProduct}
-                comparedIds={comparedIds}
+              {/* Search & AI Assistant Hero Area */}
+              <SearchHero
+                searchQuery={filters.search}
+                onSearchChange={(val) => handleFilterChange('search', val)}
+                onSelectExample={handleSelectExample}
+                onReset={handleResetFilters}
+                onAskAi={handleAskAi}
+                isAiLoading={isAiLoading}
+                aiError={aiError}
               />
-            </div>
 
-            {/* Right Preferences & Transparency Summary (4 cols on desktop) */}
-            <div className="lg:col-span-4 sticky top-24">
-              <PreferencesPanel
+              {/* AI Analyzing Loading State */}
+              {isAiLoading && (
+                <div className="bg-gradient-to-r from-paypilot-subtleViolet via-white to-paypilot-subtleViolet border-2 border-paypilot-brand/30 rounded-3xl p-8 text-center space-y-4 mb-8 shadow-card animate-pulse">
+                  <div className="w-12 h-12 rounded-2xl bg-paypilot-brand text-white mx-auto flex items-center justify-center shadow-subtle">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-base font-bold text-paypilot-navy">
+                      Analyzing Your Shopping Goal with Google Gemini...
+                    </h3>
+                    <p className="text-xs text-paypilot-muted max-w-md mx-auto">
+                      Extracting workload requirements, matching across 32 verified laptop records, and synthesizing your grounded Shopping Decision Report.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Grounded Shopping Decision Report */}
+              {decisionReport && !isAiLoading && (
+                <ShoppingDecisionReport
+                  report={decisionReport}
+                  onClose={() => setDecisionReport(null)}
+                  onViewDetails={setDetailProduct}
+                  onToggleCompare={handleToggleCompare}
+                  onProceedToOrder={setOrderProduct}
+                  comparedIds={comparedIds}
+                  onApplyFilters={handleApplyAiFilters}
+                  onCompareDirectly={handleCompareDirectly}
+                />
+              )}
+
+              {/* Filter and Sorting Controls */}
+              <FilterBar
                 filters={filters}
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
                 totalResults={products.length}
-                meta={meta}
               />
-            </div>
-          </div>
+
+              {/* Workspace Layout: Grid + Preferences Sidebar */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Products Grid (8 cols on desktop) */}
+                <div className="lg:col-span-8">
+                  <ProductGrid
+                    products={products}
+                    loading={loading}
+                    error={error}
+                    onRetry={loadProducts}
+                    onResetFilters={handleResetFilters}
+                    onViewDetails={setDetailProduct}
+                    onToggleCompare={handleToggleCompare}
+                    onProceedToOrder={setOrderProduct}
+                    comparedIds={comparedIds}
+                  />
+                </div>
+
+                {/* Right Preferences & Transparency Summary (4 cols on desktop) */}
+                <div className="lg:col-span-4 sticky top-24">
+                  <PreferencesPanel
+                    filters={filters}
+                    totalResults={products.length}
+                    meta={meta}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </main>
       </div>
 

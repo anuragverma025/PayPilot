@@ -1,14 +1,24 @@
+import { guestSession } from '../utils/session';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 /**
- * Helper to perform API requests with structured error handling
+ * Helper to perform API requests with structured error handling and guest token injection
  */
 async function fetchJson(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
+  const guestToken = guestSession.getToken();
+
+  const authHeaders = {};
+  if (guestToken) {
+    authHeaders['x-guest-token'] = guestToken;
+  }
+
   try {
     const res = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...(options.headers || {})
       },
       ...options
@@ -20,6 +30,7 @@ async function fetchJson(endpoint, options = {}) {
       const errorMsg = json?.error?.message || `HTTP ${res.status}: ${res.statusText}`;
       const error = new Error(errorMsg);
       error.status = res.status;
+      error.code = json?.error?.code || null;
       error.details = json?.error?.details || null;
       throw error;
     }
@@ -134,6 +145,16 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload)
     }),
+
+  /**
+   * Retrieve list of orders owned by active guest token
+   */
+  getOrders: (params = {}) => {
+    const qs = new URLSearchParams();
+    if (params.status && params.status !== 'ALL') qs.append('status', params.status);
+    const queryStr = qs.toString();
+    return fetchJson(`/orders${queryStr ? `?${queryStr}` : ''}`);
+  },
 
   /**
    * Retrieve order details by ID
