@@ -458,4 +458,383 @@ describe('PayPal Sandbox Checkout & Order Verification', () => {
     expect(orderRes.body.data.total).toBe(expectedTotal);
     expect(orderRes.body.data.status).toBe('CREATED');
   });
+
+  it('13. buildCreateOrderPayload includes full order-specific shipping address in outgoing PayPal payload', () => {
+    const order = {
+      _id: 'test-id-100',
+      orderNumber: 'ORD-TEST-0100',
+      currency: 'USD',
+      quantity: 1,
+      product: { name: 'ThinkPad E14', unitPrice: 660 },
+      buyer: { name: 'Anurag', email: 'anurag@example.com' },
+      shippingAddress: {
+        recipientName: 'Anurag Verma',
+        addressLine1: '742 Evergreen Terrace',
+        addressLine2: 'Apt 4B',
+        city: 'Springfield',
+        state: 'OR',
+        postalCode: '97477',
+        countryCode: 'US'
+      }
+    };
+
+    const payload = PayPalService.buildCreateOrderPayload(order);
+    const shipping = payload.purchase_units[0].shipping;
+
+    expect(shipping).toBeDefined();
+    // Recipient name should prioritize shippingAddress.recipientName
+    expect(shipping.name.full_name).toBe('Anurag Verma');
+    expect(shipping.address).toBeDefined();
+    expect(shipping.address.address_line_1).toBe('742 Evergreen Terrace');
+    expect(shipping.address.address_line_2).toBe('Apt 4B');
+    expect(shipping.address.admin_area_2).toBe('Springfield'); // City
+    expect(shipping.address.admin_area_1).toBe('OR');          // State
+    expect(shipping.address.postal_code).toBe('97477');
+    expect(shipping.address.country_code).toBe('US');
+  });
+
+  it('14. Two orders with different addresses generate distinct PayPal shipping payloads', () => {
+    const orderA = {
+      _id: 'order-A',
+      orderNumber: 'ORD-TEST-000A',
+      currency: 'INR',
+      quantity: 1,
+      product: { name: 'Laptop A', unitPrice: 50000 },
+      buyer: { name: 'Buyer A', email: 'a@example.com' },
+      shippingAddress: {
+        recipientName: 'Recipient A',
+        addressLine1: '123 MG Road',
+        city: 'Bengaluru',
+        state: 'KA',
+        postalCode: '560001',
+        countryCode: 'IN'
+      }
+    };
+
+    const orderB = {
+      _id: 'order-B',
+      orderNumber: 'ORD-TEST-000B',
+      currency: 'USD',
+      quantity: 1,
+      product: { name: 'Laptop B', unitPrice: 800 },
+      buyer: { name: 'Buyer B', email: 'b@example.com' },
+      shippingAddress: {
+        recipientName: 'Recipient B',
+        addressLine1: '456 Market St',
+        city: 'San Francisco',
+        state: 'CA',
+        postalCode: '94105',
+        countryCode: 'US'
+      }
+    };
+
+    const payloadA = PayPalService.buildCreateOrderPayload(orderA);
+    const payloadB = PayPalService.buildCreateOrderPayload(orderB);
+
+    const shipA = payloadA.purchase_units[0].shipping;
+    const shipB = payloadB.purchase_units[0].shipping;
+
+    expect(shipA.name.full_name).toBe('Recipient A');
+    expect(shipA.address.address_line_1).toBe('123 MG Road');
+    expect(shipA.address.country_code).toBe('IN');
+
+    expect(shipB.name.full_name).toBe('Recipient B');
+    expect(shipB.address.address_line_1).toBe('456 Market St');
+    expect(shipB.address.country_code).toBe('US');
+
+    // Confirm payload A is completely unaffected by payload B
+    expect(shipA.address.address_line_1).not.toBe(shipB.address.address_line_1);
+  });
+
+  it('15. POST /api/paypal/create-order saves shippingAddress to the internal order', async () => {
+    let capturedPayload = null;
+    PayPalService.setMockTransport({
+      createOrder: (order) => {
+        capturedPayload = order;
+        return { id: 'PAYPAL-SHIP-ORDER-15', status: 'CREATED' };
+      }
+    });
+
+    const createRes = await request(app)
+      .post('/api/paypal/create-order')
+      .send({
+        productId: 'lap-lenovo-e14-g5',
+        quantity: 1,
+        buyer: {
+          name: 'Anurag',
+          email: 'anurag@example.com'
+        },
+        shippingAddress: {
+          recipientName: 'Anurag Verma',
+          addressLine1: '404 Innovation Drive',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          countryCode: 'US'
+        },
+        approvalConfirmed: true
+      });
+
+    expect(createRes.status).toBe(200);
+    expect(createRes.body.success).toBe(true);
+
+    const orderId = createRes.body.data.orderId;
+    const orderRes = await request(app).get(`/api/orders/${orderId}`);
+    expect(orderRes.status).toBe(200);
+    expect(orderRes.body.data.shippingAddress).toBeDefined();
+    expect(orderRes.body.data.shippingAddress.recipientName).toBe('Anurag Verma');
+    expect(orderRes.body.data.shippingAddress.addressLine1).toBe('404 Innovation Drive');
+    expect(orderRes.body.data.shippingAddress.city).toBe('Austin');
+    expect(orderRes.body.data.shippingAddress.countryCode).toBe('US');
+  });
+
+  it('16. Rejects create-order when required shipping address fields are missing or invalid', async () => {
+    // Missing addressLine1
+    const resMissingField = await request(app)
+      .post('/api/paypal/create-order')
+      .send({
+        productId: 'lap-lenovo-e14-g5',
+        quantity: 1,
+        shippingAddress: {
+          recipientName: 'Anurag',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          countryCode: 'US'
+        },
+        approvalConfirmed: true
+      });
+    expect(resMissingField.status).toBe(400);
+    expect(resMissingField.body.success).toBe(false);
+
+    // Invalid country code (not 2 chars)
+    const resBadCountry = await request(app)
+      .post('/api/paypal/create-order')
+      .send({
+        productId: 'lap-lenovo-e14-g5',
+        quantity: 1,
+        shippingAddress: {
+          recipientName: 'Anurag',
+          addressLine1: '123 Test St',
+          city: 'Austin',
+          state: 'TX',
+          postalCode: '78701',
+          countryCode: 'USA' // Invalid! Must be 2 chars
+        },
+        approvalConfirmed: true
+      });
+    expect(resBadCountry.status).toBe(400);
+    expect(resBadCountry.body.success).toBe(false);
+  });
+
+  it('17. Existing orders without shippingAddress remain fully compatible with payload generation', () => {
+    const legacyOrder = {
+      _id: 'legacy-order-999',
+      orderNumber: 'ORD-LEGACY-0999',
+      currency: 'USD',
+      quantity: 1,
+      product: { name: 'Legacy Laptop', unitPrice: 500 },
+      buyer: { name: 'Legacy Customer', email: 'legacy@example.com' }
+      // No shippingAddress property
+    };
+
+    const payload = PayPalService.buildCreateOrderPayload(legacyOrder);
+    expect(payload.purchase_units[0].shipping).toBeDefined();
+    expect(payload.purchase_units[0].shipping.name.full_name).toBe('Legacy Customer');
+    expect(payload.purchase_units[0].shipping.address).toBeUndefined();
+  });
+
+  it('18. Captures authoritative final shipping address returned by PayPal and persists alongside requested address', async () => {
+    const mockPaypalOrderId = 'PAYPAL-SHIP-CAPTURE-18';
+    const mockCaptureId = 'CAPTURE-SHIP-18';
+
+    PayPalService.setMockTransport({
+      createOrder: (order) => ({ id: mockPaypalOrderId, status: 'CREATED' }),
+      captureOrder: (paypalOrderId) => ({
+        id: paypalOrderId,
+        status: 'COMPLETED',
+        purchase_units: [
+          {
+            reference_id: 'REF-18',
+            shipping: {
+              name: { full_name: 'Anurag Verma' },
+              address: {
+                address_line_1: 'Shambhuganj',
+                address_line_2: 'Near Post Office',
+                admin_area_2: 'Sultanpur',
+                admin_area_1: 'Uttar Pradesh',
+                postal_code: '227304',
+                country_code: 'IN'
+              }
+            },
+            payments: {
+              captures: [
+                {
+                  id: mockCaptureId,
+                  status: 'COMPLETED',
+                  amount: { currency_code: 'USD', value: '660.00' }
+                }
+              ]
+            }
+          }
+        ],
+        payer: {
+          payer_id: 'PAYER-ANURAG-18',
+          email_address: 'anurag.buyer@example.com',
+          name: { given_name: 'Anurag', surname: 'Verma' }
+        }
+      })
+    });
+
+    // 1. Create order with original requested address in Dharwad
+    const createRes = await request(app)
+      .post('/api/paypal/create-order')
+      .send({
+        productId: 'lap-lenovo-e14-g5',
+        quantity: 1,
+        buyer: { name: 'Anurag', email: 'anurag@example.com' },
+        shippingAddress: {
+          recipientName: 'Anurag',
+          addressLine1: 'Line Bazar, Dharwad',
+          city: 'Hubli-Dharwad',
+          state: 'Karnataka',
+          postalCode: '580001',
+          countryCode: 'IN'
+        },
+        approvalConfirmed: true
+      });
+
+    expect(createRes.status).toBe(200);
+    const { orderId, paypalOrderId } = createRes.body.data;
+
+    // 2. Capture payment where buyer selected Sultanpur address in PayPal popup
+    const captureRes = await request(app)
+      .post('/api/paypal/capture-order')
+      .send({ orderId, paypalOrderId });
+
+    expect(captureRes.status).toBe(200);
+    expect(captureRes.body.success).toBe(true);
+    expect(captureRes.body.data.verified).toBe(true);
+
+    // 3. Verify order in DB has BOTH requested address and final PayPal address
+    const checkOrder = await request(app).get(`/api/orders/${orderId}`);
+    expect(checkOrder.status).toBe(200);
+    const orderData = checkOrder.body.data;
+
+    // Original requested address is preserved
+    expect(orderData.shippingAddress.addressLine1).toBe('Line Bazar, Dharwad');
+    expect(orderData.shippingAddress.city).toBe('Hubli-Dharwad');
+    expect(orderData.shippingAddress.postalCode).toBe('580001');
+
+    // Final authoritative address from PayPal is captured
+    expect(orderData.finalShippingAddress).toBeDefined();
+    expect(orderData.finalShippingAddress.recipientName).toBe('Anurag Verma');
+    expect(orderData.finalShippingAddress.addressLine1).toBe('Shambhuganj');
+    expect(orderData.finalShippingAddress.addressLine2).toBe('Near Post Office');
+    expect(orderData.finalShippingAddress.city).toBe('Sultanpur');
+    expect(orderData.finalShippingAddress.state).toBe('Uttar Pradesh');
+    expect(orderData.finalShippingAddress.postalCode).toBe('227304');
+    expect(orderData.finalShippingAddress.countryCode).toBe('IN');
+    expect(orderData.finalShippingAddress.source).toBe('PAYPAL_TRANSACTION');
+  });
+
+  it('19. Preserves original requested address without corruption when PayPal capture omits shipping', async () => {
+    const mockPaypalOrderId = 'PAYPAL-NO-SHIP-19';
+
+    PayPalService.setMockTransport({
+      createOrder: (order) => ({ id: mockPaypalOrderId, status: 'CREATED' }),
+      captureOrder: (paypalOrderId) => ({
+        id: paypalOrderId,
+        status: 'COMPLETED',
+        purchase_units: [
+          {
+            payments: {
+              captures: [
+                {
+                  id: 'CAP-19',
+                  status: 'COMPLETED',
+                  amount: { currency_code: 'USD', value: '660.00' }
+                }
+              ]
+            }
+          }
+        ]
+      })
+    });
+
+    const createRes = await request(app)
+      .post('/api/paypal/create-order')
+      .send({
+        productId: 'lap-lenovo-e14-g5',
+        quantity: 1,
+        buyer: { name: 'Customer 19', email: 'c19@example.com' },
+        shippingAddress: {
+          recipientName: 'Customer 19',
+          addressLine1: '99 Preserved Road',
+          city: 'Mumbai',
+          state: 'MH',
+          postalCode: '400001',
+          countryCode: 'IN'
+        },
+        approvalConfirmed: true
+      });
+
+    const { orderId, paypalOrderId } = createRes.body.data;
+
+    const captureRes = await request(app)
+      .post('/api/paypal/capture-order')
+      .send({ orderId, paypalOrderId });
+
+    expect(captureRes.status).toBe(200);
+
+    const checkOrder = await request(app).get(`/api/orders/${orderId}`);
+    expect(checkOrder.status).toBe(200);
+    // Original address must NOT be erased or overwritten with nulls
+    expect(checkOrder.body.data.shippingAddress.addressLine1).toBe('99 Preserved Road');
+    expect(checkOrder.body.data.shippingAddress.city).toBe('Mumbai');
+    expect(checkOrder.body.data.finalShippingAddress).toBeFalsy();
+  });
+
+  it('20. Unsuccessful or unverified captures do not update final shipping address', async () => {
+    const mockPaypalOrderId = 'PAYPAL-FAILED-20';
+
+    PayPalService.setMockTransport({
+      createOrder: () => ({ id: mockPaypalOrderId, status: 'CREATED' }),
+      captureOrder: () => {
+        const err = new Error('INSTRUMENT_DECLINED');
+        err.status = 400;
+        throw err;
+      }
+    });
+
+    const createRes = await request(app)
+      .post('/api/paypal/create-order')
+      .send({
+        productId: 'lap-lenovo-e14-g5',
+        quantity: 1,
+        shippingAddress: {
+          recipientName: 'Declined Buyer',
+          addressLine1: '10 Failure Lane',
+          city: 'Delhi',
+          state: 'DL',
+          postalCode: '110001',
+          countryCode: 'IN'
+        },
+        approvalConfirmed: true
+      });
+
+    const { orderId, paypalOrderId } = createRes.body.data;
+
+    const captureRes = await request(app)
+      .post('/api/paypal/capture-order')
+      .send({ orderId, paypalOrderId });
+
+    expect(captureRes.status).toBe(400);
+
+    const checkOrder = await request(app).get(`/api/orders/${orderId}`);
+    expect(checkOrder.status).toBe(200);
+    expect(checkOrder.body.data.status).toBe('FAILED');
+    expect(checkOrder.body.data.isPaid).toBe(false);
+    expect(checkOrder.body.data.finalShippingAddress).toBeFalsy();
+  });
 });

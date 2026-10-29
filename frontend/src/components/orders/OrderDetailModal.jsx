@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   ExternalLink,
   ArrowLeft,
-  ShoppingBag
+  ShoppingBag,
+  MapPin
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
@@ -259,6 +260,94 @@ export function OrderDetailModal({
             </div>
           </div>
         </div>
+
+        {/* Shipping & Delivery Destination */}
+        {(() => {
+          const finalAddr = order.finalShippingAddress?.addressLine1 ? order.finalShippingAddress : null;
+          const requestedAddr = order.shippingAddress?.addressLine1 ? order.shippingAddress : null;
+          const activeAddr = finalAddr || requestedAddr;
+          const hasChanged =
+            finalAddr &&
+            requestedAddr &&
+            (finalAddr.addressLine1.toLowerCase().trim() !== requestedAddr.addressLine1.toLowerCase().trim() ||
+              finalAddr.postalCode.trim() !== requestedAddr.postalCode.trim() ||
+              finalAddr.city.toLowerCase().trim() !== requestedAddr.city.toLowerCase().trim());
+
+          return (
+            <div className="p-4 rounded-2xl bg-white border border-[#E2E8F0] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#635BFF]" />
+                  <span>Delivery Destination</span>
+                </span>
+                {finalAddr ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#16A34A] bg-[#DCFCE7] px-2 py-0.5 rounded-full border border-[#16A34A]/20">
+                    <ShieldCheck className="w-3 h-3" />
+                    <span>Verified PayPal Destination</span>
+                  </span>
+                ) : requestedAddr ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#D97706] bg-[#FEF3C7] px-2 py-0.5 rounded-full border border-[#D97706]/20">
+                    <span>Requested Checkout Address</span>
+                  </span>
+                ) : null}
+              </div>
+
+              {hasChanged && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block">Shipping address updated during PayPal checkout</span>
+                    <span className="text-[11px] text-amber-800">
+                      Originally entered: {requestedAddr.addressLine1}, {requestedAddr.city}, {requestedAddr.state} {requestedAddr.postalCode}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {activeAddr ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <span className="text-[#64748B] block">Recipient Name</span>
+                    <span className="font-semibold text-[#0F172A] mt-0.5 block">
+                      {activeAddr.recipientName || order.buyer?.name || 'N/A'}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[#64748B] block">Country</span>
+                    <span className="font-semibold text-[#0F172A] mt-0.5 block">
+                      {activeAddr.countryCode || 'US'}
+                    </span>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <span className="text-[#64748B] block">
+                      {finalAddr ? 'Final Transaction Shipping Address' : 'Shipping Address'}
+                    </span>
+                    <p className="font-medium text-[#0F172A] mt-0.5 leading-relaxed">
+                      {activeAddr.addressLine1}
+                      {activeAddr.addressLine2 ? `, ${activeAddr.addressLine2}` : ''}
+                      <br />
+                      {[activeAddr.city, activeAddr.state, activeAddr.postalCode]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </p>
+                  </div>
+
+                  {!finalAddr && requestedAddr && order.isPaid && (
+                    <div className="sm:col-span-2 pt-1 text-[11px] text-[#64748B] italic">
+                      * Final PayPal destination could not be independently confirmed by gateway response. Showing originally requested checkout address.
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#64748B]">
+                  <p>No order-specific shipping address recorded (Digital / Legacy sandbox order).</p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Actions */}
         <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-2">

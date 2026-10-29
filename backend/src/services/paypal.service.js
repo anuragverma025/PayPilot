@@ -128,15 +128,32 @@ export class PayPalService {
       ]
     };
 
-    // Pre-fill the recipient name shown in PayPal hosted checkout using the
-    // buyer name the customer entered in PayPilot. PayPal may still allow
-    // the buyer to edit the shipping address inside the hosted window.
-    // Only set when a non-empty name is present; never invent an address.
-    const buyerName = order.buyer?.name ? String(order.buyer.name).trim() : '';
-    if (buyerName) {
-      purchaseUnit.shipping = {
-        name: { full_name: buyerName.substring(0, 300) }
-      };
+    // Configure shipping recipient name and order-specific delivery address.
+    // Recipient name precedence: order.shippingAddress.recipientName -> order.buyer.name -> ''
+    const recipientName =
+      order.shippingAddress?.recipientName?.trim() || order.buyer?.name?.trim() || '';
+    const addr = order.shippingAddress;
+    const hasAddress = Boolean(addr?.addressLine1 && String(addr.addressLine1).trim().length > 0);
+
+    if (recipientName || hasAddress) {
+      purchaseUnit.shipping = {};
+      if (recipientName) {
+        purchaseUnit.shipping.name = {
+          full_name: recipientName.substring(0, 300)
+        };
+      }
+      if (hasAddress) {
+        purchaseUnit.shipping.address = {
+          address_line_1: String(addr.addressLine1).trim().substring(0, 300),
+          ...(addr.addressLine2 && String(addr.addressLine2).trim().length > 0
+            ? { address_line_2: String(addr.addressLine2).trim().substring(0, 300) }
+            : {}),
+          admin_area_2: addr.city ? String(addr.city).trim().substring(0, 120) : '',
+          admin_area_1: addr.state ? String(addr.state).trim().substring(0, 120) : '',
+          postal_code: addr.postalCode ? String(addr.postalCode).trim().substring(0, 20) : '',
+          country_code: addr.countryCode ? String(addr.countryCode).trim().substring(0, 2).toUpperCase() : 'US'
+        };
+      }
     }
 
     return {
@@ -165,6 +182,9 @@ export class PayPalService {
     const { value: totalAmount, breakdown } = payload.purchase_units[0].amount;
     const itemTotal = breakdown.item_total.value;
     const unitAmount = payload.purchase_units[0].items[0].unit_amount.value;
+
+    const shipping = payload.purchase_units[0].shipping;
+    console.log(`[PayPal Service] createOrder shipping: orderRef=${order._id || order.orderNumber}, recipient=${shipping?.name?.full_name || '(none)'}, hasAddress=${Boolean(shipping?.address)}, country=${shipping?.address?.country_code || 'N/A'}`);
 
     // Log the amounts we are sending so mismatches are visible in backend output
     console.log(`[PayPal Service] createOrder payload amounts: unitAmount=${unitAmount}, qty=${order.quantity}, itemTotal=${itemTotal}, totalAmount=${totalAmount}, currency=${order.currency}`);
@@ -342,7 +362,38 @@ export class PayPalService {
       captureId: capture.id,
       capturedAmount: capturedValue,
       capturedCurrency,
-      payer: captureResult.payer
+      payer: captureResult.payer,
+      shippingAddress: this.extractShippingAddress(captureResult)
+    };
+  }
+
+  /**
+   * Safely extract and normalize authoritative shipping destination from PayPal capture or order details.
+   * Returns null if no valid shipping address data is present.
+   */
+  static extractShippingAddress(paypalData) {
+    if (!paypalData) return null;
+
+    // Check purchase_units[0].shipping or direct shipping
+    const shipping = paypalData.purchase_units?.[0]?.shipping || paypalData.shipping;
+    if (!shipping) return null;
+
+    const address = shipping.address;
+    if (!address || !address.address_line_1 || String(address.address_line_1).trim().length === 0) {
+      return null;
+    }
+
+    const recipientName = shipping.name?.full_name ? String(shipping.name.full_name).trim() : '';
+
+    return {
+      recipientName: recipientName.substring(0, 300),
+      addressLine1: String(address.address_line_1).trim().substring(0, 300),
+      addressLine2: address.address_line_2 ? String(address.address_line_2).trim().substring(0, 300) : '',
+      city: address.admin_area_2 ? String(address.admin_area_2).trim().substring(0, 120) : '',
+      state: address.admin_area_1 ? String(address.admin_area_1).trim().substring(0, 120) : '',
+      postalCode: address.postal_code ? String(address.postal_code).trim().substring(0, 20) : '',
+      countryCode: (address.country_code ? String(address.country_code).trim().substring(0, 2) : 'US').toUpperCase(),
+      source: 'PAYPAL_TRANSACTION'
     };
   }
 }

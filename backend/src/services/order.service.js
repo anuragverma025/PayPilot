@@ -27,7 +27,7 @@ export class OrderService {
   /**
    * Create an initial order review draft with authoritative catalog prices
    */
-  static async createOrderDraft({ productId, quantity = 1, buyer = {}, approvalConfirmed = false, currency, guestToken }) {
+  static async createOrderDraft({ productId, quantity = 1, buyer = {}, shippingAddress = {}, approvalConfirmed = false, currency, guestToken }) {
     // 1. Authoritative product lookup from catalog
     const product = await CatalogService.getProductById(productId);
     if (!product) {
@@ -88,6 +88,16 @@ export class OrderService {
         email: buyer?.email || '',
         notes: buyer?.notes || ''
       },
+      shippingAddress: {
+        recipientName: shippingAddress?.recipientName || '',
+        addressLine1: shippingAddress?.addressLine1 || '',
+        addressLine2: shippingAddress?.addressLine2 || '',
+        city: shippingAddress?.city || '',
+        state: shippingAddress?.state || '',
+        postalCode: shippingAddress?.postalCode || '',
+        countryCode: (shippingAddress?.countryCode || '').toUpperCase()
+      },
+      finalShippingAddress: null,
       guestTokenHash,
       timeline: [
         {
@@ -234,6 +244,12 @@ export class OrderService {
     }
 
     const updates = { ...updateFields, updatedAt: new Date() };
+    if (updates.shippingAddress) {
+      updates.shippingAddress = { ...updates.shippingAddress };
+    }
+    if (updates.finalShippingAddress) {
+      updates.finalShippingAddress = { ...updates.finalShippingAddress };
+    }
 
     if (this.isMongoConnected() && mongoose.Types.ObjectId.isValid(order._id)) {
       try {

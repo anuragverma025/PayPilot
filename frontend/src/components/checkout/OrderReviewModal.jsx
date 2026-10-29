@@ -11,6 +11,7 @@ import {
   FileText,
   User,
   Mail,
+  MapPin,
   Info,
   Clock,
   Sparkles,
@@ -39,6 +40,23 @@ export function OrderReviewModal({
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
   const [touched, setTouched] = useState({ name: false, email: false });
+  const [shippingAddress, setShippingAddress] = useState({
+    recipientName: '',
+    addressLine1: '',
+    addressLine2: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    countryCode: 'US'
+  });
+  const [shippingTouched, setShippingTouched] = useState({
+    recipientName: false,
+    addressLine1: false,
+    city: false,
+    state: false,
+    postalCode: false,
+    countryCode: false
+  });
   const [approvalConfirmed, setApprovalConfirmed] = useState(false);
 
   // Flow State: 'REVIEW' | 'PROCESSING' | 'COMPLETED' | 'ERROR'
@@ -74,6 +92,14 @@ export function OrderReviewModal({
       setCompletedOrder(null);
       setApprovalConfirmed(false);
       setTouched({ name: false, email: false });
+      setShippingTouched({
+        recipientName: false,
+        addressLine1: false,
+        city: false,
+        state: false,
+        postalCode: false,
+        countryCode: false
+      });
       setIsConfigLoading(true);
 
       api.getPayPalConfig()
@@ -123,7 +149,24 @@ export function OrderReviewModal({
   // Validation checks
   const isNameValid = buyerName.trim().length >= 2;
   const isEmailValid = EMAIL_REGEX.test(buyerEmail.trim());
-  const isFormValid = isNameValid && isEmailValid;
+
+  const effectiveRecipientName = shippingAddress.recipientName.trim() || buyerName.trim();
+  const isRecipientNameValid = effectiveRecipientName.length >= 2;
+  const isAddressLine1Valid = shippingAddress.addressLine1.trim().length >= 3;
+  const isCityValid = shippingAddress.city.trim().length >= 1;
+  const isStateValid = shippingAddress.state.trim().length >= 1;
+  const isPostalCodeValid = shippingAddress.postalCode.trim().length >= 2;
+  const isCountryCodeValid = shippingAddress.countryCode.trim().length === 2;
+
+  const isShippingValid =
+    isRecipientNameValid &&
+    isAddressLine1Valid &&
+    isCityValid &&
+    isStateValid &&
+    isPostalCodeValid &&
+    isCountryCodeValid;
+
+  const isFormValid = isNameValid && isEmailValid && isShippingValid;
 
   const nameError = touched.name && !isNameValid
     ? (buyerName.trim().length === 0 ? 'Buyer full name is required.' : 'Please enter at least 2 characters.')
@@ -132,6 +175,27 @@ export function OrderReviewModal({
   const emailError = touched.email && !isEmailValid
     ? (buyerEmail.trim().length === 0 ? 'Sandbox email address is required.' : 'Please enter a valid email address (e.g. buyer@example.com).')
     : null;
+
+  const recipientNameError =
+    shippingTouched.recipientName && !isRecipientNameValid
+      ? 'Recipient name is required (at least 2 characters).'
+      : null;
+
+  const addressLine1Error =
+    shippingTouched.addressLine1 && !isAddressLine1Valid
+      ? (shippingAddress.addressLine1.trim().length === 0
+          ? 'Street address is required.'
+          : 'Please enter at least 3 characters.')
+      : null;
+
+  const cityError =
+    shippingTouched.city && !isCityValid ? 'City is required.' : null;
+
+  const stateError =
+    shippingTouched.state && !isStateValid ? 'State / Region is required.' : null;
+
+  const postalCodeError =
+    shippingTouched.postalCode && !isPostalCodeValid ? 'Postal / ZIP code is required.' : null;
 
   // If modal is closed or product is missing, return null only AFTER all Hooks have executed
   if (!isOpen || !product) return null;
@@ -146,11 +210,19 @@ export function OrderReviewModal({
     setLoading(true);
     setErrorMessage(null);
 
-    // Validate buyer fields before communicating with backend
-    if (!isNameValid || !isEmailValid) {
+    // Validate buyer and shipping fields before communicating with backend
+    if (!isFormValid) {
       setTouched({ name: true, email: true });
+      setShippingTouched({
+        recipientName: true,
+        addressLine1: true,
+        city: true,
+        state: true,
+        postalCode: true,
+        countryCode: true
+      });
       setLoading(false);
-      const msg = 'Please enter your full name and a valid sandbox email address before proceeding.';
+      const msg = 'Please fill in all required buyer contact and delivery address fields before proceeding.';
       setErrorMessage(msg);
       throw new Error(msg);
     }
@@ -162,6 +234,16 @@ export function OrderReviewModal({
       throw new Error(msg);
     }
 
+    const finalShippingAddress = {
+      recipientName: effectiveRecipientName,
+      addressLine1: shippingAddress.addressLine1.trim(),
+      addressLine2: shippingAddress.addressLine2.trim() || undefined,
+      city: shippingAddress.city.trim(),
+      state: shippingAddress.state.trim(),
+      postalCode: shippingAddress.postalCode.trim(),
+      countryCode: shippingAddress.countryCode.trim().toUpperCase()
+    };
+
     const orderPayload = {
       orderId: orderDraft?._id,
       productId: product.id,
@@ -170,6 +252,7 @@ export function OrderReviewModal({
         name: buyerName.trim(),
         email: buyerEmail.trim()
       },
+      shippingAddress: finalShippingAddress,
       approvalConfirmed: true,
       currency,
       guestToken: guestSession.getToken() || undefined
@@ -285,9 +368,17 @@ export function OrderReviewModal({
 
   // Simulated Sandbox checkout only when credentials are unconfigured on server
   const handleSimulatedCheckout = async () => {
-    if (!isNameValid || !isEmailValid) {
+    if (!isFormValid) {
       setTouched({ name: true, email: true });
-      setErrorMessage('Please fill in required buyer name and a valid email address.');
+      setShippingTouched({
+        recipientName: true,
+        addressLine1: true,
+        city: true,
+        state: true,
+        postalCode: true,
+        countryCode: true
+      });
+      setErrorMessage('Please fill in required buyer and delivery address fields.');
       return;
     }
 
@@ -300,6 +391,16 @@ export function OrderReviewModal({
     setLoading(true);
     setErrorMessage(null);
 
+    const finalShippingAddress = {
+      recipientName: effectiveRecipientName,
+      addressLine1: shippingAddress.addressLine1.trim(),
+      addressLine2: shippingAddress.addressLine2.trim() || undefined,
+      city: shippingAddress.city.trim(),
+      state: shippingAddress.state.trim(),
+      postalCode: shippingAddress.postalCode.trim(),
+      countryCode: shippingAddress.countryCode.trim().toUpperCase()
+    };
+
     try {
       const draftRes = await api.createOrderDraft({
         productId: product.id,
@@ -308,6 +409,7 @@ export function OrderReviewModal({
           name: buyerName.trim(),
           email: buyerEmail.trim()
         },
+        shippingAddress: finalShippingAddress,
         currency
       });
 
@@ -320,6 +422,8 @@ export function OrderReviewModal({
         status: 'COMPLETED',
         isPaid: true,
         paidAt: new Date().toISOString(),
+        shippingAddress: finalShippingAddress,
+        finalShippingAddress,
         paypalOrderId: `SIM-PP-${Date.now().toString().slice(-6)}`,
         paypalCaptureId: `SIM-CAP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
         payer: {
@@ -343,9 +447,17 @@ export function OrderReviewModal({
   // Handle user toggling the approval checkbox
   const handleApprovalChange = (e) => {
     const checked = e.target.checked;
-    if (checked && (!isNameValid || !isEmailValid)) {
+    if (checked && !isFormValid) {
       setTouched({ name: true, email: true });
-      setErrorMessage('Please provide your buyer name and a valid sandbox email before confirming approval.');
+      setShippingTouched({
+        recipientName: true,
+        addressLine1: true,
+        city: true,
+        state: true,
+        postalCode: true,
+        countryCode: true
+      });
+      setErrorMessage('Please provide your buyer name, sandbox email, and delivery address before confirming approval.');
       setApprovalConfirmed(false);
       return;
     }
@@ -569,6 +681,215 @@ export function OrderReviewModal({
                 </div>
               </div>
 
+              {/* Order Delivery & Shipping Address with Inline Validation */}
+              <div className="p-4 rounded-2xl bg-white border border-paypilot-border space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-paypilot-text uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-paypilot-brand" />
+                    <span>Order Delivery & Shipping Address</span>
+                  </h4>
+                  <span className="text-[11px] text-paypilot-muted">* Required fields</span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  {/* Recipient Full Name */}
+                  <div className="space-y-1">
+                    <label className="font-medium text-paypilot-text flex items-center justify-between">
+                      <span>Recipient Full Name <span className="text-rose-500">*</span></span>
+                      <span className="text-[11px] text-paypilot-muted">Defaults to buyer name if left blank</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={shippingAddress.recipientName}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setShippingAddress((prev) => ({ ...prev, recipientName: val }));
+                        if (!shippingTouched.recipientName) setShippingTouched((prev) => ({ ...prev, recipientName: true }));
+                      }}
+                      onBlur={() => setShippingTouched((prev) => ({ ...prev, recipientName: true }))}
+                      placeholder={buyerName || "e.g. Anurag Verma"}
+                      className={`w-full px-3 py-2 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-2 ${
+                        recipientNameError
+                          ? 'border-rose-400 bg-rose-50/20 focus:ring-rose-200 text-rose-900'
+                          : 'border-paypilot-border bg-slate-50 focus:ring-paypilot-brand/20 text-paypilot-text'
+                      }`}
+                    />
+                    {recipientNameError && (
+                      <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>{recipientNameError}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Address Line 1 */}
+                  <div className="space-y-1">
+                    <label className="font-medium text-paypilot-text flex items-center justify-between">
+                      <span>Address Line 1 <span className="text-rose-500">*</span></span>
+                    </label>
+                    <input
+                      type="text"
+                      value={shippingAddress.addressLine1}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setShippingAddress((prev) => ({ ...prev, addressLine1: val }));
+                        if (!shippingTouched.addressLine1) setShippingTouched((prev) => ({ ...prev, addressLine1: true }));
+                      }}
+                      onBlur={() => setShippingTouched((prev) => ({ ...prev, addressLine1: true }))}
+                      placeholder="e.g. 123 Tech Park Way"
+                      className={`w-full px-3 py-2 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-2 ${
+                        addressLine1Error
+                          ? 'border-rose-400 bg-rose-50/20 focus:ring-rose-200 text-rose-900'
+                          : 'border-paypilot-border bg-slate-50 focus:ring-paypilot-brand/20 text-paypilot-text'
+                      }`}
+                    />
+                    {addressLine1Error && (
+                      <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>{addressLine1Error}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Address Line 2 */}
+                  <div className="space-y-1">
+                    <label className="font-medium text-paypilot-text flex items-center justify-between">
+                      <span>Address Line 2 <span className="text-paypilot-muted text-[11px] font-normal">(Optional)</span></span>
+                    </label>
+                    <input
+                      type="text"
+                      value={shippingAddress.addressLine2}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setShippingAddress((prev) => ({ ...prev, addressLine2: val }));
+                      }}
+                      placeholder="e.g. Suite 400 or Apt 2B"
+                      className="w-full px-3 py-2 rounded-xl border border-paypilot-border bg-slate-50 focus:ring-paypilot-brand/20 text-paypilot-text text-xs transition-colors focus:outline-none focus:ring-2"
+                    />
+                  </div>
+
+                  {/* City, State, Postal Code, Country 2x2 grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* City */}
+                    <div className="space-y-1">
+                      <label className="font-medium text-paypilot-text flex items-center justify-between">
+                        <span>City <span className="text-rose-500">*</span></span>
+                      </label>
+                      <input
+                        type="text"
+                        value={shippingAddress.city}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setShippingAddress((prev) => ({ ...prev, city: val }));
+                          if (!shippingTouched.city) setShippingTouched((prev) => ({ ...prev, city: true }));
+                        }}
+                        onBlur={() => setShippingTouched((prev) => ({ ...prev, city: true }))}
+                        placeholder="e.g. Bengaluru"
+                        className={`w-full px-3 py-2 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-2 ${
+                          cityError
+                            ? 'border-rose-400 bg-rose-50/20 focus:ring-rose-200 text-rose-900'
+                            : 'border-paypilot-border bg-slate-50 focus:ring-paypilot-brand/20 text-paypilot-text'
+                        }`}
+                      />
+                      {cityError && (
+                        <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>{cityError}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* State */}
+                    <div className="space-y-1">
+                      <label className="font-medium text-paypilot-text flex items-center justify-between">
+                        <span>State / Region <span className="text-rose-500">*</span></span>
+                      </label>
+                      <input
+                        type="text"
+                        value={shippingAddress.state}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setShippingAddress((prev) => ({ ...prev, state: val }));
+                          if (!shippingTouched.state) setShippingTouched((prev) => ({ ...prev, state: true }));
+                        }}
+                        onBlur={() => setShippingTouched((prev) => ({ ...prev, state: true }))}
+                        placeholder="e.g. Karnataka"
+                        className={`w-full px-3 py-2 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-2 ${
+                          stateError
+                            ? 'border-rose-400 bg-rose-50/20 focus:ring-rose-200 text-rose-900'
+                            : 'border-paypilot-border bg-slate-50 focus:ring-paypilot-brand/20 text-paypilot-text'
+                        }`}
+                      />
+                      {stateError && (
+                        <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>{stateError}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Postal Code */}
+                    <div className="space-y-1">
+                      <label className="font-medium text-paypilot-text flex items-center justify-between">
+                        <span>Postal / ZIP Code <span className="text-rose-500">*</span></span>
+                      </label>
+                      <input
+                        type="text"
+                        value={shippingAddress.postalCode}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setShippingAddress((prev) => ({ ...prev, postalCode: val }));
+                          if (!shippingTouched.postalCode) setShippingTouched((prev) => ({ ...prev, postalCode: true }));
+                        }}
+                        onBlur={() => setShippingTouched((prev) => ({ ...prev, postalCode: true }))}
+                        placeholder="e.g. 560001"
+                        className={`w-full px-3 py-2 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-2 ${
+                          postalCodeError
+                            ? 'border-rose-400 bg-rose-50/20 focus:ring-rose-200 text-rose-900'
+                            : 'border-paypilot-border bg-slate-50 focus:ring-paypilot-brand/20 text-paypilot-text'
+                        }`}
+                      />
+                      {postalCodeError && (
+                        <p className="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span>{postalCodeError}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Country Code */}
+                    <div className="space-y-1">
+                      <label className="font-medium text-paypilot-text flex items-center justify-between">
+                        <span>Country <span className="text-rose-500">*</span></span>
+                      </label>
+                      <select
+                        value={shippingAddress.countryCode}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setShippingAddress((prev) => ({ ...prev, countryCode: val }));
+                        }}
+                        className="w-full px-3 py-2 rounded-xl border border-paypilot-border bg-slate-50 focus:ring-paypilot-brand/20 text-paypilot-text text-xs transition-colors focus:outline-none focus:ring-2"
+                      >
+                        <option value="IN">India (IN)</option>
+                        <option value="US">United States (US)</option>
+                        <option value="GB">United Kingdom (GB)</option>
+                        <option value="CA">Canada (CA)</option>
+                        <option value="AU">Australia (AU)</option>
+                        <option value="DE">Germany (DE)</option>
+                        <option value="SG">Singapore (SG)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-paypilot-muted">
+                  <Info className="w-3.5 h-3.5 text-paypilot-brand flex-shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Order-Specific Shipping:</strong> This address is saved directly to your internal PayPilot order and forwarded to PayPal Orders v2 API so each order maintains its own delivery destination.
+                  </span>
+                </div>
+              </div>
+
               {/* MANDATORY USER APPROVAL CHECKBOX */}
               <div className={`p-4 rounded-2xl border space-y-2 transition-colors ${
                 approvalConfirmed
@@ -773,6 +1094,35 @@ export function OrderReviewModal({
                         : formatUSD(completedOrder.total)}
                     </div>
                   </div>
+
+                  {/* Delivery Destination */}
+                  {(completedOrder.finalShippingAddress?.addressLine1 || completedOrder.shippingAddress?.addressLine1) && (
+                    <div className="col-span-2 pt-2 border-t border-paypilot-border">
+                      <span className="text-paypilot-muted flex items-center justify-between">
+                        <span>Delivery Destination:</span>
+                        {completedOrder.finalShippingAddress?.addressLine1 && (
+                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                            PayPal Verified
+                          </span>
+                        )}
+                      </span>
+                      <div className="font-medium text-paypilot-text mt-0.5">
+                        {(completedOrder.finalShippingAddress || completedOrder.shippingAddress).recipientName && (
+                          <strong className="block text-paypilot-navy">
+                            {(completedOrder.finalShippingAddress || completedOrder.shippingAddress).recipientName}
+                          </strong>
+                        )}
+                        {[(completedOrder.finalShippingAddress || completedOrder.shippingAddress).addressLine1,
+                          (completedOrder.finalShippingAddress || completedOrder.shippingAddress).addressLine2,
+                          (completedOrder.finalShippingAddress || completedOrder.shippingAddress).city,
+                          (completedOrder.finalShippingAddress || completedOrder.shippingAddress).state,
+                          (completedOrder.finalShippingAddress || completedOrder.shippingAddress).postalCode,
+                          (completedOrder.finalShippingAddress || completedOrder.shippingAddress).countryCode]
+                          .filter(Boolean)
+                          .join(', ')}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {completedOrder.paidAt && (

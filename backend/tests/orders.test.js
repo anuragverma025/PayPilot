@@ -510,4 +510,69 @@ describe('Orders Security, Guest Ownership & Isolation Suite', () => {
       process.env.NODE_ENV = originalEnv;
     }
   });
+
+  it('13. Orders maintain independent shipping address snapshots without mutating earlier orders', async () => {
+    // 1. Create Order 1 with Address 1
+    const res1 = await request(app)
+      .post('/api/orders/draft')
+      .send({
+        productId: 'lap-lenovo-e14-g5',
+        quantity: 1,
+        buyer: { name: 'Anurag', email: 'anurag1@example.com' },
+        shippingAddress: {
+          recipientName: 'Anurag',
+          addressLine1: '100 Silicon Way',
+          city: 'Bengaluru',
+          state: 'Karnataka',
+          postalCode: '560001',
+          countryCode: 'IN'
+        }
+      });
+
+    expect(res1.status).toBe(201);
+    const order1Id = res1.body.data._id;
+    const token1 = res1.body.data.guestToken;
+
+    // 2. Create Order 2 with Address 2
+    const res2 = await request(app)
+      .post('/api/orders/draft')
+      .send({
+        productId: 'lap-acer-nitro-v15',
+        quantity: 1,
+        buyer: { name: 'Anurag Verma', email: 'anurag2@example.com' },
+        shippingAddress: {
+          recipientName: 'Anurag Verma',
+          addressLine1: '500 Innovation Blvd',
+          addressLine2: 'Tower B, Suite 12',
+          city: 'San Jose',
+          state: 'CA',
+          postalCode: '95131',
+          countryCode: 'US'
+        }
+      });
+
+    expect(res2.status).toBe(201);
+    const order2Id = res2.body.data._id;
+    const token2 = res2.body.data.guestToken;
+
+    // 3. Verify Order 1 still has Address 1
+    const fetch1 = await request(app)
+      .get(`/api/orders/${order1Id}`)
+      .set('x-guest-token', token1);
+    expect(fetch1.status).toBe(200);
+    expect(fetch1.body.data.shippingAddress.recipientName).toBe('Anurag');
+    expect(fetch1.body.data.shippingAddress.addressLine1).toBe('100 Silicon Way');
+    expect(fetch1.body.data.shippingAddress.city).toBe('Bengaluru');
+    expect(fetch1.body.data.shippingAddress.countryCode).toBe('IN');
+
+    // 4. Verify Order 2 has Address 2
+    const fetch2 = await request(app)
+      .get(`/api/orders/${order2Id}`)
+      .set('x-guest-token', token2);
+    expect(fetch2.status).toBe(200);
+    expect(fetch2.body.data.shippingAddress.recipientName).toBe('Anurag Verma');
+    expect(fetch2.body.data.shippingAddress.addressLine1).toBe('500 Innovation Blvd');
+    expect(fetch2.body.data.shippingAddress.city).toBe('San Jose');
+    expect(fetch2.body.data.shippingAddress.countryCode).toBe('US');
+  });
 });

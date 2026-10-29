@@ -83,6 +83,25 @@ const orderSchema = new mongoose.Schema(
       email: { type: String, default: '' },
       notes: { type: String, default: '' }
     },
+    shippingAddress: {
+      recipientName: { type: String, default: '' },
+      addressLine1: { type: String, default: '' },
+      addressLine2: { type: String, default: '' },
+      city: { type: String, default: '' },
+      state: { type: String, default: '' },
+      postalCode: { type: String, default: '' },
+      countryCode: { type: String, default: '' }
+    },
+    finalShippingAddress: {
+      recipientName: { type: String, default: '' },
+      addressLine1: { type: String, default: '' },
+      addressLine2: { type: String, default: '' },
+      city: { type: String, default: '' },
+      state: { type: String, default: '' },
+      postalCode: { type: String, default: '' },
+      countryCode: { type: String, default: '' },
+      source: { type: String, default: '' }
+    },
     guestTokenHash: {
       type: String,
       index: true,

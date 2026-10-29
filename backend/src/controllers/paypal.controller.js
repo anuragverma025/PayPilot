@@ -101,8 +101,11 @@ export async function createOrder(req, res, next) {
           }
         });
       }
-      if (validated.buyer) {
-        order = await OrderService.updateOrder(order._id, { buyer: validated.buyer });
+      if (validated.buyer || validated.shippingAddress) {
+        const updateFields = {};
+        if (validated.buyer) updateFields.buyer = validated.buyer;
+        if (validated.shippingAddress) updateFields.shippingAddress = validated.shippingAddress;
+        order = await OrderService.updateOrder(order._id, updateFields);
       }
     } else {
       const guestToken = extractGuestToken(req, validated);
@@ -110,6 +113,7 @@ export async function createOrder(req, res, next) {
         productId: validated.productId,
         quantity: validated.quantity,
         buyer: validated.buyer,
+        shippingAddress: validated.shippingAddress,
         approvalConfirmed: validated.approvalConfirmed,
         currency: validated.currency,
         guestToken: guestToken || undefined
@@ -304,7 +308,24 @@ export async function captureOrder(req, res, next) {
       throw verifyErr;
     }
 
-    // 5. Verified! Mark order paid and complete
+    // 5. Extract authoritative final shipping address from capture or details fallback
+    let finalShippingAddress = verification.shippingAddress;
+    if (!finalShippingAddress) {
+      try {
+        const orderDetails = await PayPalService.getOrderDetails(paypalOrderId);
+        finalShippingAddress = PayPalService.extractShippingAddress(orderDetails);
+      } catch (detailsErr) {
+        console.warn(`[PayPal Backend] POST /api/paypal/capture-order: Fallback order details fetch failed: ${detailsErr.message}`);
+      }
+    }
+
+    if (finalShippingAddress) {
+      console.log(`[PayPal Backend] POST /api/paypal/capture-order: Authoritative PayPal shipping address verified for order ${order.orderNumber}: ${finalShippingAddress.recipientName}, ${finalShippingAddress.addressLine1}, ${finalShippingAddress.city}, ${finalShippingAddress.countryCode}`);
+    } else {
+      console.log(`[PayPal Backend] POST /api/paypal/capture-order: No shipping destination returned by PayPal for order ${order.orderNumber}. Preserving original requested address.`);
+    }
+
+    // 6. Verified! Mark order paid and complete
     const payerInfo = verification.payer
       ? {
           payerId: verification.payer.payer_id,
@@ -323,7 +344,8 @@ export async function captureOrder(req, res, next) {
         isPaid: true,
         paidAt: new Date(),
         paypalCaptureId: verification.captureId,
-        ...(payerInfo ? { payer: payerInfo } : {})
+        ...(payerInfo ? { payer: payerInfo } : {}),
+        ...(finalShippingAddress ? { finalShippingAddress } : {})
       },
       {
         action: 'ORDER_PAYMENT_VERIFIED',
@@ -332,7 +354,8 @@ export async function captureOrder(req, res, next) {
           captureId: verification.captureId,
           capturedAmount: verification.capturedAmount,
           capturedCurrency: verification.capturedCurrency,
-          verifiedAt: new Date().toISOString()
+          verifiedAt: new Date().toISOString(),
+          ...(finalShippingAddress ? { finalShippingAddress } : {})
         }
       }
     );

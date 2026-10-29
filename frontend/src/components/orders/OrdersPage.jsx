@@ -270,6 +270,12 @@ export function OrdersPage({ onNavigateToShopping }) {
                       <span>•</span>
                       <span>Gateway: <strong className="text-[#0F172A]">PayPal</strong></span>
                     </div>
+
+                    {(order.finalShippingAddress?.city || order.shippingAddress?.city) && (
+                      <div className="text-[11px] text-[#64748B] truncate pt-0.5">
+                        Ship to: <span className="font-medium text-[#0F172A]">{(order.finalShippingAddress || order.shippingAddress).recipientName || order.buyer?.name || 'Customer'}</span> ({(order.finalShippingAddress || order.shippingAddress).city}, {(order.finalShippingAddress || order.shippingAddress).countryCode})
+                      </div>
+                    )}
                   </div>
                 </div>
 
