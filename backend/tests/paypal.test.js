@@ -326,6 +326,96 @@ describe('PayPal Sandbox Checkout & Order Verification', () => {
     expect(checkRes.body.data.paypalCaptureId).toBeUndefined();
   });
 
+  it('11. buildCreateOrderPayload includes shipping.name.full_name when buyer name is provided', () => {
+    // Tests the ACTUAL outgoing PayPal API payload structure, not just the
+    // order object passed into a mock. buildCreateOrderPayload is the pure
+    // function whose return value is JSON.stringified into the live fetch body.
+    const order = {
+      _id: 'test-id-001',
+      orderNumber: 'ORD-TEST-0001',
+      currency: 'INR',
+      quantity: 1,
+      product: { name: 'Test Laptop', unitPrice: 75000 },
+      buyer: { name: 'Alice Smith', email: 'alice@example.com' }
+    };
+
+    const payload = PayPalService.buildCreateOrderPayload(order);
+
+    // Verify shipping.name.full_name is set in the purchase unit
+    expect(payload.purchase_units[0].shipping).toBeDefined();
+    expect(payload.purchase_units[0].shipping.name.full_name).toBe('Alice Smith');
+  });
+
+  it('11b. buildCreateOrderPayload preserves multi-part names like "Anurag Kumar Verma"', () => {
+    const order = {
+      _id: 'test-id-002',
+      orderNumber: 'ORD-TEST-0002',
+      currency: 'INR',
+      quantity: 2,
+      product: { name: 'Test Laptop', unitPrice: 75000 },
+      buyer: { name: 'Anurag Kumar Verma', email: 'anurag@example.com' }
+    };
+
+    const payload = PayPalService.buildCreateOrderPayload(order);
+
+    expect(payload.purchase_units[0].shipping.name.full_name).toBe('Anurag Kumar Verma');
+  });
+
+  it('12. buildCreateOrderPayload omits shipping when buyer name is absent or empty', () => {
+    // No buyer at all
+    const orderNoBuyer = {
+      _id: 'test-id-003',
+      orderNumber: 'ORD-TEST-0003',
+      currency: 'INR',
+      quantity: 1,
+      product: { name: 'Test Laptop', unitPrice: 75000 }
+    };
+    const payloadNoBuyer = PayPalService.buildCreateOrderPayload(orderNoBuyer);
+    expect(payloadNoBuyer.purchase_units[0].shipping).toBeUndefined();
+
+    // Buyer present but name is empty string
+    const orderEmptyName = {
+      ...orderNoBuyer,
+      buyer: { name: '   ', email: 'x@example.com' }
+    };
+    const payloadEmptyName = PayPalService.buildCreateOrderPayload(orderEmptyName);
+    expect(payloadEmptyName.purchase_units[0].shipping).toBeUndefined();
+  });
+
+  it('12b. buildCreateOrderPayload enforces 300-char limit on buyer name', () => {
+    const longName = 'A'.repeat(350);
+    const order = {
+      _id: 'test-id-004',
+      orderNumber: 'ORD-TEST-0004',
+      currency: 'INR',
+      quantity: 1,
+      product: { name: 'Test Laptop', unitPrice: 75000 },
+      buyer: { name: longName }
+    };
+
+    const payload = PayPalService.buildCreateOrderPayload(order);
+    expect(payload.purchase_units[0].shipping.name.full_name.length).toBe(300);
+  });
+
+  it('12c. buildCreateOrderPayload amount arithmetic is correct for multi-quantity orders', () => {
+    const order = {
+      _id: 'test-id-005',
+      orderNumber: 'ORD-TEST-0005',
+      currency: 'INR',
+      quantity: 3,
+      product: { name: 'Test Laptop', unitPrice: 75000 }
+    };
+
+    const payload = PayPalService.buildCreateOrderPayload(order);
+    const pu = payload.purchase_units[0];
+
+    expect(pu.amount.value).toBe('225000.00');
+    expect(pu.amount.breakdown.item_total.value).toBe('225000.00');
+    expect(pu.items[0].unit_amount.value).toBe('75000.00');
+    expect(pu.items[0].quantity).toBe('3');
+    expect(pu.amount.currency_code).toBe('INR');
+  });
+
   it('10. Validates buyer information and updates order draft with buyer details on order creation', async () => {
     PayPalService.setMockTransport({
       createOrder: () => ({ id: 'PAYPAL-BUYER-TEST-10', status: 'CREATED' })

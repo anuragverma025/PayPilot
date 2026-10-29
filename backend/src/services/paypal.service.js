@@ -85,6 +85,72 @@ export class PayPalService {
   }
 
   /**
+   * Build the PayPal Orders v2 API request body for a given internal order.
+   * Extracted as a pure function so the payload structure can be unit-tested
+   * independently of the live PayPal network call.
+   *
+   * @param {object} order - Internal order document with product, quantity, currency, buyer fields.
+   * @returns {object} PayPal Orders v2 create-order request body.
+   */
+  static buildCreateOrderPayload(order) {
+    const unitAmount = Number(order.product.unitPrice).toFixed(2);
+    // Recompute item_total from unitAmount × quantity to match PayPal's own server-side validation.
+    // PayPal independently checks: unit_amount × quantity === item_total (to 2 decimal places).
+    // Using order.total directly can diverge by floating-point rounding; recomputing ensures consistency.
+    const itemTotal = (parseFloat(unitAmount) * order.quantity).toFixed(2);
+    // amount.value must also equal item_total (no tax/shipping in sandbox demo).
+    const totalAmount = itemTotal;
+
+    const purchaseUnit = {
+      reference_id: order.orderNumber,
+      custom_id: order._id?.toString() || order.orderNumber,
+      description: `${order.product.name} (Qty: ${order.quantity})`.substring(0, 127),
+      amount: {
+        currency_code: order.currency,
+        value: totalAmount,
+        breakdown: {
+          item_total: {
+            currency_code: order.currency,
+            value: itemTotal
+          }
+        }
+      },
+      items: [
+        {
+          name: order.product.name.substring(0, 127),
+          unit_amount: {
+            currency_code: order.currency,
+            value: unitAmount
+          },
+          quantity: order.quantity.toString(),
+          category: 'PHYSICAL_GOODS'
+        }
+      ]
+    };
+
+    // Pre-fill the recipient name shown in PayPal hosted checkout using the
+    // buyer name the customer entered in PayPilot. PayPal may still allow
+    // the buyer to edit the shipping address inside the hosted window.
+    // Only set when a non-empty name is present; never invent an address.
+    const buyerName = order.buyer?.name ? String(order.buyer.name).trim() : '';
+    if (buyerName) {
+      purchaseUnit.shipping = {
+        name: { full_name: buyerName.substring(0, 300) }
+      };
+    }
+
+    return {
+      intent: 'CAPTURE',
+      purchase_units: [purchaseUnit],
+      application_context: {
+        brand_name: 'PayPilot AI',
+        landing_page: 'NO_PREFERENCE',
+        user_action: 'PAY_NOW'
+      }
+    };
+  }
+
+  /**
    * Create PayPal Sandbox Order (POST /v2/checkout/orders)
    */
   static async createOrder(order) {
@@ -95,50 +161,10 @@ export class PayPalService {
     const token = await this.getAccessToken();
     const { baseUrl } = config.paypal;
 
-    const unitAmount = Number(order.product.unitPrice).toFixed(2);
-    // Recompute item_total from unitAmount × quantity to match PayPal's own server-side validation.
-    // PayPal independently checks: unit_amount × quantity === item_total (to 2 decimal places).
-    // Using order.total directly can diverge by floating-point rounding; recomputing ensures consistency.
-    const itemTotal = (parseFloat(unitAmount) * order.quantity).toFixed(2);
-    // amount.value must also equal item_total (no tax/shipping in sandbox demo).
-    const totalAmount = itemTotal;
-
-    const payload = {
-      intent: 'CAPTURE',
-      purchase_units: [
-        {
-          reference_id: order.orderNumber,
-          custom_id: order._id?.toString() || order.orderNumber,
-          description: `${order.product.name} (Qty: ${order.quantity})`.substring(0, 127),
-          amount: {
-            currency_code: order.currency,
-            value: totalAmount,
-            breakdown: {
-              item_total: {
-                currency_code: order.currency,
-                value: itemTotal
-              }
-            }
-          },
-          items: [
-            {
-              name: order.product.name.substring(0, 127),
-              unit_amount: {
-                currency_code: order.currency,
-                value: unitAmount
-              },
-              quantity: order.quantity.toString(),
-              category: 'PHYSICAL_GOODS'
-            }
-          ]
-        }
-      ],
-      application_context: {
-        brand_name: 'PayPilot AI',
-        landing_page: 'NO_PREFERENCE',
-        user_action: 'PAY_NOW'
-      }
-    };
+    const payload = this.buildCreateOrderPayload(order);
+    const { value: totalAmount, breakdown } = payload.purchase_units[0].amount;
+    const itemTotal = breakdown.item_total.value;
+    const unitAmount = payload.purchase_units[0].items[0].unit_amount.value;
 
     // Log the amounts we are sending so mismatches are visible in backend output
     console.log(`[PayPal Service] createOrder payload amounts: unitAmount=${unitAmount}, qty=${order.quantity}, itemTotal=${itemTotal}, totalAmount=${totalAmount}, currency=${order.currency}`);
