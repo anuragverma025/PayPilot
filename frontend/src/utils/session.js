@@ -1,4 +1,6 @@
 const GUEST_TOKEN_KEY = 'paypilot_guest_session_token';
+const AUTH_TOKEN_KEY = 'paypilot_auth_token';
+const AUTH_USER_KEY = 'paypilot_auth_user';
 
 /**
  * Guest Session Token Management Utility
@@ -38,6 +40,55 @@ export const guestSession = {
   clearToken: () => {
     try {
       localStorage.removeItem(GUEST_TOKEN_KEY);
+    } catch {}
+  }
+};
+
+/**
+ * User Auth Session Management Utility
+ */
+export const authSession = {
+  getToken: () => {
+    try {
+      return localStorage.getItem(AUTH_TOKEN_KEY) || null;
+    } catch {
+      return null;
+    }
+  },
+  setToken: (token) => {
+    try {
+      if (token && typeof token === 'string') {
+        localStorage.setItem(AUTH_TOKEN_KEY, token.trim());
+      }
+    } catch (e) {
+      console.warn('Unable to persist auth token to localStorage:', e);
+    }
+  },
+  clearToken: () => {
+    try {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    } catch {}
+  },
+  getUser: () => {
+    try {
+      const raw = localStorage.getItem(AUTH_USER_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
+  setUser: (user) => {
+    try {
+      if (user) {
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+      }
+    } catch (e) {
+      console.warn('Unable to persist auth user to localStorage:', e);
+    }
+  },
+  clearUser: () => {
+    try {
+      localStorage.removeItem(AUTH_USER_KEY);
     } catch {}
   }
 };

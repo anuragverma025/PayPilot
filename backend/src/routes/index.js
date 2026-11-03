@@ -5,10 +5,12 @@ import comparisonRoutes from './comparison.routes.js';
 import assistantRoutes from './assistant.routes.js';
 import orderRoutes from './order.routes.js';
 import paypalRoutes from './paypal.routes.js';
+import authRoutes from './auth.routes.js';
 
 const router = Router();
 
 router.get('/health', getHealth);
+router.use('/auth', authRoutes);
 router.use('/products', productRoutes);
 router.use('/compare', comparisonRoutes);
 router.use('/assistant', assistantRoutes);

@@ -107,6 +107,22 @@ const orderSchema = new mongoose.Schema(
       index: true,
       sparse: true
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+      sparse: true,
+      default: null
+    },
+    isHidden: {
+      type: Boolean,
+      default: false,
+      index: true
+    },
+    hiddenAt: {
+      type: Date,
+      default: null
+    },
     payer: {
       payerId: { type: String },
       email: { type: String },

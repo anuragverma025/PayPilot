@@ -1,6 +1,7 @@
 import { config } from '../config/index.js';
 import { PayPalService } from '../services/paypal.service.js';
 import { OrderService } from '../services/order.service.js';
+import { extractAuthContext } from '../middleware/auth.js';
 import {
   createPayPalOrderSchema,
   capturePayPalOrderSchema,
@@ -8,11 +9,19 @@ import {
 } from '../validators/order.validator.js';
 
 /**
- * Helper to extract guest token from request headers or body
+ * Helper to extract unified auth context (user + guest token)
  */
-function extractGuestToken(req, validated = {}) {
-  const token = req.headers['x-guest-token'] || req.body?.guestToken || validated?.guestToken;
-  return token ? String(token).trim() : null;
+function extractAuthContextSafe(req, validated = {}) {
+  const auth = extractAuthContext(req);
+  const token = auth?.guestToken || validated?.guestToken || req.body?.guestToken;
+  if (!auth?.user && (!token || typeof token !== 'string' || token.trim().length === 0)) {
+    return null;
+  }
+  return {
+    user: auth?.user || null,
+    userId: auth?.userId || null,
+    guestToken: token ? String(token).trim() : null
+  };
 }
 
 /**
@@ -45,8 +54,8 @@ export async function createOrder(req, res, next) {
     // 1. Authoritative order draft creation or lookup with ownership verification
     let order;
     if (validated.orderId) {
-      const guestToken = extractGuestToken(req, validated);
-      if (!guestToken) {
+      const auth = extractAuthContextSafe(req, validated);
+      if (!auth?.userId && !auth?.guestToken) {
         if (process.env.NODE_ENV !== 'test' || req.headers['x-enforce-auth'] === 'true') {
           return res.status(401).json({
             success: false,
@@ -56,7 +65,7 @@ export async function createOrder(req, res, next) {
             }
           });
         }
-      } else if (guestToken.length < 16) {
+      } else if (!auth?.userId && auth?.guestToken && auth.guestToken.length < 16) {
         return res.status(401).json({
           success: false,
           error: {
@@ -67,7 +76,7 @@ export async function createOrder(req, res, next) {
       }
 
       try {
-        order = await OrderService.getOrderById(validated.orderId, guestToken);
+        order = await OrderService.getOrderById(validated.orderId, auth);
       } catch (err) {
         if (err.code === 'ORDER_FORBIDDEN' || err.status === 403) {
           return res.status(403).json({
@@ -108,7 +117,7 @@ export async function createOrder(req, res, next) {
         order = await OrderService.updateOrder(order._id, updateFields);
       }
     } else {
-      const guestToken = extractGuestToken(req, validated);
+      const auth = extractAuthContextSafe(req, validated);
       order = await OrderService.createOrderDraft({
         productId: validated.productId,
         quantity: validated.quantity,
@@ -116,7 +125,8 @@ export async function createOrder(req, res, next) {
         shippingAddress: validated.shippingAddress,
         approvalConfirmed: validated.approvalConfirmed,
         currency: validated.currency,
-        guestToken: guestToken || undefined
+        guestToken: auth?.guestToken || undefined,
+        userId: auth?.userId || undefined
       });
     }
 
@@ -188,8 +198,8 @@ export async function captureOrder(req, res, next) {
     const validated = capturePayPalOrderSchema.parse(req.body);
     const { orderId, paypalOrderId } = validated;
 
-    const guestToken = extractGuestToken(req, validated);
-    if (!guestToken) {
+    const auth = extractAuthContextSafe(req, validated);
+    if (!auth?.userId && !auth?.guestToken) {
       if (process.env.NODE_ENV !== 'test' || req.headers['x-enforce-auth'] === 'true') {
         return res.status(401).json({
           success: false,
@@ -199,7 +209,7 @@ export async function captureOrder(req, res, next) {
           }
         });
       }
-    } else if (guestToken.length < 16) {
+    } else if (!auth?.userId && auth?.guestToken && auth.guestToken.length < 16) {
       return res.status(401).json({
         success: false,
         error: {
@@ -214,9 +224,9 @@ export async function captureOrder(req, res, next) {
     // 1. Look up authoritative database order and strictly enforce ownership
     let order;
     try {
-      order = await OrderService.getOrderById(orderId, guestToken);
+      order = await OrderService.getOrderById(orderId, auth);
       if (!order && paypalOrderId) {
-        order = await OrderService.getOrderById(paypalOrderId, guestToken);
+        order = await OrderService.getOrderById(paypalOrderId, auth);
       }
     } catch (err) {
       if (err.code === 'ORDER_FORBIDDEN' || err.status === 403) {
@@ -384,8 +394,8 @@ export async function cancelOrder(req, res, next) {
     const validated = cancelPayPalOrderSchema.parse(req.body);
     const { orderId, paypalOrderId, reason } = validated;
 
-    const guestToken = extractGuestToken(req, validated);
-    if (!guestToken) {
+    const auth = extractAuthContextSafe(req, validated);
+    if (!auth?.userId && !auth?.guestToken) {
       if (process.env.NODE_ENV !== 'test' || req.headers['x-enforce-auth'] === 'true') {
         return res.status(401).json({
           success: false,
@@ -395,7 +405,7 @@ export async function cancelOrder(req, res, next) {
           }
         });
       }
-    } else if (guestToken.length < 16) {
+    } else if (!auth?.userId && auth?.guestToken && auth.guestToken.length < 16) {
       return res.status(401).json({
         success: false,
         error: {
@@ -409,7 +419,7 @@ export async function cancelOrder(req, res, next) {
 
     let order;
     try {
-      order = await OrderService.getOrderById(orderId, guestToken);
+      order = await OrderService.getOrderById(orderId, auth);
     } catch (err) {
       if (err.code === 'ORDER_FORBIDDEN' || err.status === 403) {
         return res.status(403).json({

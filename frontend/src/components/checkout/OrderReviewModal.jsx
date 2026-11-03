@@ -125,26 +125,37 @@ export function OrderReviewModal({
 
   // Create authoritative draft when product or quantity changes
   useEffect(() => {
-    if (isOpen && product?.id) {
-      api.createOrderDraft({
-        productId: product.id,
-        quantity,
-        currency: paypalConfig?.currency || 'USD',
-        guestToken: guestSession.getToken() || undefined
-      })
-        .then((res) => {
-          if (res.success && res.data) {
-            setOrderDraft(res.data);
-            if (res.data.guestToken) {
-              guestSession.setToken(res.data.guestToken);
-            }
-          }
-        })
-        .catch((err) => {
-          console.error('Failed to create order draft:', err);
-        });
+    if (!isOpen || !product?.id || isConfigLoading) return;
+
+    // Prevent duplicate draft creation if the existing draft matches this modal state
+    if (
+      orderDraft &&
+      orderDraft.product?.productId === product.id &&
+      orderDraft.quantity === quantity &&
+      orderDraft.currency === (paypalConfig?.currency || 'USD')
+    ) {
+      return;
     }
-  }, [isOpen, product?.id, quantity, paypalConfig?.currency]);
+
+    api.createOrderDraft({
+      productId: product.id,
+      quantity,
+      currency: paypalConfig?.currency || 'USD',
+      guestToken: guestSession.getToken() || undefined
+    })
+      .then((res) => {
+        if (res.success && res.data) {
+          setOrderDraft(res.data);
+          activeOrderIdRef.current = res.data._id;
+          if (res.data.guestToken) {
+            guestSession.setToken(res.data.guestToken);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to create order draft:', err);
+      });
+  }, [isOpen, product?.id, quantity, paypalConfig?.currency, isConfigLoading]);
 
   // Validation checks
   const isNameValid = buyerName.trim().length >= 2;
@@ -402,7 +413,7 @@ export function OrderReviewModal({
     };
 
     try {
-      const draftRes = await api.createOrderDraft({
+      const draft = orderDraft || (await api.createOrderDraft({
         productId: product.id,
         quantity,
         buyer: {
@@ -411,9 +422,8 @@ export function OrderReviewModal({
         },
         shippingAddress: finalShippingAddress,
         currency
-      });
+      })).data;
 
-      const draft = draftRes.data;
       await new Promise((resolve) => setTimeout(resolve, 1400));
 
       const simulatedCompleted = {

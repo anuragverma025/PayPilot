@@ -9,12 +9,14 @@ import {
   Ban,
   ShieldCheck,
   Eye,
+  EyeOff,
   RefreshCw,
   ShoppingBag,
   Filter,
   Search,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  UserCheck
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { ProductImage } from '../products/ProductImage';
@@ -29,12 +31,14 @@ const FILTER_TABS = [
   { id: 'FAILED', label: 'Failed' }
 ];
 
-export function OrdersPage({ onNavigateToShopping }) {
+export function OrdersPage({ onNavigateToShopping, onOpenAuth, user }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [actionNotice, setActionNotice] = useState(null);
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [hidingOrderId, setHidingOrderId] = useState(null);
 
   const fetchOrders = async (status = activeFilter) => {
     setLoading(true);
@@ -58,10 +62,35 @@ export function OrdersPage({ onNavigateToShopping }) {
 
   useEffect(() => {
     fetchOrders(activeFilter);
-  }, [activeFilter]);
+  }, [activeFilter, user]);
 
   const handleFilterChange = (filterId) => {
     setActiveFilter(filterId);
+  };
+
+  const handleHideOrder = async (order, e) => {
+    e.stopPropagation();
+    const idToHide = order._id || order.orderNumber;
+    if (!window.confirm(`Hide order ${order.orderNumber} from your history? Note: payment and transaction records remain safely preserved for compliance.`)) {
+      return;
+    }
+
+    setHidingOrderId(idToHide);
+    try {
+      const res = await api.hideOrder(idToHide);
+      if (res.success) {
+        setOrders((prev) => prev.filter((o) => o._id !== order._id && o.orderNumber !== order.orderNumber));
+        setActionNotice(`Order ${order.orderNumber} hidden from your history.`);
+        setTimeout(() => setActionNotice(null), 4000);
+      } else {
+        throw new Error(res.error?.message || 'Failed to hide order');
+      }
+    } catch (err) {
+      console.error('Hide order error:', err);
+      alert(`Could not hide order: ${err.message}`);
+    } finally {
+      setHidingOrderId(null);
+    }
   };
 
   const getStatusBadge = (status, isPaid) => {
@@ -118,21 +147,48 @@ export function OrdersPage({ onNavigateToShopping }) {
                 {orders.length} {orders.length === 1 ? 'order' : 'orders'}
               </span>
             )}
+            {user && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#DCFCE7] text-[#16A34A]">
+                <UserCheck className="w-3 h-3" />
+                <span>{user.email}</span>
+              </span>
+            )}
           </div>
           <p className="text-sm text-[#475569] mt-1">
             Track your purchases and view your verified PayPal Sandbox payment receipts.
           </p>
         </div>
 
-        <button
-          onClick={() => fetchOrders(activeFilter)}
-          disabled={loading}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-white hover:bg-[#F1F5F9] border border-[#E2E8F0] rounded-xl shadow-sm transition-colors self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#635BFF]' : ''}`} />
-          <span>Refresh</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {!user && onOpenAuth && (
+            <button
+              onClick={onOpenAuth}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#635BFF] hover:bg-[#EEF2FF] border border-[#635BFF]/30 rounded-xl transition-colors"
+            >
+              <span>Sign in to save orders</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => fetchOrders(activeFilter)}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-[#475569] hover:text-[#0F172A] bg-white hover:bg-[#F1F5F9] border border-[#E2E8F0] rounded-xl shadow-sm transition-colors self-start sm:self-auto"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#635BFF]' : ''}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
+
+      {/* Action Notice Banner */}
+      {actionNotice && (
+        <div className="p-3.5 rounded-xl bg-[#DCFCE7] border border-[#16A34A]/20 text-[#16A34A] text-xs font-medium flex items-center justify-between animate-in fade-in">
+          <span>{actionNotice}</span>
+          <button onClick={() => setActionNotice(null)} className="text-[#16A34A] hover:underline text-xs">
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -288,13 +344,25 @@ export function OrdersPage({ onNavigateToShopping }) {
                     <div className="mt-0.5">{getStatusBadge(order.status, order.isPaid)}</div>
                   </div>
 
-                  <button
-                    onClick={() => setSelectedOrder(order)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#F1F5F9] text-[#0F172A] hover:bg-[#EEF2FF] hover:text-[#635BFF] transition-colors"
-                  >
-                    <span>View Details</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setSelectedOrder(order)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[#F1F5F9] text-[#0F172A] hover:bg-[#EEF2FF] hover:text-[#635BFF] transition-colors"
+                    >
+                      <span>Details</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button
+                      onClick={(e) => handleHideOrder(order, e)}
+                      disabled={hidingOrderId === (order._id || order.orderNumber)}
+                      title="Hide from order history"
+                      className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-medium text-[#64748B] hover:text-[#DC2626] hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
+                    >
+                      <EyeOff className="w-3.5 h-3.5" />
+                      <span className="hidden md:inline">Hide</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );

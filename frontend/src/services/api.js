@@ -1,15 +1,19 @@
-import { guestSession } from '../utils/session';
+import { guestSession, authSession } from '../utils/session';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 /**
- * Helper to perform API requests with structured error handling and guest token injection
+ * Helper to perform API requests with structured error handling and guest/auth token injection
  */
 async function fetchJson(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   const guestToken = guestSession.getToken();
+  const authToken = authSession.getToken();
 
   const authHeaders = {};
+  if (authToken) {
+    authHeaders['Authorization'] = `Bearer ${authToken}`;
+  }
   if (guestToken) {
     authHeaders['x-guest-token'] = guestToken;
   }
@@ -159,5 +163,53 @@ export const api = {
   /**
    * Retrieve order details by ID
    */
-  getOrder: (id) => fetchJson(`/orders/${id}`)
+  getOrder: (id) => fetchJson(`/orders/${id}`),
+
+  /**
+   * Hide (soft-delete) an order from order history view
+   */
+  hideOrder: (id) =>
+    fetchJson(`/orders/${id}/hide`, {
+      method: 'PATCH'
+    }),
+
+  /**
+   * Claim guest orders with proof of guest token
+   */
+  claimGuestOrders: (guestToken) =>
+    fetchJson('/orders/claim', {
+      method: 'POST',
+      body: JSON.stringify({ guestToken })
+    }),
+
+  /**
+   * User Registration
+   */
+  register: (payload) =>
+    fetchJson('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  /**
+   * User Login
+   */
+  login: (payload) =>
+    fetchJson('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+  /**
+   * Get Current Authenticated User Profile
+   */
+  getMe: () => fetchJson('/auth/me'),
+
+  /**
+   * User Logout
+   */
+  logout: () =>
+    fetchJson('/auth/logout', {
+      method: 'POST'
+    })
 };

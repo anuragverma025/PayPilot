@@ -28,11 +28,12 @@ export function ProductCard({
   return (
     <Card hover className="flex flex-col h-full overflow-hidden group">
       {/* Top Banner / Product Photograph Area */}
-      <div className="relative h-44 bg-slate-100 overflow-hidden border-b border-paypilot-border">
+      <div className="relative h-48 bg-slate-50 overflow-hidden border-b border-paypilot-border">
         <ProductImage
           product={product}
           variant="card"
-          className="h-44 w-full"
+          fit="contain"
+          className="h-48 w-full"
         />
 
         {/* Brand Pill */}
@@ -70,16 +71,25 @@ export function ProductCard({
       </div>
 
       {/* Main Body */}
-      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-        <div>
+      <div className="p-5 flex-1 flex flex-col">
+        {/* Top Content Section */}
+        <div className="space-y-3">
           {/* Title and Model */}
-          <h3 className="font-bold text-base text-paypilot-text leading-snug line-clamp-1 group-hover:text-paypilot-brand transition-colors">
-            {product.name}
-          </h3>
-          <p className="text-xs text-paypilot-muted line-clamp-1 mt-0.5">{product.model}</p>
+          <div>
+            <h3
+              className="font-bold text-base text-paypilot-text leading-snug line-clamp-2 min-h-[2.75rem] group-hover:text-paypilot-brand transition-colors cursor-pointer"
+              title={product.name}
+              onClick={() => onViewDetails && onViewDetails(product)}
+            >
+              {product.name}
+            </h3>
+            <p className="text-xs text-paypilot-muted line-clamp-1 mt-0.5" title={product.model}>
+              {product.model}
+            </p>
+          </div>
 
           {/* Pricing Row */}
-          <div className="flex items-baseline gap-2 mt-2.5">
+          <div className="flex items-baseline gap-2 pt-0.5">
             <span className="text-xl font-bold text-paypilot-text tabular-nums">
               {formatINR(product.priceINR)}
             </span>
@@ -89,25 +99,25 @@ export function ProductCard({
           </div>
 
           {/* Key Hardware Specs Grid */}
-          <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-paypilot-border/60 text-xs">
-            <div className="flex items-center gap-1.5 text-paypilot-text truncate" title={product.processor?.model}>
+          <div className="grid grid-cols-2 gap-2 pt-3 border-t border-paypilot-border/60 text-xs">
+            <div className="flex items-center gap-1.5 text-paypilot-text min-w-0" title={`Processor: ${product.processor?.model}`}>
               <Cpu className="w-3.5 h-3.5 text-paypilot-muted flex-shrink-0" />
               <span className="truncate">{product.processor?.model}</span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-paypilot-text truncate" title={formatRAM(product.ram)}>
+            <div className="flex items-center gap-1.5 text-paypilot-text min-w-0" title={`RAM: ${formatRAM(product.ram)}`}>
               <span className="w-3.5 h-3.5 rounded bg-paypilot-subtleViolet text-paypilot-brand flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                 R
               </span>
               <span className="truncate">{formatRAM(product.ram)}</span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-paypilot-text truncate" title={formatStorage(product.storage)}>
+            <div className="flex items-center gap-1.5 text-paypilot-text min-w-0" title={`Storage: ${formatStorage(product.storage)}`}>
               <HardDrive className="w-3.5 h-3.5 text-paypilot-muted flex-shrink-0" />
               <span className="truncate">{formatStorage(product.storage)}</span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-paypilot-text truncate" title={`${product.weightKg} kg`}>
+            <div className="flex items-center gap-1.5 text-paypilot-text min-w-0" title={`Weight: ${product.weightKg} kg`}>
               <Scale className="w-3.5 h-3.5 text-paypilot-muted flex-shrink-0" />
               <span className="truncate">{product.weightKg} kg</span>
             </div>
@@ -115,13 +125,13 @@ export function ProductCard({
 
           {/* Strengths / Trade-offs Highlights */}
           {product.strengths && product.strengths.length > 0 && (
-            <div className="mt-3.5 space-y-1.5">
-              <div className="flex items-start gap-1.5 text-[11px] text-paypilot-text">
+            <div className="pt-2 space-y-1.5">
+              <div className="flex items-start gap-1.5 text-[11px] text-paypilot-text" title={product.strengths[0]}>
                 <CheckCircle className="w-3.5 h-3.5 text-paypilot-success flex-shrink-0 mt-0.5" />
                 <span className="line-clamp-1">{product.strengths[0]}</span>
               </div>
               {product.tradeOffs && product.tradeOffs.length > 0 && (
-                <div className="flex items-start gap-1.5 text-[11px] text-paypilot-muted">
+                <div className="flex items-start gap-1.5 text-[11px] text-paypilot-muted" title={product.tradeOffs[0]}>
                   <AlertTriangle className="w-3.5 h-3.5 text-paypilot-warning flex-shrink-0 mt-0.5" />
                   <span className="line-clamp-1">{product.tradeOffs[0]}</span>
                 </div>
@@ -130,8 +140,8 @@ export function ProductCard({
           )}
         </div>
 
-        {/* Card Actions */}
-        <div className="pt-3 border-t border-paypilot-border flex items-center gap-2">
+        {/* Card Actions Footer - Anchored to bottom with mt-auto */}
+        <div className="mt-auto pt-4 border-t border-paypilot-border flex items-center gap-2">
           {onProceedToOrder && (
             <Button
               variant="primary"

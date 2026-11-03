@@ -12,7 +12,9 @@ import { ComparisonModal } from './components/comparison/ComparisonModal';
 import { ShoppingDecisionReport } from './components/assistant/ShoppingDecisionReport';
 import { OrderReviewModal } from './components/checkout/OrderReviewModal';
 import { OrdersPage } from './components/orders/OrdersPage';
+import { AuthModal } from './components/auth/AuthModal';
 import { api } from './services/api';
+import { authSession } from './utils/session';
 import { Sparkles, Loader2 } from 'lucide-react';
 
 const DEFAULT_FILTERS = {
@@ -49,6 +51,46 @@ export default function App() {
   const [orderProduct, setOrderProduct] = useState(null);
   const [latestPaidOrder, setLatestPaidOrder] = useState(null);
   const [ordersCount, setOrdersCount] = useState(null);
+
+  // Authentication State
+  const [user, setUser] = useState(() => authSession.getUser());
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Validate session on mount
+  useEffect(() => {
+    if (authSession.getToken()) {
+      api.getMe()
+        .then((res) => {
+          if (res.success && res.data?.user) {
+            setUser(res.data.user);
+            authSession.setUser(res.data.user);
+          } else {
+            setUser(null);
+            authSession.clearToken();
+            authSession.clearUser();
+          }
+        })
+        .catch(() => {
+          setUser(null);
+          authSession.clearToken();
+          authSession.clearUser();
+        });
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch {}
+    authSession.clearToken();
+    authSession.clearUser();
+    setUser(null);
+  };
+
+  const handleAuthSuccess = (authenticatedUser) => {
+    setUser(authenticatedUser);
+    setIsAuthModalOpen(false);
+  };
 
   // Synchronize route with window.location.pathname (/orders)
   useEffect(() => {
@@ -89,7 +131,7 @@ export default function App() {
         }
       })
       .catch(() => {});
-  }, [latestPaidOrder]);
+  }, [latestPaidOrder, user]);
 
   // Fetch catalog products
   const loadProducts = useCallback(async () => {
@@ -234,12 +276,19 @@ export default function App() {
           totalProducts={meta?.totalProducts || products.length}
           backendConnected={backendConnected}
           onRefresh={loadProducts}
+          user={user}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          onLogout={handleLogout}
         />
 
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 pb-28">
           {/* VIEW: MY ORDERS */}
           {activeView === 'orders' ? (
-            <OrdersPage onNavigateToShopping={() => handleNavigateView('workspace')} />
+            <OrdersPage
+              onNavigateToShopping={() => handleNavigateView('workspace')}
+              onOpenAuth={() => setIsAuthModalOpen(true)}
+              user={user}
+            />
           ) : (
             <>
               {/* Visual Workflow Steps Bar */}
@@ -360,6 +409,13 @@ export default function App() {
         onOrderSuccess={(order) => {
           setLatestPaidOrder(order);
         }}
+      />
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={handleAuthSuccess}
       />
     </div>
   );

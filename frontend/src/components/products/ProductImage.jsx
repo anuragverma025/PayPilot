@@ -13,7 +13,8 @@ export function ProductImage({
   src,
   alt,
   className = '',
-  variant = 'card'
+  variant = 'card',
+  fit = 'contain'
 }) {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -31,8 +32,12 @@ export function ProductImage({
     );
   }
 
+  const fitClasses = fit === 'contain'
+    ? 'object-contain max-h-full max-w-full p-2.5'
+    : 'object-cover w-full h-full';
+
   return (
-    <div className={`relative w-full h-full overflow-hidden bg-slate-100 ${className}`}>
+    <div className={`relative w-full h-full overflow-hidden bg-slate-50 flex items-center justify-center ${className}`}>
       {/* Subtle loader skeleton while image is downloading */}
       {!isLoaded && (
         <div className="absolute inset-0 bg-slate-200/80 animate-pulse flex items-center justify-center">
@@ -50,7 +55,7 @@ export function ProductImage({
           // Permanently transition to error state to prevent infinite retry loops
           setHasError(true);
         }}
-        className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
+        className={`${fitClasses} transition-all duration-300 group-hover:scale-105 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
       />
