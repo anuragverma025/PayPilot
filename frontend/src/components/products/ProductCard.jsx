@@ -6,7 +6,9 @@ import {
   CheckCircle,
   AlertTriangle,
   Layers,
-  CreditCard
+  CreditCard,
+  Info,
+  Check
 } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
@@ -154,7 +156,7 @@ export function ProductCard({
                 }
               }}
               icon={CreditCard}
-              className="flex-1 text-xs"
+              className="flex-1 text-xs font-semibold"
               title="Review order and checkout with PayPal Sandbox"
             >
               Order
@@ -162,22 +164,25 @@ export function ProductCard({
           )}
 
           <Button
-            variant={isCompared ? 'primary' : 'secondary'}
+            variant={isCompared ? 'subtle' : 'secondary'}
             size="sm"
             onClick={() => onToggleCompare(product.id)}
             disabled={!isCompared && compareDisabled}
-            icon={Layers}
-            className={onProceedToOrder ? 'px-2.5' : 'flex-1'}
-            title={isCompared ? 'Remove from compare' : 'Add to compare tray'}
+            icon={isCompared ? Check : Layers}
+            className={`${onProceedToOrder ? 'px-2.5' : 'flex-1'} text-xs ${
+              isCompared ? 'border border-paypilot-brand/40 text-paypilot-brand font-medium' : ''
+            }`}
+            title={isCompared ? 'Remove from compare tray' : 'Add to compare tray'}
           >
-            {onProceedToOrder ? (isCompared ? '✓' : 'Compare') : isCompared ? 'Added to Compare' : 'Compare'}
+            {isCompared ? 'Added' : 'Compare'}
           </Button>
 
           <Button
-            variant="subtle"
+            variant="secondary"
             size="sm"
             onClick={() => onViewDetails(product)}
-            className="px-2.5"
+            icon={Info}
+            className={`${onProceedToOrder ? 'px-2.5' : 'flex-1'} text-xs`}
             title="View verified technical specifications"
           >
             Specs

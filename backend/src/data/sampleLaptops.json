@@ -1557,7 +1557,7 @@
       "Heavy at 2.6kg with a massive 330W power adapter",
       "Aggressive gaming styling may not appeal to corporate or minimalist tastes"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80",
     "hasVerifiedImage": true,
     "imageAlt": "Acer Predator Helios Neo 16 - Acer PHN16-71"
   },
@@ -1789,7 +1789,7 @@
       "Glossy touchscreen reflects overhead fluorescent lab lights",
       "RAM is non-upgradable"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80",
     "hasVerifiedImage": true,
     "imageAlt": "HP Envy x360 14 2-in-1 - HP 14-fc0079TU"
   },
@@ -1942,8 +1942,8 @@
       "Import logistics and availability may be constrained compared to major OEMs",
       "Integrated GPU not suited for heavy local neural network training"
     ],
-    "imageUrl": null,
-    "hasVerifiedImage": false,
+    "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80",
+    "hasVerifiedImage": true,
     "imageAlt": "Framework Laptop 13 (Intel Core Ultra) - Framework Laptop 13 DIY / Pre-built Edition"
   },
   {
@@ -2098,7 +2098,7 @@
       "Older 11th Gen Intel CPU architecture with lower battery endurance",
       "Heavier at 2.3kg with basic 45% NTSC color display"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1611078489935-0cb964de46d6?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1511385348-a52b4a160dc2?w=800&auto=format&fit=crop&q=80",
     "hasVerifiedImage": true,
     "imageAlt": "ASUS TUF Gaming F15 (Core i5, RTX 2050) - ASUS FX506HF-HN024W"
   },
@@ -2176,7 +2176,7 @@
       "Fixed 8GB soldered RAM cannot be upgraded",
       "TN display panel has narrow viewing angles"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1517059224940-d4af9eec41b7?w=800&auto=format&fit=crop&q=80",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo IdeaPad 1 15 (Ryzen 3) - Lenovo IdeaPad 1 15AMN7 Cloud Grey"
   },
@@ -2254,7 +2254,7 @@
       "Soldered LPDDR5 RAM cannot be upgraded past 16GB",
       "No discrete GPU for CUDA-accelerated tasks"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1587614387466-0a72ca909e16?w=800&auto=format&fit=crop&q=80",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo IdeaPad Slim 3 15 (Core i5-12450H) - Lenovo Slim 3 15IAH8 Arctic Grey"
   },
@@ -2332,7 +2332,7 @@
       "Red-only backlight may not suit professional settings",
       "45W TGP limits GPU peak rendering performance"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
     "hasVerifiedImage": true,
     "imageAlt": "MSI Thin 15 (Core i7, RTX 3050) - MSI Thin 15 B12UCX-1448IN"
   },
@@ -2486,7 +2486,7 @@
       "Ryzen 7 7435HS has no integrated GPU; dedicated RTX runs continuously, reducing battery life to approx 3-3.5 hours",
       "Heavier laptop requiring carrying the 170W power brick"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&auto=format&fit=crop&q=80",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo LOQ 15 (Ryzen 7, RTX 4060) - Lenovo LOQ 15ARP9 Luna Grey"
   }
