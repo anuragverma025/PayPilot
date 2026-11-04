@@ -362,16 +362,18 @@ export function OrderDetailModal({
             >
               Back
             </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              icon={Printer}
-              onClick={() => window.print()}
-              className="flex-1 sm:flex-initial"
-              title="Print or save PayPal transaction receipt"
-            >
-              Print Receipt
-            </Button>
+            {(order.isPaid || order.status === 'COMPLETED') && (
+              <Button
+                variant="secondary"
+                size="md"
+                icon={Printer}
+                onClick={() => window.print()}
+                className="flex-1 sm:flex-initial"
+                title="Print or save PayPal transaction receipt"
+              >
+                Print Receipt
+              </Button>
+            )}
           </div>
 
           {onContinueShopping && (

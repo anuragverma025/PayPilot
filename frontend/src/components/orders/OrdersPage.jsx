@@ -341,6 +341,11 @@ export function OrdersPage({ onNavigateToShopping, onOpenAuth, user }) {
                     <div className="text-base sm:text-lg font-bold text-[#0F172A] tabular-nums">
                       {totalFormatted}
                     </div>
+                    {currency === 'USD' && order.product?.priceINR && (
+                      <span className="text-[11px] text-[#64748B] tabular-nums block">
+                        ({formatINR(order.product.priceINR * order.quantity)})
+                      </span>
+                    )}
                     <div className="mt-0.5">{getStatusBadge(order.status, order.isPaid)}</div>
                   </div>
 

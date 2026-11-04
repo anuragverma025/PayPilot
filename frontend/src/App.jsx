@@ -21,7 +21,7 @@ import { Sparkles, Loader2 } from 'lucide-react';
 
 const DEFAULT_FILTERS = {
   search: '',
-  maxBudget: 85000,
+  maxBudget: 150000,
   minBudget: 0,
   minRam: 8,
   brand: 'All',
