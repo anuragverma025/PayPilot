@@ -11,7 +11,7 @@ export function Button({
   icon: Icon
 }) {
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-paypilot-brand/20 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+    'inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-paypilot-brand/20 disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap';
 
   const sizeClasses = {
     sm: 'text-xs px-2.5 py-1.5 rounded-lg gap-1.5 h-8',

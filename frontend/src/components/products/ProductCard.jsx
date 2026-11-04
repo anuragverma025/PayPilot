@@ -143,7 +143,7 @@ export function ProductCard({
         </div>
 
         {/* Card Actions Footer - Anchored to bottom with mt-auto */}
-        <div className="mt-auto pt-4 border-t border-paypilot-border flex items-center gap-2">
+        <div className="mt-auto pt-4 border-t border-paypilot-border space-y-2">
           {onProceedToOrder && (
             <Button
               variant="primary"
@@ -156,37 +156,39 @@ export function ProductCard({
                 }
               }}
               icon={CreditCard}
-              className="flex-1 text-xs font-semibold"
+              className="w-full text-xs font-semibold justify-center shadow-subtle"
               title="Review order and checkout with PayPal Sandbox"
             >
-              Order
+              Order with PayPal
             </Button>
           )}
 
-          <Button
-            variant={isCompared ? 'subtle' : 'secondary'}
-            size="sm"
-            onClick={() => onToggleCompare(product.id)}
-            disabled={!isCompared && compareDisabled}
-            icon={isCompared ? Check : Layers}
-            className={`${onProceedToOrder ? 'px-2.5' : 'flex-1'} text-xs ${
-              isCompared ? 'border border-paypilot-brand/40 text-paypilot-brand font-medium' : ''
-            }`}
-            title={isCompared ? 'Remove from compare tray' : 'Add to compare tray'}
-          >
-            {isCompared ? 'Added' : 'Compare'}
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant={isCompared ? 'subtle' : 'secondary'}
+              size="sm"
+              onClick={() => onToggleCompare(product.id)}
+              disabled={!isCompared && compareDisabled}
+              icon={isCompared ? Check : Layers}
+              className={`w-full text-xs justify-center ${
+                isCompared ? 'border border-paypilot-brand/40 text-paypilot-brand font-medium' : ''
+              }`}
+              title={isCompared ? 'Remove from compare tray' : 'Add to compare tray'}
+            >
+              {isCompared ? 'Added' : 'Compare'}
+            </Button>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onViewDetails(product)}
-            icon={Info}
-            className={`${onProceedToOrder ? 'px-2.5' : 'flex-1'} text-xs`}
-            title="View verified technical specifications"
-          >
-            Specs
-          </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onViewDetails(product)}
+              icon={Info}
+              className="w-full text-xs justify-center"
+              title="View verified technical specifications"
+            >
+              Specs
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
