@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProductPlaceholder } from './ProductPlaceholder';
 
+const FALLBACK_IMAGE = '/images/products/fallback-laptop.svg';
+
 /**
- * ProductImage component with resilient error fallback
- * - Displays high-resolution laptop photography with object-fit: cover
- * - Smooth opacity transition on load to prevent flash of unstyled content
- * - Automatically catches load failures (404, network error, offline) via onError
- * - Gracefully renders the branded ProductPlaceholder without broken-image icons or loops
+ * ProductImage component with multi-tier resilient error fallback:
+ * 1. Primary: local downloaded laptop image (/images/products/<id>.jpg)
+ * 2. Fallback: dedicated fallback laptop vector illustration (/images/products/fallback-laptop.svg)
+ * 3. Final safety net: branded ProductPlaceholder
  */
 export function ProductImage({
   product,
@@ -16,15 +17,26 @@ export function ProductImage({
   variant = 'card',
   fit = 'contain'
 }) {
-  const [hasError, setHasError] = useState(false);
+  const initialSrc = src !== undefined
+    ? src
+    : (product && product.hasVerifiedImage !== false && product.imageUrl ? product.imageUrl : FALLBACK_IMAGE);
+
+  const [currentSrc, setCurrentSrc] = useState(initialSrc);
+  const [usePlaceholder, setUsePlaceholder] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Verify image authenticity: if product has hasVerifiedImage: false or no imageUrl, route directly to placeholder
-  const isImageVerified = product ? product.hasVerifiedImage !== false : true;
-  const imageSrc = src !== undefined ? src : (isImageVerified ? product?.imageUrl : null);
+  // Synchronize when product or src prop changes
+  useEffect(() => {
+    const nextSrc = src !== undefined
+      ? src
+      : (product && product.hasVerifiedImage !== false && product.imageUrl ? product.imageUrl : FALLBACK_IMAGE);
+    setCurrentSrc(nextSrc);
+    setUsePlaceholder(false);
+    setIsLoaded(false);
+  }, [src, product?.imageUrl, product?.hasVerifiedImage]);
 
-  // If no verified source is provided or the image failed to load, render the clean branded placeholder
-  if (!imageSrc || hasError) {
+  // If fallback failed or explicitly requested
+  if (usePlaceholder || !currentSrc) {
     return (
       <ProductPlaceholder
         product={product}
@@ -49,13 +61,19 @@ export function ProductImage({
 
       {/* Product Photograph */}
       <img
-        src={imageSrc}
+        src={currentSrc}
         alt={alt || product?.name || 'Laptop Product'}
         loading="lazy"
         onLoad={() => setIsLoaded(true)}
         onError={() => {
-          // Permanently transition to error state to prevent infinite retry loops
-          setHasError(true);
+          if (currentSrc !== FALLBACK_IMAGE) {
+            // First failure: switch to local fallback laptop SVG
+            setCurrentSrc(FALLBACK_IMAGE);
+            setIsLoaded(false);
+          } else {
+            // Second failure: fallback itself failed, render styled placeholder
+            setUsePlaceholder(true);
+          }
         }}
         className={`${fitClasses} transition-all duration-300 group-hover:scale-105 ${
           isLoaded ? 'opacity-100' : 'opacity-0'

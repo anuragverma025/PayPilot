@@ -6,12 +6,29 @@
   body {
     background-color: #F6F7FB;
     color: #15172B;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    letter-spacing: normal;
+    word-spacing: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Tabular figures for numbers, currency, and specs */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Product Card Typography - Natural & Compact Flipkart-like typography */
+  .product-card {
+    letter-spacing: normal;
+    word-spacing: normal;
+  }
+
+  .product-card,
+  .product-card * {
+    letter-spacing: normal;
+    word-spacing: normal;
   }
 }
 

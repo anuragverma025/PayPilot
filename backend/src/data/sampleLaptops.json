@@ -75,7 +75,7 @@
       "Integrated GPU is not suited for local deep learning model training",
       "Display color gamut is 45% NTSC, unsuitable for professional color-grading"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-lenovo-e14-g5.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo ThinkPad E14 Gen 5 - Lenovo ThinkPad E14 Gen 5 (AMD)"
   },
@@ -153,7 +153,7 @@
       "Heavier at 2.1kg plus bulky 135W power adapter",
       "Shorter battery life (approx 3.5 - 4 hours under mixed loads)"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-acer-nitro-v15.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Acer Nitro V 15 (2024) - Acer Nitro V ANV15-51"
   },
@@ -231,7 +231,7 @@
       "Soldered LPDDR5X RAM cannot be upgraded post-purchase",
       "High purchase price beyond typical entry student budgets"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-asus-zenbook-14.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "ASUS Zenbook 14 OLED (2024) - ASUS UX3405MA"
   },
@@ -307,7 +307,7 @@
       "Zero hardware upgradability — RAM and SSD are permanently soldered",
       "Supports only one external display natively without DisplayLink hubs"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-apple-mba-m2-16.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Apple MacBook Air 13\" (M2, 16GB) - Apple MacBook Air 13 M2 Custom Config"
   },
@@ -385,7 +385,7 @@
       "RAM is soldered and cannot be expanded beyond 16GB",
       "Speakers are downward-firing with average bass response"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1587614382346-4ec70e388b28?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-acer-swift-go-14.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Acer Swift Go 14 OLED - Acer SFG14-72"
   },
@@ -463,7 +463,7 @@
       "Bulky chassis (2.38kg) with heavy power brick",
       "Older 12th gen HX architecture has high idle power draw"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-lenovo-loq-15-intel.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo LOQ 15 (Core i5, RTX 3050) - Lenovo LOQ 15IAX9"
   },
@@ -541,7 +541,7 @@
       "Single SO-DIMM upgradability limit (8GB soldered + 8GB slot)",
       "USB-C port does not support DisplayPort output"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1616479050071-d7f68f25dde0?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-asus-vivobook-16x.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "ASUS Vivobook 16X (Creator Edition) - ASUS M1603QA / K3605"
   },
@@ -618,7 +618,7 @@
       "Modest 41Wh battery capacity requires charger for long days",
       "250 nits brightness is low for outdoor or cafe use"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-hp-pavilion-15.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "HP Pavilion 15 (13th Gen) - HP 15-eg3027TU"
   },
@@ -696,7 +696,7 @@
       "Basic display with limited viewing angles and 220 nits brightness",
       "Small 36Wh battery capacity requires frequent recharging"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-acer-aspire-lite.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Acer Aspire Lite 15 - Acer AL15-41"
   },
@@ -774,7 +774,7 @@
       "Moderate screen wobble under aggressive typing",
       "Weighs 2.3kg which is noticeably heavy in a backpack"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-hp-victus-16.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "HP Victus 16 (Ryzen 7, RTX 3050) - HP 16-s0093AX"
   },
@@ -852,7 +852,7 @@
       "No USB Type-C port on this specific configuration",
       "Plastic chassis construction and no keyboard backlight"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1588702547919-26089e690ecc?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-dell-inspiron-15.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Dell Inspiron 15 3520 - Dell 3520 (Intel Core i5)"
   },
@@ -931,7 +931,7 @@
       "Screen color coverage is limited to around 62.5% sRGB",
       "Fans can be loud under sustained multi-threaded compilation"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1611078489935-0cb964de46d6?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-asus-tuf-a15.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "ASUS TUF Gaming A15 (2024) - ASUS FA506NC / FA507"
   },
@@ -1011,7 +1011,7 @@
       "Premium price bracket above ₹1 Lakh",
       "Weighs 2.3kg; power adapter adds another 0.6kg"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-lenovo-legion-slim5.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo Legion Slim 5 (RTX 4060) - Lenovo Legion Slim 5 16APH8"
   },
@@ -1087,7 +1087,7 @@
       "Zero component modularity or upgradability",
       "High cost per gigabyte of memory and storage"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-apple-mba-m3.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Apple MacBook Air 13\" (M3, 16GB) - Apple MacBook Air M3 (2024)"
   },
@@ -1166,7 +1166,7 @@
       "On-board soldered RAM cannot be expanded",
       "Modest 39.3Wh battery requires carrying a charger for long campus days"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-msi-modern-14.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "MSI Modern 14 (Core i5) - MSI C12M-047IN"
   },
@@ -1244,7 +1244,7 @@
       "RTX 4050 is limited to 45W TGP; lower sustained compute than 100W+ models",
       "Single M.2 storage slot means replacing the existing drive to upgrade storage"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-msi-cyborg-15.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "MSI Cyborg 15 (RTX 4050) - MSI A12VE-070IN"
   },
@@ -1322,7 +1322,7 @@
       "Very heavy at 2.81kg (over 3.5kg with charging brick) — cumbersome for daily commuting",
       "Display is 250 nits with 45% NTSC color gamut"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-dell-g15-5530.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Dell G15 5530 (Core i7, RTX 4050) - Dell G15 5530 Dark Shadow Gray"
   },
@@ -1401,7 +1401,7 @@
       "RAM is soldered LPDDR5 and not upgradable",
       "Standard 60Hz display"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1616812757130-aca5451b0243?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-samsung-galaxy-book4.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Samsung Galaxy Book4 - Samsung Galaxy Book4 Gray"
   },
@@ -1478,7 +1478,7 @@
       "Only 8GB RAM out of the box will struggle with heavy browser tab counts or Android Studio",
       "4-core CPU is not built for heavy local compilation or virtualization"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-hp-15s-budget.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "HP 15s (Ryzen 3 Budget) - HP 15s-eq2143AU"
   },
@@ -1557,7 +1557,7 @@
       "Heavy at 2.6kg with a massive 330W power adapter",
       "Aggressive gaming styling may not appeal to corporate or minimalist tastes"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-acer-predator-neo-16.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Acer Predator Helios Neo 16 - Acer PHN16-71"
   },
@@ -1631,7 +1631,7 @@
       "Only 2 Thunderbolt ports with no 3.5mm headphone jack or USB-A without dongles",
       "Capacitive touch function keys take getting used to for developers accustomed to physical Fn keys"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1593642532400-2682810df593?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-dell-xps-13.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Dell XPS 13 (Intel Core Ultra 7) - Dell XPS 13 9340"
   },
@@ -1711,7 +1711,7 @@
       "Soldered LPDDR5X memory cannot be upgraded beyond 16GB",
       "Premium price bracket"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1618424181497-157f25b6ddd5?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-asus-zephyrus-g14.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "ASUS ROG Zephyrus G14 OLED - ASUS GA403UV (2024)"
   },
@@ -1789,7 +1789,7 @@
       "Glossy touchscreen reflects overhead fluorescent lab lights",
       "RAM is non-upgradable"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-hp-envy-x360.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "HP Envy x360 14 2-in-1 - HP 14-fc0079TU"
   },
@@ -1867,7 +1867,7 @@
       "ARM64 Windows compatibility: certain legacy x86 virtualization or niche kernel drivers require emulation",
       "No discrete NVIDIA GPU for CUDA-based PyTorch training"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1537498425277-c283d32ef9db?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-asus-vivobook-s15-snapdragon.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "ASUS Vivobook S 15 (Snapdragon X Elite) - ASUS S5507QA Copilot+ PC"
   },
@@ -1942,7 +1942,7 @@
       "Import logistics and availability may be constrained compared to major OEMs",
       "Integrated GPU not suited for heavy local neural network training"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-framework-13.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Framework Laptop 13 (Intel Core Ultra) - Framework Laptop 13 DIY / Pre-built Edition"
   },
@@ -2020,7 +2020,7 @@
       "Soldered LPDDR5 memory cannot be expanded",
       "No discrete GPU for local deep learning models"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-dell-inspiron-14-5430.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Dell Inspiron 14 5430 (Core i7) - Dell Inspiron 14 5430 Platinum Silver"
   },
@@ -2098,7 +2098,7 @@
       "Older 11th Gen Intel CPU architecture with lower battery endurance",
       "Heavier at 2.3kg with basic 45% NTSC color display"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1511385348-a52b4a160dc2?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-asus-tuf-f15-budget.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "ASUS TUF Gaming F15 (Core i5, RTX 2050) - ASUS FX506HF-HN024W"
   },
@@ -2176,7 +2176,7 @@
       "Fixed 8GB soldered RAM cannot be upgraded",
       "TN display panel has narrow viewing angles"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1517059224940-d4af9eec41b7?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-lenovo-ideapad1-budget.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo IdeaPad 1 15 (Ryzen 3) - Lenovo IdeaPad 1 15AMN7 Cloud Grey"
   },
@@ -2254,7 +2254,7 @@
       "Soldered LPDDR5 RAM cannot be upgraded past 16GB",
       "No discrete GPU for CUDA-accelerated tasks"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1587614387466-0a72ca909e16?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-lenovo-ideapad-slim3-12450h.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo IdeaPad Slim 3 15 (Core i5-12450H) - Lenovo Slim 3 15IAH8 Arctic Grey"
   },
@@ -2332,7 +2332,7 @@
       "Red-only backlight may not suit professional settings",
       "45W TGP limits GPU peak rendering performance"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-msi-thin-15.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "MSI Thin 15 (Core i7, RTX 3050) - MSI Thin 15 B12UCX-1448IN"
   },
@@ -2408,7 +2408,7 @@
       "8GB memory can swap under multiple heavy Docker containers or emulator instances",
       "256GB base storage fills up rapidly with large SDKs and datasets"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-apple-mba-m2-base.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Apple MacBook Air 13\" (M2, 8GB) - Apple MacBook Air 13 Midnight M2"
   },
@@ -2486,7 +2486,7 @@
       "Ryzen 7 7435HS has no integrated GPU; dedicated RTX runs continuously, reducing battery life to approx 3-3.5 hours",
       "Heavier laptop requiring carrying the 170W power brick"
     ],
-    "imageUrl": "https://images.unsplash.com/photo-1542751110-97427bbecf20?w=800&auto=format&fit=crop&q=80",
+    "imageUrl": "/images/products/lap-lenovo-loq-amd-4060.jpg",
     "hasVerifiedImage": true,
     "imageAlt": "Lenovo LOQ 15 (Ryzen 7, RTX 4060) - Lenovo LOQ 15ARP9 Luna Grey"
   }

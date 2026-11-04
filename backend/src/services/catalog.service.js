@@ -148,6 +148,10 @@ export class CatalogService {
       }
     }
 
+    // Always ensure fresh in-memory catalog from data file
+    const freshCatalog = loadInMemoryCatalog();
+    const verifiedMap = new Map(freshCatalog.map((p) => [p.id, p.imageUrl]));
+
     // Sorting
     items.sort((a, b) => {
       switch (sortBy) {
@@ -166,23 +170,45 @@ export class CatalogService {
       }
     });
 
-    return items;
+    // Ensure verified laptop images are consistently attached
+    return items.map((item) => ({
+      ...item,
+      imageUrl: verifiedMap.get(item.id) || item.imageUrl,
+      hasVerifiedImage: true
+    }));
   }
 
   /**
    * Get single product by id
    */
   static async getProductById(id) {
+    const freshCatalog = loadInMemoryCatalog();
+    const verifiedMap = new Map(freshCatalog.map((p) => [p.id, p.imageUrl]));
+
     if (this.isMongoConnected()) {
       try {
         const product = await Product.findOne({ id }).lean();
-        if (product) return product;
+        if (product) {
+          return {
+            ...product,
+            imageUrl: verifiedMap.get(product.id) || product.imageUrl,
+            hasVerifiedImage: true
+          };
+        }
       } catch (err) {
         console.warn('MongoDB getById failed, checking memory:', err.message);
       }
     }
 
-    return inMemoryCatalog.find((p) => p.id === id) || null;
+    const fallback = inMemoryCatalog.find((p) => p.id === id) || null;
+    if (fallback) {
+      return {
+        ...fallback,
+        imageUrl: verifiedMap.get(fallback.id) || fallback.imageUrl,
+        hasVerifiedImage: true
+      };
+    }
+    return null;
   }
 
   /**
