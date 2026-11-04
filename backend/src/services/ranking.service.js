@@ -13,6 +13,13 @@
 
 export class RankingService {
   /**
+   * Deterministic Tie-Breaker Rule:
+   * When two products receive the identical match score, the product with the lower
+   * retail price (priceINR) takes precedence.
+   */
+  static TIE_BREAKER_RULE = 'When match scores are tied, lower price INR takes precedence.';
+
+  /**
    * Score a single product against structured requirements
    * @param {Object} product - Product catalog record
    * @param {Object} requirements - User requirements
@@ -52,7 +59,7 @@ export class RankingService {
       // Sweet spot is within 0-25% below budget, gets maximum points
       const budgetPoints = Math.round(22 + (1 - savingsRatio) * 8);
       breakdown.budgetScore = Math.min(30, Math.max(18, budgetPoints));
-      matchedRequirements.push(`Within budget: saves ₹${budgetDelta.toLocaleString('en-IN')}`);
+      matchedRequirements.push(`Within budget: ₹${price.toLocaleString('en-IN')} (₹${budgetDelta.toLocaleString('en-IN')} buffer under limit)`);
     } else {
       const overshootRatio = Math.abs(budgetDelta) / maxBudget;
       if (overshootRatio <= 0.1) {

@@ -16,7 +16,8 @@ import {
   Clock,
   Sparkles,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Printer
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
@@ -34,9 +35,10 @@ export function OrderReviewModal({
   product,
   isOpen,
   onClose,
-  onOrderSuccess
+  onOrderSuccess,
+  initialQuantity = 1
 }) {
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(initialQuantity || 1);
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
   const [touched, setTouched] = useState({ name: false, email: false });
@@ -86,6 +88,7 @@ export function OrderReviewModal({
   // Reset state when modal opens or closes
   useEffect(() => {
     if (isOpen) {
+      setQuantity(initialQuantity || 1);
       setStage('REVIEW');
       setLoading(false);
       setErrorMessage(null);
@@ -1146,8 +1149,18 @@ export function OrderReviewModal({
               </div>
 
               {/* Completion Actions */}
-              <div className="flex justify-end gap-3 pt-2">
-                <Button variant="primary" size="md" onClick={onClose}>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  icon={Printer}
+                  onClick={() => window.print()}
+                  className="w-full sm:w-auto"
+                  title="Print or save PayPal transaction confirmation"
+                >
+                  Print / Save Receipt
+                </Button>
+                <Button variant="primary" size="md" onClick={onClose} className="w-full sm:w-auto">
                   Done & Continue Shopping
                 </Button>
               </div>

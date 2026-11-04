@@ -20,7 +20,7 @@ export function SearchHero({
   };
 
   const handleChipClick = (example) => {
-    const text = example.label;
+    const text = example.prompt || example.label;
     setPromptInput(text);
     if (onAskAi) {
       onAskAi(text);

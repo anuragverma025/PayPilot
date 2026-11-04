@@ -86,9 +86,9 @@ export function ProductPlaceholder({ product, variant = 'card', className = '' }
           {brand}
         </span>
 
-        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60 shadow-xs">
-          <ShieldCheck className="w-3 h-3 text-paypilot-success" />
-          <span>Verified Specs</span>
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-800 bg-amber-50/90 px-2 py-0.5 rounded-md border border-amber-200 shadow-xs">
+          <ShieldCheck className="w-3 h-3 text-amber-600" />
+          <span>Placeholder (Photo Unavailable)</span>
         </span>
       </div>
 
@@ -149,6 +149,9 @@ export function ProductPlaceholder({ product, variant = 'card', className = '' }
         <p className="text-[11px] font-semibold text-slate-700 tracking-tight text-center line-clamp-1 mt-1 max-w-[90%]">
           {product?.model || product?.name}
         </p>
+        <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wider block text-center">
+          Verified Specs • Photo Unavailable
+        </span>
       </div>
 
       {/* Bottom Features Pill Strip */}

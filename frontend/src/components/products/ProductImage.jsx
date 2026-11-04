@@ -19,9 +19,11 @@ export function ProductImage({
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const imageSrc = src !== undefined ? src : product?.imageUrl;
+  // Verify image authenticity: if product has hasVerifiedImage: false or no imageUrl, route directly to placeholder
+  const isImageVerified = product ? product.hasVerifiedImage !== false : true;
+  const imageSrc = src !== undefined ? src : (isImageVerified ? product?.imageUrl : null);
 
-  // If no source is provided or the image failed to load, render the clean branded placeholder
+  // If no verified source is provided or the image failed to load, render the clean branded placeholder
   if (!imageSrc || hasError) {
     return (
       <ProductPlaceholder

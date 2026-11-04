@@ -103,10 +103,10 @@ export const api = {
   /**
    * Ask the AI Shopping Assistant for a grounded Shopping Decision Report
    */
-  askAssistant: (message) =>
+  askAssistant: (message, options = {}) =>
     fetchJson('/assistant/chat', {
       method: 'POST',
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ message, forceRecommend: options.forceRecommend })
     }),
 
   /**

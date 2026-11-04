@@ -12,7 +12,8 @@ import {
   ExternalLink,
   ArrowLeft,
   ShoppingBag,
-  MapPin
+  MapPin,
+  Printer
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
@@ -351,15 +352,27 @@ export function OrderDetailModal({
 
         {/* Actions */}
         <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-2">
-          <Button
-            variant="secondary"
-            size="md"
-            icon={ArrowLeft}
-            onClick={onClose}
-            className="w-full sm:w-auto"
-          >
-            Back to My Orders
-          </Button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button
+              variant="secondary"
+              size="md"
+              icon={ArrowLeft}
+              onClick={onClose}
+              className="flex-1 sm:flex-initial"
+            >
+              Back
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              icon={Printer}
+              onClick={() => window.print()}
+              className="flex-1 sm:flex-initial"
+              title="Print or save PayPal transaction receipt"
+            >
+              Print Receipt
+            </Button>
+          </div>
 
           {onContinueShopping && (
             <Button

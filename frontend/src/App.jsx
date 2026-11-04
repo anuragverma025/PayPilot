@@ -10,6 +10,8 @@ import { ProductDetailModal } from './components/products/ProductDetailModal';
 import { ComparisonDrawer } from './components/comparison/ComparisonDrawer';
 import { ComparisonModal } from './components/comparison/ComparisonModal';
 import { ShoppingDecisionReport } from './components/assistant/ShoppingDecisionReport';
+import { ClarifyingQuestionCard } from './components/assistant/ClarifyingQuestionCard';
+import { CartReviewModal } from './components/cart/CartReviewModal';
 import { OrderReviewModal } from './components/checkout/OrderReviewModal';
 import { OrdersPage } from './components/orders/OrdersPage';
 import { AuthModal } from './components/auth/AuthModal';
@@ -43,6 +45,11 @@ export default function App() {
   const [decisionReport, setDecisionReport] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
+  const [clarifyingData, setClarifyingData] = useState(null);
+
+  // Cart staging state (agent flow: recommendation → cart review → checkout)
+  const [cartItem, setCartItem] = useState(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Modals, Comparison & Checkout State
   const [detailProduct, setDetailProduct] = useState(null);
@@ -183,13 +190,19 @@ export default function App() {
   };
 
   // AI Assistant Handler
-  const handleAskAi = async (message) => {
+  const handleAskAi = async (message, options = {}) => {
     setIsAiLoading(true);
     setAiError(null);
+    setDecisionReport(null);
+    setClarifyingData(null);
     try {
-      const res = await api.askAssistant(message);
+      const res = await api.askAssistant(message, options);
       if (res.success && res.data) {
-        setDecisionReport(res.data);
+        if (res.data.needsClarification) {
+          setClarifyingData(res.data);
+        } else {
+          setDecisionReport(res.data);
+        }
       } else {
         throw new Error(res.error?.message || 'Could not generate decision report.');
       }
@@ -199,6 +212,25 @@ export default function App() {
     } finally {
       setIsAiLoading(false);
     }
+  };
+
+  // User selects a clarifying profile option → re-run with forceRecommend
+  const handleClarifyingOptionSelect = (option) => {
+    setClarifyingData(null);
+    handleAskAi(option.query, { forceRecommend: true });
+  };
+
+  // Agent recommends a product → stage it in cart for explicit review
+  const handleAddToCart = (product, quantity, matchScore, reason) => {
+    setCartItem({ product, quantity: quantity || 1, matchScore, recommendationReason: reason });
+    setIsCartOpen(true);
+  };
+
+  // User approves cart → open PayPal checkout modal
+  const handleCartApprove = (approvedCartItem) => {
+    setIsCartOpen(false);
+    setCartItem(null);
+    setOrderProduct(approvedCartItem.product);
   };
 
   // Apply extracted requirements from Decision Report into the catalog filters
@@ -248,8 +280,12 @@ export default function App() {
     currentWorkflowStep = 5;
   } else if (orderProduct) {
     currentWorkflowStep = 4;
+  } else if (isCartOpen) {
+    currentWorkflowStep = 4;
   } else if (decisionReport) {
     currentWorkflowStep = 3;
+  } else if (clarifyingData) {
+    currentWorkflowStep = 2;
   } else if (comparedIds.length >= 2) {
     currentWorkflowStep = 3;
   } else if (products.length > 0) {
@@ -322,6 +358,16 @@ export default function App() {
                 </div>
               )}
 
+              {/* Clarifying Question Card */}
+              {clarifyingData && !isAiLoading && (
+                <ClarifyingQuestionCard
+                  data={clarifyingData}
+                  onSelectOption={handleClarifyingOptionSelect}
+                  onDismiss={() => setClarifyingData(null)}
+                  isLoading={isAiLoading}
+                />
+              )}
+
               {/* Grounded Shopping Decision Report */}
               {decisionReport && !isAiLoading && (
                 <ShoppingDecisionReport
@@ -329,6 +375,7 @@ export default function App() {
                   onClose={() => setDecisionReport(null)}
                   onViewDetails={setDetailProduct}
                   onToggleCompare={handleToggleCompare}
+                  onAddToCart={handleAddToCart}
                   onProceedToOrder={setOrderProduct}
                   comparedIds={comparedIds}
                   onApplyFilters={handleApplyAiFilters}
@@ -409,6 +456,17 @@ export default function App() {
         onOrderSuccess={(order) => {
           setLatestPaidOrder(order);
         }}
+      />
+
+      {/* Cart Review Modal — explicit user approval before checkout */}
+      <CartReviewModal
+        isOpen={isCartOpen}
+        onClose={() => { setIsCartOpen(false); setCartItem(null); }}
+        cartItem={cartItem}
+        onUpdateQuantity={(q) => setCartItem((prev) => ({ ...prev, quantity: q }))}
+        onApproveAndCheckout={handleCartApprove}
+        onContinueShopping={() => { setIsCartOpen(false); setCartItem(null); }}
+        currency="USD"
       />
 
       {/* Authentication Modal */}

@@ -17,6 +17,278 @@ function getCacheKey(query) {
   return query.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+/**
+ * Computes concrete, catalog-grounded advantages and drawbacks of an alternative product
+ * relative to the top pick (primaryProduct).
+ */
+export function computeConcreteTradeOffs(altProduct, primaryProduct) {
+  const advantages = [];
+  const drawbacks = [];
+
+  // 1. Price comparison
+  const priceDelta = altProduct.priceINR - primaryProduct.priceINR;
+  if (priceDelta < 0) {
+    advantages.push(`₹${Math.abs(priceDelta).toLocaleString('en-IN')} more affordable (₹${altProduct.priceINR.toLocaleString('en-IN')} vs ₹${primaryProduct.priceINR.toLocaleString('en-IN')})`);
+  } else if (priceDelta > 0) {
+    drawbacks.push(`Costs ₹${priceDelta.toLocaleString('en-IN')} more (₹${altProduct.priceINR.toLocaleString('en-IN')} vs ₹${primaryProduct.priceINR.toLocaleString('en-IN')})`);
+  }
+
+  // 2. RAM capacity & upgradability
+  const altRam = altProduct.ram?.capacityGB || 0;
+  const primRam = primaryProduct.ram?.capacityGB || 0;
+  if (altRam > primRam) {
+    advantages.push(`More RAM: ${altRam}GB vs ${primRam}GB`);
+  } else if (altRam < primRam) {
+    drawbacks.push(`Less RAM: ${altRam}GB vs ${primRam}GB`);
+  }
+
+  const altRamUp = altProduct.ram?.isUpgradable === true;
+  const primRamUp = primaryProduct.ram?.isUpgradable === true;
+  if (altRamUp && !primRamUp) {
+    advantages.push('Upgradable SO-DIMM RAM (primary has soldered non-upgradable RAM)');
+  } else if (!altRamUp && primRamUp) {
+    drawbacks.push('Soldered non-upgradable RAM (primary has upgradable RAM)');
+  }
+
+  // 3. GPU / Graphics comparison
+  const altGpuType = altProduct.gpu?.type || 'integrated';
+  const primGpuType = primaryProduct.gpu?.type || 'integrated';
+  const altVram = altProduct.gpu?.vramGB || 0;
+  const primVram = primaryProduct.gpu?.vramGB || 0;
+
+  if (altGpuType === 'dedicated' && primGpuType === 'integrated') {
+    advantages.push(`Dedicated ${altProduct.gpu.model} with ${altVram}GB VRAM for GPU compute/gaming`);
+  } else if (altGpuType === 'integrated' && primGpuType === 'dedicated') {
+    drawbacks.push(`Integrated graphics only (lacks primary's dedicated ${primaryProduct.gpu.model})`);
+  } else if (altGpuType === 'dedicated' && primGpuType === 'dedicated') {
+    if (altVram > primVram) {
+      advantages.push(`Higher VRAM: ${altVram}GB on ${altProduct.gpu.model} (vs ${primVram}GB)`);
+    } else if (altVram < primVram) {
+      drawbacks.push(`Lower VRAM: ${altVram}GB on ${altProduct.gpu.model} (vs ${primVram}GB)`);
+    }
+  }
+
+  // 4. Battery runtime
+  const altBattery = altProduct.battery?.realWorldHoursEstimate || 0;
+  const primBattery = primaryProduct.battery?.realWorldHoursEstimate || 0;
+  if (altBattery >= primBattery + 1.5) {
+    advantages.push(`Longer battery endurance: ~${altBattery}h vs ~${primBattery}h estimated`);
+  } else if (altBattery <= primBattery - 1.5) {
+    drawbacks.push(`Shorter battery runtime: ~${altBattery}h vs ~${primBattery}h estimated`);
+  }
+
+  // 5. Weight / Portability
+  const altWeight = altProduct.weightKg || 0;
+  const primWeight = primaryProduct.weightKg || 0;
+  if (altWeight > 0 && primWeight > 0) {
+    if (altWeight <= primWeight - 0.2) {
+      advantages.push(`Lighter weight: ${altWeight}kg vs ${primWeight}kg`);
+    } else if (altWeight >= primWeight + 0.2) {
+      drawbacks.push(`Heavier chassis: ${altWeight}kg vs ${primWeight}kg`);
+    }
+  }
+
+  // 6. Processor cores
+  const altCores = altProduct.processor?.cores || 0;
+  const primCores = primaryProduct.processor?.cores || 0;
+  if (altCores >= primCores + 4) {
+    advantages.push(`More CPU cores: ${altCores}c vs ${primCores}c (${altProduct.processor.model})`);
+  } else if (altCores <= primCores - 4) {
+    drawbacks.push(`Fewer CPU cores: ${altCores}c vs ${primCores}c (${altProduct.processor.model})`);
+  }
+
+  const advText = advantages.length > 0 ? `Advantage: ${advantages.slice(0, 2).join('; ')}.` : '';
+  const drawText = drawbacks.length > 0 ? `Drawback: ${drawbacks.slice(0, 2).join('; ')}.` : '';
+  const comparisonText = [advText, drawText].filter(Boolean).join(' ') ||
+    `${altProduct.name} offers alternative trade-offs at ₹${altProduct.priceINR.toLocaleString('en-IN')}.`;
+
+  return {
+    advantages,
+    drawbacks,
+    comparisonText
+  };
+}
+
+/**
+ * Detects whether a text (explanation, advantage, or trade-off) claims a CPU or GPU
+ * that contradicts the selected product's verified specifications.
+ * @param {string} text - The claim or explanation to verify
+ * @param {object} product - The selected catalog product record
+ * @returns {boolean} true if the text contradicts the product's CPU or GPU
+ */
+export function hasHardwareContradiction(text, product) {
+  if (!text || typeof text !== 'string') return false;
+  const lower = text.toLowerCase();
+
+  const prodCpuBrand = (product.processor?.brand || '').toLowerCase(); // 'amd', 'intel', 'apple', 'qualcomm'
+  const prodCpuModel = (product.processor?.model || '').toLowerCase(); // e.g. 'ryzen 7 7840hs', 'core i5-13420h'
+  const prodGpuType = (product.gpu?.type || 'integrated').toLowerCase(); // 'dedicated', 'integrated'
+  const prodGpuModel = (product.gpu?.model || '').toLowerCase(); // e.g. 'geforce rtx 3050 6gb', 'radeon graphics'
+
+  // --- CPU Verification ---
+  if (prodCpuBrand === 'amd') {
+    // If product is AMD, reject claims mentioning Intel, Core i3/i5/i7/i9/Ultra, 11th/12th/13th/14th Gen, Apple, Snapdragon
+    if (/\bintel\b|\bcore\s*(?:i[3579]|ultra|\d)\b|\b(?:1[1234]th\s*gen)\b|\b(?:m[1234]|apple\s*silicon)\b|\bsnapdragon\b/i.test(lower)) {
+      return true;
+    }
+  } else if (prodCpuBrand === 'intel') {
+    // If product is Intel, reject claims mentioning AMD, Ryzen, Apple Silicon, Snapdragon
+    if (/\bamd\b|\bryzen\b|\b(?:m[1234]|apple\s*silicon)\b|\bsnapdragon\b/i.test(lower)) {
+      return true;
+    }
+  } else if (prodCpuBrand === 'apple') {
+    if (/\bintel\b|\bamd\b|\bryzen\b|\bcore\b|\bsnapdragon\b/i.test(lower)) {
+      return true;
+    }
+  } else if (prodCpuBrand === 'qualcomm') {
+    if (/\bintel\b|\bamd\b|\bryzen\b|\bcore\b|\bapple\b/i.test(lower)) {
+      return true;
+    }
+  }
+
+  // CPU Tier / family checks
+  if (/\bryzen\s*7\b/i.test(lower) && !prodCpuModel.includes('ryzen 7')) return true;
+  if (/\bryzen\s*5\b/i.test(lower) && !prodCpuModel.includes('ryzen 5')) return true;
+  if (/\bryzen\s*3\b/i.test(lower) && !prodCpuModel.includes('ryzen 3')) return true;
+  if (/\bryzen\s*9\b/i.test(lower) && !prodCpuModel.includes('ryzen 9')) return true;
+
+  if (/\bcore\s*i7\b/i.test(lower) && !prodCpuModel.includes('i7')) return true;
+  if (/\bcore\s*i5\b/i.test(lower) && !prodCpuModel.includes('i5')) return true;
+  if (/\bcore\s*i3\b/i.test(lower) && !prodCpuModel.includes('i3')) return true;
+  if (/\bcore\s*ultra\s*7\b/i.test(lower) && !prodCpuModel.includes('ultra 7')) return true;
+  if (/\bcore\s*ultra\s*5\b/i.test(lower) && !prodCpuModel.includes('ultra 5')) return true;
+
+  // --- GPU Verification ---
+  if (prodGpuType === 'integrated') {
+    // If product has integrated graphics, reject dedicated GPU claims
+    if (/\b(?:dedicated\s*gpu|rtx\s*\d{4}|geforce|gtx|discrete\s*gpu|cuda\s*cores?)\b/i.test(lower)) {
+      return true;
+    }
+  } else if (prodGpuType === 'dedicated') {
+    // If product has dedicated GPU, check for specific mismatched RTX/GTX models
+    const rtxMatch = lower.match(/\brtx\s*(4090|4080|4070|4060|4050|3080|3070|3060|3050|2050)\b/i);
+    if (rtxMatch) {
+      const claimedRtxNumber = rtxMatch[1];
+      if (!prodGpuModel.includes(claimedRtxNumber)) {
+        return true; // Contradiction: e.g. text mentions RTX 4050, but product has RTX 3050!
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Validates and sanitizes specification claims against verified catalog attributes.
+ * Removes or qualifies claims that the catalog does not support (e.g. RAM upgradeability,
+ * dedicated GPU, fake savings, or mismatched CPU/GPU).
+ */
+export function sanitizeAndVerifyClaims(product, rawAdvantages = [], rawTradeOffs = []) {
+  const isRamUpgradable = product.ram?.isUpgradable === true;
+  const ramGB = product.ram?.capacityGB || 0;
+  const isDedicatedGpu = product.gpu?.type === 'dedicated';
+  const batteryHours = product.battery?.realWorldHoursEstimate || 0;
+  const weightKg = product.weightKg || 0;
+
+  const verifiedAdvantages = [];
+  const verifiedTradeOffs = [];
+
+  for (const adv of rawAdvantages) {
+    if (!adv || typeof adv !== 'string') continue;
+    const lower = adv.toLowerCase();
+
+    // Hardware CPU/GPU consistency check
+    if (hasHardwareContradiction(adv, product)) {
+      continue;
+    }
+
+    // RAM upgradeability claim verification
+    if (/upgrad(?:able|ability)|expandable(?:\s+(?:ram|memory))?|modular\s+ram|so-dimm|ram\s+slot/i.test(lower)) {
+      if (!isRamUpgradable) {
+        // Discard unsupported RAM upgrade claim when RAM is soldered
+        continue;
+      }
+    }
+
+    // Dedicated GPU claim verification
+    if (/dedicated\s+gpu|nvidia|rtx|cuda/i.test(lower)) {
+      if (!isDedicatedGpu) {
+        continue;
+      }
+    }
+
+    // Savings claim verification (must never use user budget as savings)
+    if (/saves?\s+[₹$]|saved|discount/i.test(lower)) {
+      const listPrice = product.originalPriceINR || product.listPriceINR;
+      if (!listPrice || listPrice <= product.priceINR) {
+        continue;
+      }
+    }
+
+    // Battery endurance claim
+    if (/1[2-9]h|all-day\s+battery/i.test(lower) && batteryHours < 9) {
+      continue;
+    }
+
+    // Weight claim
+    if (/ultra-?light|featherweight/i.test(lower) && weightKg > 1.6) {
+      continue;
+    }
+
+    verifiedAdvantages.push(adv);
+  }
+
+  // Fallback to verified catalog strengths if empty
+  if (verifiedAdvantages.length === 0) {
+    if (product.strengths?.length > 0) {
+      verifiedAdvantages.push(...product.strengths);
+    } else {
+      verifiedAdvantages.push(`${product.processor.model} (${product.processor.cores} cores) compute engine`);
+      verifiedAdvantages.push(`${ramGB}GB ${product.ram?.type || 'RAM'} installed`);
+    }
+  }
+
+  // Filter trade-offs
+  for (const tro of rawTradeOffs) {
+    if (!tro || typeof tro !== 'string') continue;
+    const lower = tro.toLowerCase();
+
+    // Hardware CPU/GPU consistency check
+    if (hasHardwareContradiction(tro, product)) {
+      continue;
+    }
+
+    // If claim says "non-upgradable RAM" but RAM IS upgradable, skip false trade-off
+    if (/non-upgradable\s+ram|soldered\s+ram/i.test(lower) && isRamUpgradable) {
+      continue;
+    }
+    // If claim says "lacks dedicated GPU" but GPU IS dedicated, skip
+    if (/lacks?\s+dedicated|no\s+dedicated\s+gpu|integrated\s+only/i.test(lower) && isDedicatedGpu) {
+      continue;
+    }
+
+    verifiedTradeOffs.push(tro);
+  }
+
+  // If RAM is soldered, ensure honest trade-offs explicitly notes it
+  if (!isRamUpgradable) {
+    const hasSolderedNote = verifiedTradeOffs.some(t => /soldered|upgrad/i.test(t));
+    if (!hasSolderedNote) {
+      verifiedTradeOffs.push(`Soldered RAM (${ramGB}GB): memory is non-upgradable after purchase`);
+    }
+  }
+
+  // Fallback to verified catalog trade-offs if empty
+  if (verifiedTradeOffs.length === 0 && product.tradeOffs?.length > 0) {
+    verifiedTradeOffs.push(...product.tradeOffs);
+  }
+
+  return {
+    verifiedAdvantages: [...new Set(verifiedAdvantages)],
+    verifiedTradeOffs: [...new Set(verifiedTradeOffs)]
+  };
+}
+
 export class AIService {
   /**
    * Deterministic fallback requirement parser when API key is missing or quota is exhausted
@@ -99,15 +371,60 @@ export class AIService {
   }
 
   /**
+   * Determine whether a user query is ambiguous or underspecified and requires clarification
+   */
+  static isClarificationNeeded(query) {
+    const q = query.toLowerCase().trim();
+    // Check if budget is specified (e.g., 50k, 60000, under, below, max, ₹, inr, rs)
+    const hasBudget = /(?:under|below|budget|within|max|₹|rs\.?|inr|\b\d{2,3}k\b|\b\d{4,6}\b)/i.test(q);
+    // Check if hardware specifications or model names are specified
+    const hasSpec = /(?:\d+\s*gb|rtx|dedicated|ssd|intel|amd|ryzen|core\s*i\d|m\d|apple|macbook|thinkpad|zenbook|nitro|vivobook|yoga|legion|predator|framework)/i.test(q);
+
+    // If neither budget nor hardware spec is provided, ask for clarification
+    return !hasBudget && !hasSpec;
+  }
+
+  /**
    * Process natural-language shopping goal through Gemini + deterministic catalog grounding
    * @param {string} userMessage - Natural language shopping prompt from user
+   * @param {object} options - Optional execution controls ({ forceRecommend: boolean })
    */
-  static async processShoppingRequest(userMessage) {
+  static async processShoppingRequest(userMessage, options = {}) {
     if (!userMessage || typeof userMessage !== 'string' || userMessage.trim().length === 0) {
       throw new Error('A valid natural language shopping goal must be provided.');
     }
 
     const trimmedQuery = userMessage.trim();
+
+    // Check if clarification is needed for broad or ambiguous queries
+    if (!options.forceRecommend && this.isClarificationNeeded(trimmedQuery)) {
+      return {
+        needsClarification: true,
+        query: trimmedQuery,
+        clarification: {
+          question: 'What is your target budget and primary workload?',
+          explanation: "PayPilot's catalog has 32 verified laptops from ₹33,990 to ₹89,990. Select a profile below or refine your query to get grounded recommendations:",
+          options: [
+            {
+              label: 'Budget CS & Study (< ₹45,000)',
+              description: 'Coursework, everyday coding, web dev, and long battery life',
+              query: `${trimmedQuery} under ₹45,000 prioritizing battery life and daily coding`
+            },
+            {
+              label: 'Mid-Range Dev & Multitasking (< ₹65,000)',
+              description: '16GB RAM, fast multi-core processor, Docker & full-stack development',
+              query: `${trimmedQuery} under ₹65,000 with 16GB RAM for software development`
+            },
+            {
+              label: 'High Performance & AI/ML (< ₹85,000)',
+              description: 'Dedicated NVIDIA GPU (RTX), local AI models, CUDA & gaming',
+              query: `${trimmedQuery} under ₹85,000 with dedicated NVIDIA GPU for AI/ML and gaming`
+            }
+          ]
+        }
+      };
+    }
+
     const cacheKey = getCacheKey(trimmedQuery);
 
     // Check in-memory LRU cache
@@ -268,54 +585,82 @@ Respond ONLY with a JSON object conforming to this exact structure:
       throw new Error('No candidate products could be evaluated from the catalog.');
     }
 
-    // Determine the authoritative primary product
-    let primaryProduct = null;
-    if (aiExplanation?.primary?.productId) {
-      primaryProduct = rankedProducts.find((p) => p.id === aiExplanation.primary.productId);
-    }
-    // If AI recommended an invalid ID or AI was in fallback, use authoritative rank #1
-    if (!primaryProduct) {
-      primaryProduct = rankedProducts[0];
-    }
+    // Authoritative primary product is ALWAYS the #1 ranked candidate (rankedProducts[0])
+    // to guarantee displayed ranking is strictly monotonic with match scores.
+    const primaryProduct = rankedProducts[0];
 
-    // Determine alternative products (runner-ups)
+    // Determine runner-up alternatives strictly in descending rank order
     const alternatives = [];
-    const usedIds = new Set([primaryProduct.id]);
+    for (let i = 1; i < Math.min(3, rankedProducts.length); i++) {
+      const altProd = rankedProducts[i];
+      const tradeOffs = computeConcreteTradeOffs(altProd, primaryProduct);
+      const isTiedWithPrimary = altProd.matchScore === primaryProduct.matchScore;
+      const isTiedWithPrevious = i > 1 && altProd.matchScore === rankedProducts[i - 1].matchScore;
 
-    if (aiExplanation?.alternatives?.length > 0) {
-      for (const alt of aiExplanation.alternatives) {
-        const prod = rankedProducts.find((p) => p.id === alt.productId && !usedIds.has(p.id));
-        if (prod) {
-          alternatives.push({
-            product: prod,
-            matchScore: prod.matchScore,
-            comparisonVsPrimary: alt.comparisonVsPrimary || `Alternative option at ₹${prod.priceINR.toLocaleString('en-IN')}`
-          });
-          usedIds.add(prod.id);
-        }
+      let tieNote = null;
+      if (isTiedWithPrimary) {
+        tieNote = `Tied with #1 pick at ${altProd.matchScore}% Match; ranked runner-up by lower price (₹${primaryProduct.priceINR.toLocaleString('en-IN')} vs ₹${altProd.priceINR.toLocaleString('en-IN')}).`;
+      } else if (isTiedWithPrevious) {
+        tieNote = `Tied with preceding option at ${altProd.matchScore}% Match; ranked by lower price.`;
       }
+
+      alternatives.push({
+        product: altProd,
+        matchScore: altProd.matchScore,
+        comparisonVsPrimary: tradeOffs.comparisonText,
+        concreteAdvantages: tradeOffs.advantages,
+        concreteDrawbacks: tradeOffs.drawbacks,
+        isTied: isTiedWithPrimary || isTiedWithPrevious,
+        tieNote
+      });
     }
 
-    // Ensure we always have up to 2 alternatives from the deterministic ranking
-    for (const prod of rankedProducts) {
-      if (alternatives.length >= 2) break;
-      if (!usedIds.has(prod.id)) {
-        const priceDelta = prod.priceINR - primaryProduct.priceINR;
-        const priceText = priceDelta < 0
-          ? `₹${Math.abs(priceDelta).toLocaleString('en-IN')} more affordable`
-          : `₹${priceDelta.toLocaleString('en-IN')} higher price`;
-
-        alternatives.push({
-          product: prod,
-          matchScore: prod.matchScore,
-          comparisonVsPrimary: `${prod.name} (${prod.matchScore}% Match): ${priceText} with ${prod.ram.capacityGB}GB RAM and ${prod.processor.model}.`
-        });
-        usedIds.add(prod.id);
-      }
+    // Tie-breaker note for primary pick if tied with runner-up
+    let primaryTieNote = null;
+    if (alternatives.length > 0 && alternatives[0].matchScore === primaryProduct.matchScore) {
+      primaryTieNote = `Tied with runner-up (${alternatives[0].product.name}) on score (${primaryProduct.matchScore}%); ranked #1 due to lower price (₹${primaryProduct.priceINR.toLocaleString('en-IN')} vs ₹${alternatives[0].product.priceINR.toLocaleString('en-IN')}).`;
     }
 
-    // Authoritative budget delta calculation
+    // Authoritative budget delta calculation (remaining buffer under limit, NOT "savings")
     const budgetDelta = (structuredRequirements.maxBudget || 100000) - primaryProduct.priceINR;
+
+    // Verified catalog savings check (strictly from verified catalog list price, never user budget)
+    const listPrice = primaryProduct.originalPriceINR || primaryProduct.listPriceINR;
+    const hasVerifiedSavings = Boolean(listPrice && listPrice > primaryProduct.priceINR);
+    const verifiedSavingsINR = hasVerifiedSavings ? listPrice - primaryProduct.priceINR : 0;
+
+    // Verify whether Gemini's recommendation corresponds to this exact primary product
+    const isPrimaryAiMatch = aiExplanation?.primary?.productId === primaryProduct.id;
+
+    // Verified catalog-grounded justification
+    const cpuDesc = `${primaryProduct.processor.brand} ${primaryProduct.processor.model}`;
+    const gpuDesc = primaryProduct.gpu.type === 'dedicated'
+      ? primaryProduct.gpu.model
+      : 'integrated graphics';
+
+    const defaultWhyChosen = `${primaryProduct.name} delivers the highest score (${primaryProduct.matchScore}%) for your ${structuredRequirements.targetUseCase} requirements within your ₹${(structuredRequirements.maxBudget || 100000).toLocaleString('en-IN')} budget, powered by a verified ${cpuDesc} (${primaryProduct.processor.cores}-core) processor and ${gpuDesc}.`;
+
+    // Validate whyChosen: must belong to primary product and must NOT have CPU/GPU contradictions
+    let finalWhyChosen = defaultWhyChosen;
+    if (isPrimaryAiMatch && aiExplanation?.primary?.whyChosen) {
+      if (!hasHardwareContradiction(aiExplanation.primary.whyChosen, primaryProduct)) {
+        finalWhyChosen = aiExplanation.primary.whyChosen;
+      }
+    }
+
+    // Ground and sanitize claims against catalog attributes
+    const rawAdvantages = isPrimaryAiMatch && aiExplanation?.primary?.keyAdvantages?.length > 0
+      ? aiExplanation.primary.keyAdvantages
+      : primaryProduct.strengths || [];
+    const rawTradeOffs = isPrimaryAiMatch && aiExplanation?.primary?.honestTradeOffs?.length > 0
+      ? aiExplanation.primary.honestTradeOffs
+      : primaryProduct.tradeOffs || [];
+
+    const { verifiedAdvantages, verifiedTradeOffs } = sanitizeAndVerifyClaims(
+      primaryProduct,
+      rawAdvantages,
+      rawTradeOffs
+    );
 
     // Build the final authoritative Shopping Decision Report
     const decisionReport = {
@@ -326,23 +671,27 @@ Respond ONLY with a JSON object conforming to this exact structure:
         matchScore: primaryProduct.matchScore,
         budgetDelta,
         satisfiesBudget: budgetDelta >= 0,
+        hasVerifiedSavings,
+        verifiedSavingsINR,
+        verifiedListPriceINR: hasVerifiedSavings ? listPrice : null,
+        tieNote: primaryTieNote,
         satisfiedRequirements: primaryProduct.evaluation?.matchedRequirements || [
           `Meets ${primaryProduct.ram.capacityGB}GB RAM requirement`,
-          budgetDelta >= 0 ? `Under budget: ₹${budgetDelta.toLocaleString('en-IN')} saved` : null
+          budgetDelta >= 0 ? `Within budget limit: ₹${budgetDelta.toLocaleString('en-IN')} remaining buffer` : null
         ].filter(Boolean),
         compromisedRequirements: primaryProduct.evaluation?.tradeOffsIdentified || [],
         aiExplanation: {
-          whyChosen: aiExplanation?.primary?.whyChosen ||
-            `${primaryProduct.name} delivers the highest score (${primaryProduct.matchScore}%) for your ${structuredRequirements.targetUseCase} requirements within your ₹${structuredRequirements.maxBudget.toLocaleString('en-IN')} budget.`,
-          keyAdvantages: aiExplanation?.primary?.keyAdvantages?.length > 0
-            ? aiExplanation.primary.keyAdvantages
-            : primaryProduct.strengths || [],
-          honestTradeOffs: aiExplanation?.primary?.honestTradeOffs?.length > 0
-            ? aiExplanation.primary.honestTradeOffs
-            : primaryProduct.tradeOffs || []
+          whyChosen: finalWhyChosen,
+          keyAdvantages: verifiedAdvantages,
+          honestTradeOffs: verifiedTradeOffs
         }
       },
       alternatives,
+      scoreExplanation: {
+        formula: '100-point deterministic rubric: Budget (30pts), RAM (20pts), Compute & Workload (25pts), Portability & Battery (15pts), Upgradeability & Longevity (10pts).',
+        tieBreaker: RankingService.TIE_BREAKER_RULE || 'When match scores are tied, lower price INR takes precedence.',
+        imageEffect: 'Product image presence has zero effect on the match score; scoring is computed purely from verified hardware specs and financial criteria.'
+      },
       groundingMeta: {
         provider: usedProvider,
         model: activeModel,
