@@ -1,8 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { config } from './config/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -30,6 +35,10 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use('/api', routes);
+
+// Serve static images and assets from frontend/public and frontend/dist
+app.use(express.static(path.resolve(__dirname, '../../frontend/public')));
+app.use(express.static(path.resolve(__dirname, '../../frontend/dist')));
 
 // 404 Route Catch-all
 app.use('*', (req, res) => {

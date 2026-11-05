@@ -293,13 +293,14 @@ export class AIService {
   /**
    * Deterministic fallback requirement parser when API key is missing or quota is exhausted
    */
-  static parseRequirementsDeterministically(query) {
+  static parseRequirementsDeterministically(query, previousRequirements = null) {
     const q = query.toLowerCase();
+    const prev = previousRequirements || {};
 
     // Budget extraction (e.g., "under 60000", "under ₹60,000", "below 70k", "budget 50000")
-    let maxBudget = 100000;
-    const budgetMatch = q.match(/(?:under|below|budget|within|max(?:imum)?)\s*(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{2,3})*(?:k)?|\d+k?)/i) ||
-                        q.match(/(?:₹|rs\.?|inr)\s*(\d{1,3}(?:,\d{2,3})*(?:k)?|\d+k?)/i);
+    let maxBudget = prev.maxBudget || 100000;
+    const budgetMatch = q.match(/(?:under|below|budget|within|max(?:imum)?)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:,\d+)*k?)/i) ||
+                        q.match(/(?:₹|rs\.?|inr)\s*(\d+(?:,\d+)*k?)/i);
 
     if (budgetMatch) {
       let rawVal = budgetMatch[1].replace(/,/g, '').toLowerCase();
@@ -311,16 +312,16 @@ export class AIService {
     }
 
     // RAM extraction (e.g., "16gb", "16 gb ram", "8gb")
-    let minRam = 8;
+    let minRam = prev.minRam || 8;
     const ramMatch = q.match(/(\d+)\s*(?:gb|g)\s*(?:ram|memory)?/i);
     if (ramMatch) {
       minRam = parseInt(ramMatch[1], 10);
-    } else if (q.includes('ai') || q.includes('deep learning') || q.includes('coding') || q.includes('programming')) {
+    } else if (!prev.minRam && (q.includes('ai') || q.includes('deep learning') || q.includes('coding') || q.includes('programming'))) {
       minRam = 16;
     }
 
     // Workload / Use case
-    let targetUseCase = 'coding';
+    let targetUseCase = prev.targetUseCase || 'coding';
     if (q.includes('ai') || q.includes('ml') || q.includes('machine learning') || q.includes('deep learning') || q.includes('pytorch') || q.includes('cuda')) {
       targetUseCase = 'ai-ml';
     } else if (q.includes('college') || q.includes('student') || q.includes('study') || q.includes('lecture')) {
@@ -332,21 +333,25 @@ export class AIService {
     }
 
     // GPU preference
-    const prioritizeGpu = targetUseCase === 'ai-ml' || targetUseCase === 'gaming' || q.includes('rtx') || q.includes('dedicated gpu') || q.includes('graphics');
-    const gpuPreference = prioritizeGpu ? 'dedicated' : q.includes('integrated') ? 'integrated' : 'any';
+    let prioritizeGpu = prev.prioritizeGpu || targetUseCase === 'ai-ml' || targetUseCase === 'gaming' || q.includes('rtx') || q.includes('dedicated gpu') || q.includes('graphics');
+    if (q.includes('integrated') || q.includes('no gpu') || q.includes('without gpu')) {
+      prioritizeGpu = false;
+    }
+    const gpuPreference = prioritizeGpu ? 'dedicated' : (prev.gpuPreference === 'dedicated' && !q.includes('integrated') ? 'dedicated' : q.includes('integrated') ? 'integrated' : prev.gpuPreference || 'any');
 
     // Battery priority
-    const prioritizeBattery = q.includes('battery') || q.includes('endurance') || q.includes('long battery') || q.includes('travel');
+    const prioritizeBattery = prev.prioritizeBattery || q.includes('battery') || q.includes('endurance') || q.includes('long battery') || q.includes('travel');
 
     // Upgradeability priority
-    const prioritizeUpgradability = q.includes('upgrad') || q.includes('expand') || q.includes('future proof') || q.includes('modular') || q.includes('ram slot');
+    const prioritizeUpgradability = prev.prioritizeUpgradability || q.includes('upgrad') || q.includes('expand') || q.includes('future proof') || q.includes('modular') || q.includes('ram slot');
 
     // Portability priority
-    const prioritizePortability = q.includes('light') || q.includes('portable') || q.includes('weight') || q.includes('thin') || q.includes('slim') || q.includes('carry');
+    const prioritizePortability = prev.prioritizePortability || q.includes('light') || q.includes('portable') || q.includes('weight') || q.includes('thin') || q.includes('slim') || q.includes('carry');
 
     // Brand preferences
     const knownBrands = ['lenovo', 'acer', 'asus', 'hp', 'apple', 'dell', 'msi', 'samsung', 'framework'];
-    const preferredBrands = knownBrands.filter((b) => q.includes(b)).map((b) => b.charAt(0).toUpperCase() + b.slice(1));
+    const matchedBrands = knownBrands.filter((b) => q.includes(b)).map((b) => b.charAt(0).toUpperCase() + b.slice(1));
+    const preferredBrands = matchedBrands.length > 0 ? matchedBrands : (prev.preferredBrands || []);
 
     return {
       targetUseCase,
@@ -364,7 +369,9 @@ export class AIService {
         maxBudget ? `Budget ceiling ₹${maxBudget.toLocaleString('en-IN')}` : null,
         prioritizeBattery ? 'Battery endurance' : null,
         prioritizeUpgradability ? 'Component upgradeability' : null,
-        prioritizeGpu ? 'Dedicated GPU/CUDA compute' : null
+        prioritizePortability ? 'Lightweight chassis' : null,
+        prioritizeGpu ? 'Dedicated GPU/CUDA compute' : null,
+        preferredBrands.length > 0 ? `Brand: ${preferredBrands.join(', ')}` : null
       ].filter(Boolean),
       summary: `Request targeting ${targetUseCase} under ₹${maxBudget.toLocaleString('en-IN')} with min ${minRam}GB RAM.`
     };
@@ -387,7 +394,7 @@ export class AIService {
   /**
    * Process natural-language shopping goal through Gemini + deterministic catalog grounding
    * @param {string} userMessage - Natural language shopping prompt from user
-   * @param {object} options - Optional execution controls ({ forceRecommend: boolean })
+   * @param {object} options - Optional execution controls ({ forceRecommend, conversationHistory, previousRequirements })
    */
   static async processShoppingRequest(userMessage, options = {}) {
     if (!userMessage || typeof userMessage !== 'string' || userMessage.trim().length === 0) {
@@ -396,8 +403,13 @@ export class AIService {
 
     const trimmedQuery = userMessage.trim();
 
-    // Check if clarification is needed for broad or ambiguous queries
-    if (!options.forceRecommend && this.isClarificationNeeded(trimmedQuery)) {
+    const isFollowUp = Boolean(
+      (Array.isArray(options.conversationHistory) && options.conversationHistory.length > 0) ||
+      options.previousRequirements
+    );
+
+    // Check if clarification is needed for broad or ambiguous queries (only for initial search, not follow-ups)
+    if (!options.forceRecommend && !isFollowUp && this.isClarificationNeeded(trimmedQuery)) {
       return {
         needsClarification: true,
         query: trimmedQuery,
@@ -425,19 +437,22 @@ export class AIService {
       };
     }
 
+    const isCacheable = !isFollowUp;
     const cacheKey = getCacheKey(trimmedQuery);
 
-    // Check in-memory LRU cache
-    const cached = queryCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-      console.log(`[AIService] Returning cached decision report for query: "${trimmedQuery.slice(0, 40)}..."`);
-      return {
-        ...cached.data,
-        groundingMeta: {
-          ...cached.data.groundingMeta,
-          cached: true
-        }
-      };
+    // Check in-memory LRU cache (only for standalone initial queries)
+    if (isCacheable) {
+      const cached = queryCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+        console.log(`[AIService] Returning cached decision report for query: "${trimmedQuery.slice(0, 40)}..."`);
+        return {
+          ...cached.data,
+          groundingMeta: {
+            ...cached.data.groundingMeta,
+            cached: true
+          }
+        };
+      }
     }
 
     // Retrieve all products from real catalog
@@ -449,6 +464,7 @@ export class AIService {
     // Step 1: Extract requirements using Gemini or fallback
     let structuredRequirements = null;
     let aiExplanation = null;
+    let parsedAssistantReply = null;
     let usedProvider = 'deterministic-fallback';
     let activeModel = 'rule-engine-v1';
 
@@ -471,23 +487,33 @@ export class AIService {
           weightKg: p.weightKg
         }));
 
+        const conversationSection = options.conversationHistory?.length > 0
+          ? `\nPREVIOUS CONVERSATION HISTORY:\n${options.conversationHistory.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n')}\n`
+          : '';
+        const prevReqSection = options.previousRequirements
+          ? `\nPREVIOUS ACTIVE REQUIREMENTS (UPDATE OR REFINE ACCORDINGLY):\n${JSON.stringify(options.previousRequirements, null, 2)}\n`
+          : '';
+
         const prompt = `You are PayPilot's Senior AI Hardware Architect for the PayPal AI Hackathon 2026.
-A student or developer has submitted this shopping goal:
+${conversationSection}${prevReqSection}
+User message / shopping goal:
 "${trimmedQuery}"
 
 Here is the authoritative catalog of verified laptops:
 ${JSON.stringify(compactCatalog)}
 
 TASK:
-1. Extract user requirements without inventing unmentioned constraints.
+1. Extract or refine user requirements, incorporating any previous context if this is a follow-up.
 2. Select the #1 best matching laptop ID and up to 2 alternative IDs from the catalog above.
 3. Formulate an honest, grounded Shopping Decision Report.
    - Ground all facts in the provided specifications.
    - Point out true trade-offs (e.g. soldered RAM, heavy chassis, low battery).
    - Explain why the primary choice beats the alternatives for this user.
+4. Provide a friendly, concise conversational "assistantReply" (1-2 sentences) directly addressing the user and explaining the recommendation or refinement.
 
 Respond ONLY with a JSON object conforming to this exact structure:
 {
+  "assistantReply": "1-2 sentences conversational response explaining the recommendation or refinement",
   "requirements": {
     "targetUseCase": "coding" | "ai-ml" | "college" | "everyday" | "creative" | "gaming",
     "maxBudget": number,
@@ -515,12 +541,14 @@ Respond ONLY with a JSON object conforming to this exact structure:
   ]
 }`;
 
-        // Attempt generation with configured model, with automatic fallback if deprecated
+        // Attempt generation with configured model, with automatic fallback across standard Gemini models
         const modelsToTry = [...new Set([
           resolvedWorkingModel,
           config.ai.model,
-          'gemini-3-flash-preview',
-          'gemini-2.5-flash-lite'
+          'gemini-2.5-flash',
+          'gemini-2.0-flash',
+          'gemini-1.5-flash',
+          'gemini-3-flash-preview'
         ].filter(Boolean))];
 
         let geminiResponseText = null;
@@ -528,13 +556,20 @@ Respond ONLY with a JSON object conforming to this exact structure:
         for (const candidateModel of modelsToTry) {
           try {
             console.log(`[AIService] Calling Gemini API (${candidateModel})...`);
-            const response = await ai.models.generateContent({
-              model: candidateModel,
-              contents: prompt,
-              config: {
-                responseMimeType: 'application/json'
-              }
-            });
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error(`Timeout calling Gemini model '${candidateModel}' after 9s`)), 9000)
+            );
+
+            const response = await Promise.race([
+              ai.models.generateContent({
+                model: candidateModel,
+                contents: prompt,
+                config: {
+                  responseMimeType: 'application/json'
+                }
+              }),
+              timeoutPromise
+            ]);
 
             if (response && response.text) {
               geminiResponseText = response.text;
@@ -556,6 +591,9 @@ Respond ONLY with a JSON object conforming to this exact structure:
         if (geminiResponseText) {
           try {
             const parsed = JSON.parse(geminiResponseText);
+            if (parsed.assistantReply) {
+              parsedAssistantReply = parsed.assistantReply;
+            }
             if (parsed.requirements) {
               structuredRequirements = parsed.requirements;
             }
@@ -576,7 +614,7 @@ Respond ONLY with a JSON object conforming to this exact structure:
 
     // Fallback requirement parsing if model didn't return valid structure
     if (!structuredRequirements) {
-      structuredRequirements = this.parseRequirementsDeterministically(trimmedQuery);
+      structuredRequirements = this.parseRequirementsDeterministically(trimmedQuery, options.previousRequirements);
     }
 
     // Step 2: Run deterministic backend ranking on the REAL catalog using requirements
@@ -662,9 +700,17 @@ Respond ONLY with a JSON object conforming to this exact structure:
       rawTradeOffs
     );
 
+    const finalAssistantReply = parsedAssistantReply || (
+      isFollowUp
+        ? `I've updated your laptop recommendations to reflect: "${trimmedQuery}". Here is your refined Shopping Decision Report:`
+        : `Here is your grounded Shopping Decision Report for "${trimmedQuery}":`
+    );
+
     // Build the final authoritative Shopping Decision Report
     const decisionReport = {
       query: trimmedQuery,
+      assistantReply: finalAssistantReply,
+      isFollowUp,
       interpretedRequirements: structuredRequirements,
       primaryRecommendation: {
         product: primaryProduct,
@@ -702,11 +748,13 @@ Respond ONLY with a JSON object conforming to this exact structure:
       }
     };
 
-    // Store in cache (preserving quota)
-    queryCache.set(cacheKey, {
-      timestamp: Date.now(),
-      data: decisionReport
-    });
+    // Store in cache (only for standalone initial queries to preserve quota)
+    if (isCacheable) {
+      queryCache.set(cacheKey, {
+        timestamp: Date.now(),
+        data: decisionReport
+      });
+    }
 
     return decisionReport;
   }
