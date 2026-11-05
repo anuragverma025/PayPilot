@@ -297,7 +297,7 @@ export class AIService {
     const q = query.toLowerCase();
     const prev = previousRequirements || {};
 
-    // Budget extraction (e.g., "under 60000", "under ₹60,000", "below 70k", "budget 50000")
+    // Budget extraction (e.g., "under 60000", "under ₹60,000", "below 70k", "budget 50000", "under 62")
     let maxBudget = prev.maxBudget || 100000;
     const budgetMatch = q.match(/(?:under|below|budget|within|max(?:imum)?)\s*(?:₹|rs\.?|inr)?\s*(\d+(?:,\d+)*k?)/i) ||
                         q.match(/(?:₹|rs\.?|inr)\s*(\d+(?:,\d+)*k?)/i);
@@ -307,7 +307,15 @@ export class AIService {
       if (rawVal.endsWith('k')) {
         maxBudget = parseFloat(rawVal) * 1000;
       } else {
-        maxBudget = parseInt(rawVal, 10);
+        const parsed = parseInt(rawVal, 10);
+        // Auto-scale: Indian laptop prices are ₹20,000–₹2,00,000.
+        // If someone says "under 62" or "under 80" they mean thousands (62k / 80k).
+        // Numbers < 1000 in this context are always shorthand for thousands.
+        if (parsed < 1000) {
+          maxBudget = parsed * 1000;
+        } else {
+          maxBudget = parsed;
+        }
       }
     }
 
@@ -382,12 +390,11 @@ export class AIService {
    */
   static isClarificationNeeded(query) {
     const q = query.toLowerCase().trim();
-    // Check if budget is specified (e.g., 50k, 60000, under, below, max, ₹, inr, rs)
-    const hasBudget = /(?:under|below|budget|within|max|₹|rs\.?|inr|\b\d{2,3}k\b|\b\d{4,6}\b)/i.test(q);
+    // Check if budget is specified — includes shorthand like "62", "80", "50k", "60000", ₹, inr, rs
+    const hasBudget = /(?:under|below|budget|within|max|₹|rs\.?|inr|\b\d{2,3}k\b|\b\d{4,6}\b|\b(?:under|below|within)\s+\d{2,3}\b)/i.test(q);
     // Check if hardware specifications or model names are specified
     const hasSpec = /(?:\d+\s*gb|rtx|dedicated|ssd|intel|amd|ryzen|core\s*i\d|m\d|apple|macbook|thinkpad|zenbook|nitro|vivobook|yoga|legion|predator|framework)/i.test(q);
 
-    // If neither budget nor hardware spec is provided, ask for clarification
     return !hasBudget && !hasSpec;
   }
 
