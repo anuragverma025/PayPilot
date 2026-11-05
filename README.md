@@ -7,119 +7,238 @@
 
 ## 🎯 Executive Product Vision
 
-**PayPilot** is an AI-powered shopping decision and checkout agent engineered to guide users through a transparent, high-integrity shopping journey. Unlike conventional shopping chatbots that hallucinate product attributes or try to force purchases, PayPilot enforces strict architectural boundaries:
+Conventional shopping bots and AI search engines suffer from three fundamental flaws:
+1. **Hallucinated Specs:** They invent RAM speeds, battery hours, or GPU models that don't exist.
+2. **Pushy Sales Funnels:** They prioritize selling rather than honest trade-off analysis.
+3. **Runaway Autonomy:** Unsafe agents attempt to make financial commitments without explicit human review.
 
-1. **Understand needs**: Extract user requirements, budget ceilings, and workload priorities.
-2. **Match products**: Deterministically filter and rank curated catalog models with mathematical transparency.
-3. **Compare options**: Side-by-side spec difference analysis highlighting compute, upgradability, and portability.
-4. **Review order**: User explicitly inspects and approves the authoritative order total (Phase 3).
-5. **Checkout**: Secure server-authoritative payment capture via PayPal Developer Sandbox (Phase 3).
+**PayPilot** solves this by establishing a **high-integrity, grounded shopping and payment agent**. It couples natural language reasoning with a **mathematical 100-point deterministic ranking engine**, **Web Speech API voice dictation**, and a **server-authoritative PayPal Orders v2 checkout bridge**.
 
 > [!IMPORTANT]
-> **User Agency Guarantee**: PayPilot will **never** initiate a purchase without the user's explicit, informed approval. Product facts and authoritative prices are strictly decoupled from AI-generated explanations.
+> **Strict User Agency Guarantee**: PayPilot will **never** initiate a purchase without the user's explicit, informed approval. Product specifications and authoritative prices are strictly decoupled from AI-generated text.
 
 ---
 
-## 🏗️ Architecture & Technology Stack
+## 🌟 Key Features
+
+### 🎙️ 1. Multi-Modal Voice & Natural Language Search
+* **Web Speech API Integration:** Speak directly to the assistant with zero third-party transcription fees or latency.
+* **Intelligent Query Interpretation:** Extracts target workload (`coding`, `ai-ml`, `college`, `gaming`), budget ceilings, and hardware priorities.
+* **Ambiguity Clarification:** Broad queries automatically trigger guided persona cards (*Budget CS*, *Mid-Range Dev*, *High-Performance AI/ML*).
+
+### 🤖 2. Grounded Decision Report & Multi-Turn Refinement
+* **#1 Authoritative Recommendation:** Top match scored against a 5-factor mathematical rubric.
+* **Side-by-Side Alternatives:** Honest, OEM-verified trade-offs (e.g. soldered RAM, heavier chassis, fan noise under compilation).
+* **Multi-Turn Conversational Memory:** Refine criteria naturally (*"What about a lighter option with 16GB RAM?"*) while preserving active session constraints.
+* **Model Agnostic with Zero-Config Fallback:** Powered by Google Gemini with an automatic fallback chain (`gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-flash`) and a local deterministic rule engine if API keys are omitted.
+
+### ⚖️ 3. Side-by-Side Hardware Spec Matrix
+* Compare 2 or 3 laptops with deep-dive technical comparisons.
+* Evaluates compute cores, upgradable SO-DIMM slots, open secondary M.2 bays, dedicated GPU VRAM, real-world battery endurance, and display panel quality.
+
+### 🛡️ 4. 5-Stage Agentic Safety & Audit Pipeline
+Users can expand the **`>_ Inspect Agent Reasoning & Safety Pipeline`** console on any decision report:
+1. **Stage 1 [Decompose]:** Formal constraint extraction from unstructured natural language.
+2. **Stage 2 [Deterministic Scoring]:** Rubric scoring across verified catalog records.
+3. **Stage 3 [Anti-Hallucination Gate]:** Spec validation against genuine OEM hardware attributes.
+4. **Stage 4 [User Agency Checkpoint]:** Order total locked and staged for explicit user sign-off.
+5. **Stage 5 [PayPal Settlement Bridge]:** Cryptographic order creation and capture verification.
+
+### 💳 5. PayPal Developer Sandbox Checkout
+* **Server-Authoritative Pricing:** Client never computes or modifies order amounts.
+* **PayPal Orders v2 API:** End-to-end sandbox creation and capture flow.
+* **Dual-Currency Conversion:** Transparent real-time conversion between INR (catalog base) and USD (PayPal settlement).
+* **Order Tracking & Digital Receipts:** View order history, status lifecycle (`PENDING_APPROVAL` → `COMPLETED`), and printable receipts.
+
+---
+
+## 🏗️ Architecture Diagram
+
+```mermaid
+flowchart TD
+    User([User Voice or Text Query]) --> Frontend[React 18 + Vite + Tailwind UI]
+    
+    subgraph Client [Frontend Client]
+        Frontend --> VoiceHook[useSpeechRecognition / Web Speech API]
+        Frontend --> DecisionUI[Shopping Decision Report & Multi-Turn Chat]
+        Frontend --> CompareUI[Comparison Drawer & Spec Matrix Modal]
+        Frontend --> CartReview[Cart Staging & User Agency Review Modal]
+    end
+
+    CartReview -- Explicit Consent --> Backend
+
+    subgraph Server [Node.js + Express Authoritative Backend]
+        Backend[Express REST API] --> AuthGate[Guest / JWT Auth Middleware]
+        
+        AuthGate --> AIService[AI Service & Pipeline]
+        AIService --> Gemini[Google Gemini Models / @google/genai]
+        AIService -. Fallback .-> RuleEngine[Deterministic 100pt Rubric Engine]
+        
+        RuleEngine --> CatalogService[Catalog Service: 32 Verified OEM Laptops]
+        CatalogService --> MongoDB[(MongoDB Atlas / Local / In-Memory)]
+        
+        AuthGate --> PayPalService[PayPal Service]
+    end
+
+    subgraph PayPalCloud [PayPal Developer Sandbox]
+        PayPalService --> PayPalOAuth[PayPal OAuth 2.0 Auth]
+        PayPalService --> PayPalOrders[PayPal Orders v2 API: Create & Capture]
+    end
+
+    PayPalOrders -- Verified Capture --> OrderStore[(Internal Orders Store)]
+    OrderStore --> DigitalReceipt[Digital Order Receipt & History]
+```
+
+---
+
+## 📊 Deterministic Ranking Rubric (100 Points)
+
+Match scores are calculated mathematically on the backend — never hallucinated by an LLM:
+
+| Category | Weight | Evaluation Criteria |
+| :--- | :---: | :--- |
+| **Budget Headroom** | **30 pts** | Proximity to price ceiling and financial headroom under limit. |
+| **Workload Alignment** | **25 pts** | CPU core tier, dedicated NVIDIA CUDA GPU for AI/ML vs high single-core for compilers. |
+| **RAM Multitasking** | **20 pts** | Minimum 8GB vs 16GB+ capacity for Docker, IDEs, and local LLMs. |
+| **Portability & Endurance** | **15 pts** | Real-world battery runtime estimate and chassis weight (< 1.6 kg bonus). |
+| **Modular Upgradability** | **10 pts** | User-accessible dual SO-DIMM slots and secondary M.2 SSD expansion bays. |
+
+> *Tie-Breaker Rule: When match scores are tied within 1%, lower price INR deterministically takes precedence.*
+
+---
+
+## 📁 Project Structure
 
 ```
 PayPilot/
 ├── backend/
 │   ├── src/
-│   │   ├── config/             # Environment & service config
-│   │   ├── controllers/        # Express route controllers
-│   │   ├── data/               # Curated sample catalog (32 laptops)
-│   │   ├── middleware/         # Centralized error handler & logging
-│   │   ├── models/             # Mongoose schemas (Product & Order)
-│   │   ├── routes/             # REST endpoints (/health, /products, /compare)
+│   │   ├── config/             # Environment, Gemini & PayPal configs
+│   │   ├── controllers/        # Express handlers (assistant, paypal, order, product, auth)
+│   │   ├── data/               # Curated OEM catalog (32 verified laptops)
+│   │   ├── middleware/         # Error handling, sanitization & guest session auth
+│   │   ├── models/             # Mongoose schemas (Product, Order, User)
+│   │   ├── routes/             # REST routing (/api/assistant, /api/paypal, /api/orders, /api/products)
 │   │   ├── services/
-│   │   │   ├── catalog.service.js    # Data access & memory fallback
-│   │   │   ├── ranking.service.js    # Deterministic scoring engine (0-100%)
-│   │   │   └── comparison.service.js # Spec divergence & matrix evaluator
-│   │   ├── validators/         # Zod schemas for input validation
-│   │   ├── app.js              # Express app setup & CORS
+│   │   │   ├── ai.service.js         # Gemini grounding, multi-turn memory & anti-hallucination
+│   │   │   ├── catalog.service.js    # Data access with zero-config in-memory fallback
+│   │   │   ├── ranking.service.js    # 100-point deterministic rubric engine
+│   │   │   ├── comparison.service.js # Spec divergence & matrix evaluator
+│   │   │   ├── paypal.service.js     # PayPal Orders v2 create, capture & verification
+│   │   │   └── order.service.js      # Order lifecycle & guest token isolation
+│   │   ├── validators/         # Zod schemas for strict request payload validation
+│   │   ├── app.js              # Express app setup, CORS & static file serving
 │   │   └── server.js           # Server bootstrap & Mongo connector
-│   └── tests/                  # Vitest suite for health, products, ranking & compare
+│   └── tests/                  # Vitest suite (agent flow, grounding, PayPal, orders, ranking)
 │
 └── frontend/
+    ├── public/
+    │   └── images/products/    # High-resolution verified laptop product photographs (.webp / .jpg)
     ├── src/
     │   ├── components/
-    │   │   ├── common/         # Button, Badge, Card, Modal, Skeleton
-    │   │   ├── layout/         # Sidebar (brandmark, navigation) & Header
-    │   │   ├── workspace/      # WorkflowSteps, SearchHero, FilterBar, PreferencesPanel
-    │   │   ├── products/       # ProductCard, ProductGrid, ProductDetailModal
-    │   │   └── comparison/     # ComparisonDrawer & ComparisonModal
+    │   │   ├── assistant/      # ShoppingDecisionReport & ClarifyingQuestionCard
+    │   │   ├── cart/           # CartReviewModal (User Agency checkpoint)
+    │   │   ├── checkout/       # OrderReviewModal (PayPal Sandbox flow)
+    │   │   ├── comparison/     # ComparisonDrawer & ComparisonModal
+    │   │   ├── layout/         # Header & Sidebar navigation
+    │   │   ├── orders/         # OrdersPage & OrderDetailModal
+    │   │   ├── products/       # ProductCard, ProductGrid, ProductImage & DetailModal
+    │   │   └── workspace/      # SearchHero (voice input), FilterBar & PreferencesPanel
     │   ├── services/           # Typed API client connecting to backend
-    │   ├── utils/              # Currency formatters & query presets
+    │   ├── utils/              # useSpeechRecognition hook, currency formatters & session manager
     │   ├── App.jsx             # Main interactive shopping dashboard
     │   └── main.jsx
-    ├── tailwind.config.js      # PayPilot custom design tokens
-    └── vite.config.js          # Fast HMR Vite bundler
+    ├── tailwind.config.js      # Fintech design tokens (Indigo, Slate, Emerald)
+    └── vite.config.js          # Vite bundler configuration
 ```
-
----
-
-## 🎨 Visual Design Tokens
-
-PayPilot adheres to a polished fintech-grade design system:
-- **Main background:** `#F6F7FB`
-- **Primary surface:** `#FFFFFF`
-- **Primary text:** `#15172B`
-- **Secondary text:** `#687086`
-- **Primary brand:** `#635BFF` (Indigo/Violet)
-- **Brand hover:** `#5148E5`
-- **Deep navy:** `#11142A`
-- **Subtle violet background:** `#F0EEFF`
-- **Borders:** `#E6E8F0`
-- **Success:** `#16845B` / `#E8F7EF`
-- **Warning:** `#B76E00` / `#FFF5DF`
-- **Error:** `#C23B48` / `#FFF0F1`
-
----
-
-## 📊 Deterministic Ranking Algorithm
-
-Match scores are calculated entirely on the backend using verifiable hardware criteria:
-- **Budget & Savings (30 pts):** Evaluates price ceiling proximity and financial headroom.
-- **RAM Multitasking (20 pts):** Assesses memory requirements (8GB vs 16GB+).
-- **Workload Alignment (25 pts):** Allocates compute points based on user goal (e.g., dedicated NVIDIA CUDA GPU for AI/ML vs high single-core CPU for compilers).
-- **Battery & Portability (15 pts):** Scores real-world runtime hours and chassis weight.
-- **Modular Upgradability (10 pts):** Rewards user-replaceable SO-DIMM RAM slots and open secondary M.2 SSD bays.
 
 ---
 
 ## 🚀 Quickstart Guide
 
 ### Prerequisites
-- **Node.js**: v18+ (tested on Node v22)
-- **npm**: v9+
-- *(Optional)* **MongoDB**: Local MongoDB instance or Atlas connection string. If MongoDB is not running, PayPilot automatically operates in zero-config in-memory mode using the verified catalog data.
+* **Node.js**: v18+ (tested on Node v22)
+* **npm**: v9+
+* *(Optional)* **MongoDB**: Local MongoDB or Atlas connection. If omitted, PayPilot automatically operates in zero-config in-memory mode.
+
+---
 
 ### 1. Backend Setup
 ```bash
 cd backend
 npm install
-npm test            # Run unit tests for ranking, products & compare
-npm run seed        # (Optional) Seed 32 curated laptops to MongoDB
-npm run dev         # Starts backend API on http://localhost:5000
+
+# Copy environment template
+cp .env.example .env
 ```
 
+Edit `backend/.env` with your API keys:
+```env
+PORT=5000
+CLIENT_URL=http://localhost:5173
+
+# Database (optional — in-memory fallback enabled if absent)
+MONGODB_URI=mongodb://127.0.0.1:27017/paypilot
+
+# Google Gemini AI (optional — deterministic rule engine fallback enabled if absent)
+AI_PROVIDER=gemini
+AI_API_KEY=your_gemini_api_key_here
+AI_MODEL=gemini-2.5-flash
+
+# PayPal Developer Sandbox (optional — simulated sandbox enabled if absent)
+PAYPAL_CLIENT_ID=your_paypal_sandbox_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_sandbox_secret
+PAYPAL_BASE_URL=https://api-m.sandbox.paypal.com
+PAYPAL_MODE=sandbox
+PAYPAL_CURRENCY=USD
+```
+
+Start the backend:
+```bash
+npm start          # Runs on http://localhost:5000
+# or: npm run dev  # Runs with hot-reloading
+```
+
+---
+
 ### 2. Frontend Setup
+In a second terminal:
 ```bash
 cd frontend
 npm install
-npm run dev         # Starts Vite client on http://localhost:5173
+npm run dev        # Starts Vite client on http://localhost:5173
 ```
+
+Open **`http://localhost:5173`** in your browser.
+
+---
+
+## 🧪 Testing Suite
+
+PayPilot includes an automated unit and integration testing suite powered by Vitest:
+
+```bash
+cd backend
+npm test
+```
+
+Test coverage includes:
+* **Grounded AI Pipeline:** Validates requirement decomposition and anti-hallucination checks.
+* **Deterministic Scoring:** Verifies mathematical rubric scoring across edge-case budgets.
+* **PayPal Orders v2:** Tests payload building, currency conversion, buyer verification, and tamper resistance.
+* **Guest Isolation:** Enforces strict cryptographic guest token isolation across orders.
 
 ---
 
 ## 🔒 Security & Data Integrity
-- **Zero Hallucinated Specs**: All 32 laptop records reflect genuine OEM hardware specifications.
-- **Input Validation**: Every API query and mutation is strictly validated through Zod.
-- **Authoritative Calculations**: Product totals and difference matrices are always computed server-side.
-- **No Client Secrets**: PayPal sandbox credentials and AI tokens remain strictly on the backend.
+
+* **Zero Spec Hallucination:** 100% of product specifications reflect genuine manufacturer hardware.
+* **Server-Authoritative Pricing:** The frontend cannot tamper with prices; calculations and totals are sealed on the backend.
+* **No Leaked Secrets:** PayPal client secrets and Google Gemini API keys are strictly confined to the backend environment.
+* **Cryptographic Capture Verification:** PayPal transactions are verified server-to-server before any order status is finalized.
 
 ---
 
 ## 📄 License
-Apache License 2.0. Built for the PayPal AI Hackathon 2026.
+
+Apache License 2.0. Built with pride for the **PayPal AI Hackathon 2026**.
