@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Search, Sparkles, X, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Sparkles, X, ArrowRight, Loader2, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { EXAMPLE_QUERIES } from '../../utils/constants';
+import { useSpeechRecognition } from '../../utils/useSpeechRecognition';
 
 export function SearchHero({
   searchQuery,
@@ -13,17 +14,45 @@ export function SearchHero({
 }) {
   const [promptInput, setPromptInput] = useState('');
 
-  const handleSubmit = (e) => {
+  const {
+    isSupported: isSpeechSupported,
+    isListening,
+    transcript,
+    error: speechError,
+    toggleListening
+  } = useSpeechRecognition({
+    onResult: (text) => {
+      setPromptInput(text);
+    }
+  });
+
+  useEffect(() => {
+    if (transcript) {
+      setPromptInput(transcript);
+    }
+  }, [transcript]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!promptInput.trim() || isAiLoading) return;
-    onAskAi(promptInput.trim());
+    const query = promptInput.trim();
+    // Don't clear yet — wait for a successful response
+    const success = await onAskAi(query);
+    if (success) {
+      setPromptInput(''); // only clear when API responded successfully
+    }
+    // If failed, the query stays in the bar so the user can retry or edit it
   };
 
-  const handleChipClick = (example) => {
+  const handleChipClick = async (example) => {
     const text = example.prompt || example.label;
-    setPromptInput(text);
     if (onAskAi) {
-      onAskAi(text);
+      const success = await onAskAi(text);
+      if (success) {
+        setPromptInput(''); // clear only on success
+      } else {
+        setPromptInput(text); // restore chip text so user knows what failed
+      }
     }
   };
 
@@ -56,18 +85,35 @@ export function SearchHero({
               value={promptInput}
               onChange={(e) => setPromptInput(e.target.value)}
               disabled={isAiLoading}
-              placeholder="e.g. I need a laptop for college coding and AI projects under ₹60,000 prioritizing RAM & battery..."
-              className="w-full pl-11 pr-32 sm:pr-36 py-3.5 sm:py-4 bg-white border border-paypilot-border rounded-2xl text-xs sm:text-sm text-paypilot-text placeholder-paypilot-muted focus:outline-none focus:ring-2 focus:ring-paypilot-brand/20 focus:border-paypilot-brand shadow-card transition-all disabled:opacity-60"
+              placeholder={isListening ? 'Listening to your voice... Speak your shopping requirements...' : 'e.g. I need a laptop for college coding and AI projects under ₹60,000 prioritizing RAM & battery...'}
+              className={`w-full pl-11 pr-40 sm:pr-44 py-3.5 sm:py-4 bg-white border ${isListening ? 'border-red-500 ring-2 ring-red-200' : 'border-paypilot-border'} rounded-2xl text-xs sm:text-sm text-paypilot-text placeholder-paypilot-muted focus:outline-none focus:ring-2 focus:ring-paypilot-brand/20 focus:border-paypilot-brand shadow-card transition-all disabled:opacity-60`}
             />
 
-            <div className="absolute right-2 flex items-center gap-1">
+            <div className="absolute right-2 flex items-center gap-1.5">
               {promptInput && !isAiLoading && (
                 <button
                   type="button"
                   onClick={() => setPromptInput('')}
                   className="p-1.5 rounded-lg text-paypilot-muted hover:text-paypilot-text"
+                  title="Clear input"
                 >
                   <X className="w-4 h-4" />
+                </button>
+              )}
+
+              {isSpeechSupported && (
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  disabled={isAiLoading}
+                  className={`p-2 rounded-xl text-xs font-semibold transition-all ${
+                    isListening
+                      ? 'bg-red-500 text-white animate-pulse shadow-md'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  }`}
+                  title={isListening ? 'Stop listening' : 'Voice search (Click & speak)'}
+                >
+                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                 </button>
               )}
 
@@ -92,12 +138,12 @@ export function SearchHero({
           </div>
         </form>
 
-        {/* AI Error Alert with Retry */}
-        {aiError && (
+        {/* AI or Voice Error Alert */}
+        {(aiError || speechError) && (
           <div className="p-3 bg-paypilot-errorBg border border-paypilot-error/20 rounded-xl text-xs text-paypilot-error flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{aiError}</span>
+              <span>{speechError || aiError}</span>
             </div>
             <button
               onClick={() => onAskAi(promptInput)}

@@ -46,6 +46,7 @@ export default function App() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
   const [clarifyingData, setClarifyingData] = useState(null);
+  const [conversationHistory, setConversationHistory] = useState([]);
 
   // Cart staging state (agent flow: recommendation → cart review → checkout)
   const [cartItem, setCartItem] = useState(null);
@@ -189,12 +190,13 @@ export default function App() {
     setAiError(null);
   };
 
-  // AI Assistant Handler
+  // AI Assistant Handler — returns true on success so callers can clear their input
   const handleAskAi = async (message, options = {}) => {
     setIsAiLoading(true);
     setAiError(null);
     setDecisionReport(null);
     setClarifyingData(null);
+    setConversationHistory([{ role: 'user', content: message }]);
     try {
       const res = await api.askAssistant(message, options);
       if (res.success && res.data) {
@@ -202,13 +204,57 @@ export default function App() {
           setClarifyingData(res.data);
         } else {
           setDecisionReport(res.data);
+          if (res.data.assistantReply) {
+            setConversationHistory((prev) => [
+              ...prev,
+              { role: 'assistant', content: res.data.assistantReply }
+            ]);
+          }
         }
+        return true; // ✅ success — caller can safely clear its input
       } else {
         throw new Error(res.error?.message || 'Could not generate decision report.');
       }
     } catch (err) {
       console.error('Assistant error:', err);
       setAiError(err.message || 'Failed to contact AI Shopping Assistant.');
+      return false; // ❌ failure — caller should keep the query visible
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  // Follow-up refinement chat handler (Multi-Turn)
+  const handleFollowUpChat = async (refinementMessage) => {
+    if (!refinementMessage || isAiLoading) return;
+    setIsAiLoading(true);
+    setAiError(null);
+    const updatedHistory = [
+      ...conversationHistory,
+      { role: 'user', content: refinementMessage }
+    ];
+    setConversationHistory(updatedHistory);
+
+    try {
+      const res = await api.askAssistant(refinementMessage, {
+        conversationHistory: updatedHistory,
+        previousRequirements: decisionReport?.interpretedRequirements
+      });
+
+      if (res.success && res.data) {
+        setDecisionReport(res.data);
+        if (res.data.assistantReply) {
+          setConversationHistory((prev) => [
+            ...prev,
+            { role: 'assistant', content: res.data.assistantReply }
+          ]);
+        }
+      } else {
+        throw new Error(res.error?.message || 'Could not refine recommendations.');
+      }
+    } catch (err) {
+      console.error('Follow-up chat error:', err);
+      setAiError(err.message || 'Failed to refine recommendations.');
     } finally {
       setIsAiLoading(false);
     }
@@ -341,8 +387,8 @@ export default function App() {
                 aiError={aiError}
               />
 
-              {/* AI Analyzing Loading State */}
-              {isAiLoading && (
+              {/* AI Analyzing Loading State (only shown on initial query when no report exists yet) */}
+              {isAiLoading && !decisionReport && (
                 <div className="bg-gradient-to-r from-paypilot-subtleViolet via-white to-paypilot-subtleViolet border-2 border-paypilot-brand/30 rounded-3xl p-8 text-center space-y-4 mb-8 shadow-card animate-pulse">
                   <div className="w-12 h-12 rounded-2xl bg-paypilot-brand text-white mx-auto flex items-center justify-center shadow-subtle">
                     <Loader2 className="w-6 h-6 animate-spin" />
@@ -368,11 +414,14 @@ export default function App() {
                 />
               )}
 
-              {/* Grounded Shopping Decision Report */}
-              {decisionReport && !isAiLoading && (
+              {/* Grounded Shopping Decision Report with Multi-Turn AI Chat */}
+              {decisionReport && (
                 <ShoppingDecisionReport
                   report={decisionReport}
-                  onClose={() => setDecisionReport(null)}
+                  onClose={() => {
+                    setDecisionReport(null);
+                    setConversationHistory([]);
+                  }}
                   onViewDetails={setDetailProduct}
                   onToggleCompare={handleToggleCompare}
                   onAddToCart={handleAddToCart}
@@ -380,6 +429,10 @@ export default function App() {
                   comparedIds={comparedIds}
                   onApplyFilters={handleApplyAiFilters}
                   onCompareDirectly={handleCompareDirectly}
+                  conversationHistory={conversationHistory}
+                  onFollowUpChat={handleFollowUpChat}
+                  isAiLoading={isAiLoading}
+                  aiError={aiError}
                 />
               )}
 
