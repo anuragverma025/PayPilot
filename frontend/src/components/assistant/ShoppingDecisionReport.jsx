@@ -16,13 +16,21 @@ import {
   ShoppingCart,
   ChevronDown,
   ChevronUp,
-  Terminal
+  Terminal,
+  Send,
+  Mic,
+  MicOff,
+  MessageSquare,
+  Bot,
+  User,
+  Loader2
 } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { ProductImage } from '../products/ProductImage';
 import { formatINR, formatUSD, formatRAM, formatStorage } from '../../utils/formatters';
+import { useSpeechRecognition } from '../../utils/useSpeechRecognition';
 
 export function ShoppingDecisionReport({
   report,
@@ -33,9 +41,45 @@ export function ShoppingDecisionReport({
   onAddToCart,
   comparedIds = [],
   onApplyFilters,
-  onCompareDirectly
+  onCompareDirectly,
+  conversationHistory = [],
+  onFollowUpChat,
+  isAiLoading = false,
+  aiError = null
 }) {
   const [showTrace, setShowTrace] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+
+  const {
+    isSupported: isSpeechSupported,
+    isListening,
+    transcript,
+    error: speechError,
+    toggleListening
+  } = useSpeechRecognition({
+    onResult: (text) => {
+      setChatInput(text);
+    }
+  });
+
+  React.useEffect(() => {
+    if (transcript) {
+      setChatInput(transcript);
+    }
+  }, [transcript]);
+
+  const handleSendChat = (e) => {
+    if (e) e.preventDefault();
+    if (!chatInput.trim() || isAiLoading || !onFollowUpChat) return;
+    const msg = chatInput.trim();
+    setChatInput('');
+    onFollowUpChat(msg);
+  };
+
+  const handleQuickChip = (chipText) => {
+    if (isAiLoading || !onFollowUpChat) return;
+    onFollowUpChat(chipText);
+  };
   if (!report) return null;
 
   const {
@@ -82,6 +126,12 @@ export function ShoppingDecisionReport({
           <p className="text-xs sm:text-sm text-paypilot-text font-medium mt-1">
             Goal: <span className="italic text-paypilot-navy font-semibold">"{query}"</span>
           </p>
+          {report.assistantReply && (
+            <div className="mt-2 p-2.5 bg-paypilot-subtleViolet/40 border border-paypilot-brand/20 rounded-xl text-xs text-paypilot-navy flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-paypilot-brand flex-shrink-0 mt-0.5" />
+              <span className="leading-relaxed">{report.assistantReply}</span>
+            </div>
+          )}
         </div>
 
         <button
@@ -501,15 +551,145 @@ export function ShoppingDecisionReport({
             })}
           </div>
 
-          {/* Grounding & Verification Guarantee Card */}
-          <div className="bg-paypilot-bg border border-paypilot-border rounded-2xl p-4 text-xs text-paypilot-muted space-y-2">
-            <div className="flex items-center gap-1.5 text-paypilot-navy font-semibold">
-              <ShieldCheck className="w-4 h-4 text-paypilot-success" />
-              <span>Grounded Catalog Guarantee</span>
+          {/* Conversational Multi-Turn Follow-Up & Refinement Section */}
+          <div className="bg-white border-2 border-paypilot-brand/20 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-paypilot-brand/10 text-paypilot-brand rounded-lg">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-paypilot-text">
+                    Refine with AI Copilot
+                  </h4>
+                  <p className="text-[11px] text-paypilot-muted">
+                    Ask follow-up questions or refine criteria conversationally
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-semibold text-paypilot-brand bg-paypilot-subtleViolet px-2 py-0.5 rounded-full border border-paypilot-brand/15">
+                Multi-Turn Active
+              </span>
             </div>
-            <p className="leading-relaxed text-[11px]">
-              Every specification, price, and attribute shown in this report is strictly verified from PayPilot's catalog of 32 real laptop records.
-            </p>
+
+            {/* Conversation History Feed (if turns exist) */}
+            {conversationHistory.length > 0 && (
+              <div className="max-h-48 overflow-y-auto space-y-2 pr-1 pt-1 border-t border-paypilot-border/50">
+                {conversationHistory.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-start gap-2 text-xs ${
+                      item.role === 'user' ? 'justify-end' : 'justify-start'
+                    }`}
+                  >
+                    {item.role === 'assistant' && (
+                      <div className="w-5 h-5 rounded-full bg-paypilot-brand/10 text-paypilot-brand flex items-center justify-center flex-shrink-0 mt-0.5 text-[10px]">
+                        <Bot className="w-3 h-3" />
+                      </div>
+                    )}
+                    <div
+                      className={`p-2.5 rounded-xl max-w-[85%] leading-relaxed ${
+                        item.role === 'user'
+                          ? 'bg-paypilot-brand text-white'
+                          : 'bg-slate-50 border border-slate-200 text-slate-800'
+                      }`}
+                    >
+                      {item.content}
+                    </div>
+                    {item.role === 'user' && (
+                      <div className="w-5 h-5 rounded-full bg-paypilot-brand text-white flex items-center justify-center flex-shrink-0 mt-0.5 text-[10px]">
+                        <User className="w-3 h-3" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* AI or Speech Error Notification */}
+            {(aiError || speechError) && (
+              <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <span>{speechError || aiError}</span>
+              </div>
+            )}
+
+            {/* Quick 1-Click Refinement Chips */}
+            <div className="pt-1">
+              <span className="text-[11px] font-semibold text-paypilot-muted block mb-1.5">
+                Quick Adjustments:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  'Lighter chassis (< 1.6 kg)',
+                  'Upgrade to 16GB RAM',
+                  'Under ₹50,000 budget',
+                  'Longer battery life (8h+)',
+                  'Dedicated NVIDIA GPU',
+                  'Expandable / Modular RAM'
+                ].map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    disabled={isAiLoading}
+                    onClick={() => handleQuickChip(chip)}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-paypilot-subtleViolet hover:text-paypilot-brand text-slate-700 font-medium transition-colors border border-slate-200/80 disabled:opacity-50"
+                  >
+                    + {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Follow-up Prompt Input with Mic & Send */}
+            <form onSubmit={handleSendChat} className="relative flex items-center gap-1.5 pt-1">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  disabled={isAiLoading}
+                  placeholder={
+                    isListening
+                      ? 'Listening to speech... Speak your refinement...'
+                      : 'e.g. "What about a lighter option with 16GB RAM?"'
+                  }
+                  className={`w-full pl-3 pr-10 py-2.5 text-xs bg-slate-50 border ${
+                    isListening ? 'border-red-500 ring-2 ring-red-200 bg-white' : 'border-paypilot-border'
+                  } rounded-xl text-paypilot-text placeholder-paypilot-muted focus:outline-none focus:ring-2 focus:ring-paypilot-brand/20 focus:border-paypilot-brand focus:bg-white transition-all`}
+                />
+                {isSpeechSupported && (
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    disabled={isAiLoading}
+                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-xs transition-colors ${
+                      isListening
+                        ? 'bg-red-500 text-white animate-pulse'
+                        : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
+                    }`}
+                    title={isListening ? 'Stop listening' : 'Voice input (Click & speak)'}
+                  >
+                    {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={!chatInput.trim() || isAiLoading}
+                className="inline-flex items-center gap-1 px-3.5 py-2.5 bg-paypilot-brand hover:bg-paypilot-brandHover active:bg-paypilot-brandHover text-white rounded-xl text-xs font-semibold shadow-subtle transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAiLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <>
+                    <span>Refine</span>
+                    <Send className="w-3 h-3" />
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         </div>
       </div>

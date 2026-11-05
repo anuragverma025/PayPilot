@@ -106,7 +106,12 @@ export const api = {
   askAssistant: (message, options = {}) =>
     fetchJson('/assistant/chat', {
       method: 'POST',
-      body: JSON.stringify({ message, forceRecommend: options.forceRecommend })
+      body: JSON.stringify({
+        message,
+        forceRecommend: options.forceRecommend,
+        conversationHistory: options.conversationHistory,
+        previousRequirements: options.previousRequirements
+      })
     }),
 
   /**
