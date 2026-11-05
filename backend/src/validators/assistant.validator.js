@@ -6,5 +6,14 @@ export const chatRequestSchema = z.object({
     .trim()
     .min(3, 'Shopping goal must be at least 3 characters long.')
     .max(1000, 'Shopping goal cannot exceed 1,000 characters.'),
-  forceRecommend: z.boolean().optional()
+  forceRecommend: z.boolean().optional(),
+  conversationHistory: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().max(2000)
+      })
+    )
+    .optional(),
+  previousRequirements: z.record(z.any()).optional()
 });
