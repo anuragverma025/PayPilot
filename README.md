@@ -154,6 +154,22 @@ PayPilot/
 
 ---
 
+## 🌐 Deploy to Render (Blueprint Specification)
+
+PayPilot includes a complete Infrastructure-as-Code **Render Blueprint** ([`render.yaml`](file:///C:/Users/HP/Downloads/PayPilot/render.yaml)) configured for the **"Best Use of Render"** prize:
+* **Backend Web Service:** Node.js Express API with auto-scaling health checks at `/api/health`.
+* **Frontend Static Site:** React Vite SPA with SPA route rewrite (`/*` → `/index.html`) and direct backend environment binding.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/anuragverma025/PayPilot)
+
+To deploy using the Render Dashboard:
+1. Go to [dashboard.render.com](https://dashboard.render.com) and click **New +** → **Blueprint**.
+2. Connect your repository: `https://github.com/anuragverma025/PayPilot`.
+3. Render will automatically detect `render.yaml` and configure both the backend service and frontend static site.
+4. Input your `AI_API_KEY` (Gemini) and optional PayPal sandbox keys in the environment prompt, then click **Apply**.
+
+---
+
 ## 🚀 Quickstart Guide
 
 ### Prerequisites
