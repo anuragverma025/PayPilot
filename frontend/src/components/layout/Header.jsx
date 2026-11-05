@@ -1,11 +1,8 @@
 import React from 'react';
-import { Menu, ShieldCheck, Activity, RefreshCw, User, LogIn, LogOut } from 'lucide-react';
-import { Badge } from '../common/Badge';
+import { Menu, RefreshCw, LogIn, LogOut } from 'lucide-react';
 
 export function Header({
   onToggleSidebar,
-  totalProducts = 0,
-  backendConnected = true,
   onRefresh,
   user = null,
   onOpenAuth,
@@ -31,30 +28,6 @@ export function Header({
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Transparency Badge */}
-        <Badge variant="neutral" size="sm" className="hidden md:inline-flex">
-          <ShieldCheck className="w-3.5 h-3.5 text-paypilot-brand" />
-          <span>Demo Catalog ({totalProducts} Verified Laptops)</span>
-        </Badge>
-
-        {/* Backend Connectivity Status */}
-        <div
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-            backendConnected
-              ? 'bg-paypilot-successBg text-paypilot-success border-paypilot-success/20'
-              : 'bg-paypilot-warningBg text-paypilot-warning border-paypilot-warning/20'
-          }`}
-        >
-          <span
-            className={`w-2 h-2 rounded-full ${
-              backendConnected ? 'bg-paypilot-success animate-pulse' : 'bg-paypilot-warning'
-            }`}
-          />
-          <span className="hidden sm:inline">
-            {backendConnected ? 'API Live' : 'Connecting API...'}
-          </span>
-        </div>
-
         {/* Refresh Action */}
         <button
           onClick={onRefresh}
