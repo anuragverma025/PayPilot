@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ProductPlaceholder } from './ProductPlaceholder';
 
 const FALLBACK_IMAGE = '/images/products/fallback-laptop.svg';
 
 /**
  * ProductImage component with multi-tier resilient error fallback:
- * 1. Primary: local downloaded laptop image (/images/products/<id>.jpg)
+ * 1. Primary: product.imageUrl or direct local image (/images/products/<id>.jpg)
  * 2. Fallback: dedicated fallback laptop vector illustration (/images/products/fallback-laptop.svg)
  * 3. Final safety net: branded ProductPlaceholder
  */
@@ -17,23 +17,22 @@ export function ProductImage({
   variant = 'card',
   fit = 'contain'
 }) {
-  const initialSrc = src !== undefined
-    ? src
-    : (product && product.hasVerifiedImage !== false && product.imageUrl ? product.imageUrl : FALLBACK_IMAGE);
+  const resolveSrc = () => {
+    if (src) return src;
+    if (product?.imageUrl) return product.imageUrl;
+    if (product?.id) return `/images/products/${product.id}.jpg`;
+    return FALLBACK_IMAGE;
+  };
 
-  const [currentSrc, setCurrentSrc] = useState(initialSrc);
+  const [currentSrc, setCurrentSrc] = useState(resolveSrc);
   const [usePlaceholder, setUsePlaceholder] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef(null);
 
   // Synchronize when product or src prop changes
   useEffect(() => {
-    const nextSrc = src !== undefined
-      ? src
-      : (product && product.hasVerifiedImage !== false && product.imageUrl ? product.imageUrl : FALLBACK_IMAGE);
-    setCurrentSrc(nextSrc);
+    setCurrentSrc(resolveSrc());
     setUsePlaceholder(false);
-    setIsLoaded(false);
-  }, [src, product?.imageUrl, product?.hasVerifiedImage]);
+  }, [src, product?.imageUrl, product?.id]);
 
   // If fallback failed or explicitly requested
   if (usePlaceholder || !currentSrc) {
@@ -52,32 +51,23 @@ export function ProductImage({
 
   return (
     <div className={`relative w-full h-full overflow-hidden bg-slate-50 flex items-center justify-center ${className}`}>
-      {/* Subtle loader skeleton while image is downloading */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-slate-200/80 animate-pulse flex items-center justify-center">
-          <ProductPlaceholder product={product} variant={variant} className="opacity-30" />
-        </div>
-      )}
-
-      {/* Product Photograph */}
+      {/* Product Photograph with eager rendering and auto-fallback */}
       <img
+        ref={imgRef}
         src={currentSrc}
         alt={alt || product?.name || 'Laptop Product'}
-        loading="lazy"
-        onLoad={() => setIsLoaded(true)}
+        loading="eager"
+        decoding="async"
         onError={() => {
-          if (currentSrc !== FALLBACK_IMAGE) {
-            // First failure: switch to local fallback laptop SVG
+          if (product?.id && currentSrc !== `/images/products/${product.id}.jpg`) {
+            setCurrentSrc(`/images/products/${product.id}.jpg`);
+          } else if (currentSrc !== FALLBACK_IMAGE) {
             setCurrentSrc(FALLBACK_IMAGE);
-            setIsLoaded(false);
           } else {
-            // Second failure: fallback itself failed, render styled placeholder
             setUsePlaceholder(true);
           }
         }}
-        className={`${fitClasses} transition-all duration-300 group-hover:scale-105 ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`${fitClasses} transition-transform duration-300 group-hover:scale-105`}
       />
     </div>
   );
