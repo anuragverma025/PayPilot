@@ -118,15 +118,27 @@ export default function App() {
     return () => window.removeEventListener('popstate', checkRoute);
   }, []);
 
-  // Update browser URL on activeView change
+  // Update browser URL and handle view navigation
   const handleNavigateView = (view) => {
+    if (view === 'compare') {
+      setIsCompareModalOpen(true);
+      return;
+    }
+
     setActiveView(view);
     if (view === 'orders') {
       window.history.pushState(null, '', '/orders');
-    } else if (view === 'compare') {
-      window.history.pushState(null, '', '/compare');
     } else {
       window.history.pushState(null, '', '/');
+    }
+
+    if (view === 'browse') {
+      setTimeout(() => {
+        const el = document.getElementById('catalog-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    } else if (view === 'workspace') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -187,7 +199,10 @@ export default function App() {
   const handleResetFilters = () => {
     setFilters(DEFAULT_FILTERS);
     setDecisionReport(null);
+    setClarifyingData(null);
+    setConversationHistory([]);
     setAiError(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // AI Assistant Handler — returns true on success so callers can clear their input
@@ -437,12 +452,14 @@ export default function App() {
               )}
 
               {/* Filter and Sorting Controls */}
-              <FilterBar
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onResetFilters={handleResetFilters}
-                totalResults={products.length}
-              />
+              <div id="catalog-section">
+                <FilterBar
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                  onResetFilters={handleResetFilters}
+                  totalResults={products.length}
+                />
+              </div>
 
               {/* Workspace Layout: Grid + Preferences Sidebar */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

@@ -50,6 +50,24 @@ export function ComparisonModal({
           </div>
         )}
 
+        {/* Empty state when fewer than 2 products selected */}
+        {!loading && !error && (!data || productIds.length < 2) && (
+          <div className="py-12 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#635BFF] mx-auto flex items-center justify-center shadow-subtle">
+              <Layers className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm font-semibold text-paypilot-navy">No products selected for comparison</h4>
+            <p className="text-xs text-paypilot-muted max-w-sm mx-auto leading-relaxed">
+              Select 2 or 3 laptops by clicking the "Compare" button on any laptop card in the catalog to see their side-by-side spec differences.
+            </p>
+            <div className="pt-2">
+              <Button variant="primary" size="sm" onClick={onClose}>
+                Browse Catalog
+              </Button>
+            </div>
+          </div>
+        )}
+
         {data && !loading && (
           <>
             {/* Products Header Row */}
