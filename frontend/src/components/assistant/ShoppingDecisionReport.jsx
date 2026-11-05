@@ -119,9 +119,16 @@ export function ShoppingDecisionReport({
             <span className="text-[11px] font-semibold text-paypilot-muted bg-white px-2.5 py-0.5 rounded-lg border border-paypilot-border">
               {groundingMeta.cached ? 'Instant Cache' : `Grounded via Google ${groundingMeta.provider === 'gemini' ? 'Gemini' : 'Engine'}`}
             </span>
-            <span className="text-[10px] text-paypilot-muted uppercase tracking-wider font-mono">
-              {groundingMeta.model}
-            </span>
+            {groundingMeta.model && groundingMeta.provider === 'gemini' && (
+              <span className="text-[10px] text-paypilot-muted uppercase tracking-wider font-mono">
+                {groundingMeta.model
+                  .replace('gemini-', 'Gemini ')
+                  .replace('-preview', ' Preview')
+                  .replace('-flash', ' Flash')
+                  .replace('-pro', ' Pro')
+                  .toUpperCase()}
+              </span>
+            )}
           </div>
           <p className="text-xs sm:text-sm text-paypilot-text font-medium mt-1">
             Goal: <span className="italic text-paypilot-navy font-semibold">"{query}"</span>
