@@ -32,9 +32,11 @@ Conventional shopping bots and AI search engines suffer from three fundamental f
 * **Multi-Turn Conversational Memory:** Refine criteria naturally (*"What about a lighter option with 16GB RAM?"*) while preserving active session constraints.
 * **Model Agnostic with Zero-Config Fallback:** Powered by Google Gemini with an automatic fallback chain (`gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-flash`) and a local deterministic rule engine if API keys are omitted.
 
-### ⚖️ 3. Side-by-Side Hardware Spec Matrix
-* Compare 2 or 3 laptops with deep-dive technical comparisons.
-* Evaluates compute cores, upgradable SO-DIMM slots, open secondary M.2 bays, dedicated GPU VRAM, real-world battery endurance, and display panel quality.
+### ⚖️ 3. Interactive Hardware Spec Matrix (Powered by AG Grid Community v36)
+* **High-Performance AG Grid Integration:** Built for the **"Best Use of AG Grid"** ($5,000) prize track.
+* **Multi-Column Spec Analysis:** Sort, pin, and filter all 32 verified laptops across CPU cores, RAM capacity, SO-DIMM modularity, dedicated GPU VRAM, open M.2 bays, real-world battery endurance, chassis weight, and dual-currency pricing (INR/USD).
+* **Live Quick Search & Instant CSV Export:** Features AG Grid's client-side quick filter and one-click native CSV specification export.
+* **Dual-Mode Analytical View:** Seamless tab toggle between side-by-side card difference analysis and the full AG Grid matrix.
 
 ### 🛡️ 4. 5-Stage Agentic Safety & Audit Pipeline
 Users can expand the **`>_ Inspect Agent Reasoning & Safety Pipeline`** console on any decision report:

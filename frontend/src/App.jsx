@@ -510,12 +510,16 @@ export default function App() {
         isCompared={detailProduct ? comparedIds.includes(detailProduct.id) : false}
       />
 
-      {/* Side-by-Side Product Comparison Modal */}
+      {/* Side-by-Side Product Comparison & AG Grid Hardware Matrix Modal */}
       <ComparisonModal
         isOpen={isCompareModalOpen}
         onClose={() => setIsCompareModalOpen(false)}
         productIds={comparedIds}
         onRemoveProduct={handleRemoveCompare}
+        allProducts={products}
+        onToggleCompare={handleToggleCompare}
+        onViewDetails={setDetailProduct}
+        onProceedToOrder={setOrderProduct}
       />
 
       {/* PayPal Sandbox Order Review & Checkout Modal */}
