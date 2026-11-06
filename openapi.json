@@ -30,7 +30,7 @@
     },
     {
       "name": "Products",
-      "description": "Verified OEM hardware catalog and deterministic scoring"
+      "description": "Verified OEM hardware catalog, multi-criteria filtering, and rubric ranking"
     },
     {
       "name": "Comparison",
@@ -43,6 +43,10 @@
     {
       "name": "Orders",
       "description": "Order management, drafts, and historical settlement verification"
+    },
+    {
+      "name": "Auth",
+      "description": "User registration, authentication, and guest order claiming"
     },
     {
       "name": "Health",
@@ -63,6 +67,119 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register New User",
+        "description": "Creates a new user account with hashed password and returns a JWT session token.",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or email already in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User Login",
+        "description": "Authenticates user credentials and issues a signed JWT token.",
+        "operationId": "loginUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get Current Authenticated User",
+        "description": "Retrieves the active user profile from the verified JWT bearer token.",
+        "operationId": "getCurrentUser",
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized token missing or expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -134,6 +251,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProductsListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/meta": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get Catalog Metadata & Facet Distributions",
+        "description": "Returns counts of brands, price ranges, available RAM capacities, and GPU categories.",
+        "operationId": "getCatalogMeta",
+        "responses": {
+          "200": {
+            "description": "Catalog metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/rank": {
+      "post": {
+        "tags": ["Products"],
+        "summary": "Rank Products Deterministically via Mathematical Rubric",
+        "description": "Scores verified catalog laptops against target constraints using weighted heuristic scoring without hallucination.",
+        "operationId": "rankProducts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RankRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ranked product results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankResponse"
                 }
               }
             }
@@ -240,6 +407,10 @@
         "summary": "Create Server-Authoritative PayPal Order",
         "description": "Validates items against internal catalog pricing, calculates authoritative totals, and invokes PayPal Orders v2 API.",
         "operationId": "createPayPalOrder",
+        "security": [
+          { "BearerAuth": [] },
+          { "GuestTokenAuth": [] }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -320,6 +491,10 @@
         "summary": "Get Order History",
         "description": "Retrieves recent orders with settlement status and tracking references.",
         "operationId": "getOrders",
+        "security": [
+          { "BearerAuth": [] },
+          { "GuestTokenAuth": [] }
+        ],
         "responses": {
           "200": {
             "description": "List of user orders",
@@ -333,9 +508,103 @@
           }
         }
       }
+    },
+    "/orders/draft": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Stage Internal Order Draft",
+        "description": "Creates an order draft before PayPal payment staging with server-authoritative line items.",
+        "operationId": "createOrderDraft",
+        "security": [
+          { "BearerAuth": [] },
+          { "GuestTokenAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderDraftRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order draft created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderDraftResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/claim": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Claim Guest Orders to User Account",
+        "description": "Attaches orders created as a guest session to the newly authenticated user profile.",
+        "operationId": "claimGuestOrders",
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["guestToken"],
+                "properties": {
+                  "guestToken": { "type": "string", "example": "gst_9a8b7c6d5e4f3a2b1c" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Orders successfully claimed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "claimedCount": { "type": "integer", "example": 2 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "User JWT token obtained from POST /api/auth/login or /api/auth/register"
+      },
+      "GuestTokenAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-guest-token",
+        "description": "Cryptographic guest session UUID token for unauthenticated shopping carts"
+      }
+    },
     "schemas": {
       "HealthResponse": {
         "type": "object",
@@ -355,6 +624,57 @@
                   "ai": { "type": "string", "example": "active" }
                 }
               }
+            }
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": { "type": "string", "example": "Jane Developer" },
+          "email": { "type": "string", "format": "email", "example": "jane.dev@example.com" },
+          "password": { "type": "string", "format": "password", "minLength": 6, "example": "SecurePass123!" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "jane.dev@example.com" },
+          "password": { "type": "string", "format": "password", "example": "SecurePass123!" }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+              "user": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "example": "usr_91823" },
+                  "name": { "type": "string", "example": "Jane Developer" },
+                  "email": { "type": "string", "example": "jane.dev@example.com" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "example": "usr_91823" },
+              "name": { "type": "string", "example": "Jane Developer" },
+              "email": { "type": "string", "example": "jane.dev@example.com" }
             }
           }
         }
@@ -472,6 +792,49 @@
           }
         }
       },
+      "CatalogMetaResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "totalProducts": { "type": "integer", "example": 32 },
+              "brands": { "type": "array", "items": { "type": "string" } },
+              "minPrice": { "type": "number", "example": 28990 },
+              "maxPrice": { "type": "number", "example": 189990 }
+            }
+          }
+        }
+      },
+      "RankRequest": {
+        "type": "object",
+        "properties": {
+          "maxBudget": { "type": "number", "example": 80000 },
+          "minRam": { "type": "integer", "example": 16 },
+          "prioritizeBattery": { "type": "boolean", "example": true },
+          "prioritizePortability": { "type": "boolean", "example": false },
+          "prioritizeGpu": { "type": "boolean", "example": false },
+          "prioritizeUpgradability": { "type": "boolean", "example": true },
+          "targetUseCase": { "type": "string", "enum": ["coding", "ai-ml", "college", "everyday"], "example": "coding" }
+        }
+      },
+      "RankResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "primary": { "$ref": "#/components/schemas/Product" },
+              "alternatives": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          }
+        }
+      },
       "ProductDetailResponse": {
         "type": "object",
         "properties": {
@@ -542,30 +905,37 @@
           }
         }
       },
+      "ShippingAddress": {
+        "type": "object",
+        "required": ["recipientName", "addressLine1", "city", "state", "postalCode", "countryCode"],
+        "properties": {
+          "recipientName": { "type": "string", "example": "Jane Developer" },
+          "addressLine1": { "type": "string", "example": "123 Innovation Way" },
+          "addressLine2": { "type": "string", "example": "Suite 400" },
+          "city": { "type": "string", "example": "San Jose" },
+          "state": { "type": "string", "example": "CA" },
+          "postalCode": { "type": "string", "example": "95131" },
+          "countryCode": { "type": "string", "example": "US" }
+        }
+      },
+      "BuyerInfo": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Jane Developer" },
+          "email": { "type": "string", "example": "jane.dev@example.com" },
+          "notes": { "type": "string", "example": "Deliver during business hours" }
+        }
+      },
       "CreatePayPalOrderRequest": {
         "type": "object",
-        "required": ["buyerInfo", "shippingAddress"],
+        "required": ["productId", "approvalConfirmed"],
         "properties": {
           "productId": { "type": "string", "example": "lenovo-ideapad-pro-5-14" },
-          "buyerInfo": {
-            "type": "object",
-            "required": ["name", "email"],
-            "properties": {
-              "name": { "type": "string", "example": "Alex Buyer" },
-              "email": { "type": "string", "example": "alex.buyer@example.com" }
-            }
-          },
-          "shippingAddress": {
-            "type": "object",
-            "required": ["street", "city", "state", "postalCode", "countryCode"],
-            "properties": {
-              "street": { "type": "string", "example": "123 Innovation Way" },
-              "city": { "type": "string", "example": "San Jose" },
-              "state": { "type": "string", "example": "CA" },
-              "postalCode": { "type": "string", "example": "95131" },
-              "countryCode": { "type": "string", "example": "US" }
-            }
-          }
+          "quantity": { "type": "integer", "default": 1, "example": 1 },
+          "approvalConfirmed": { "type": "boolean", "example": true, "description": "Explicit user sign-off required for agentic safety" },
+          "currency": { "type": "string", "enum": ["USD", "INR"], "default": "USD" },
+          "buyer": { "$ref": "#/components/schemas/BuyerInfo" },
+          "shippingAddress": { "$ref": "#/components/schemas/ShippingAddress" }
         }
       },
       "CreatePayPalOrderResponse": {
@@ -609,6 +979,31 @@
               "captureId": { "type": "string", "example": "CAPTURE-88192" },
               "status": { "type": "string", "example": "COMPLETED" },
               "totalPaid": { "type": "number", "example": 899 }
+            }
+          }
+        }
+      },
+      "CreateOrderDraftRequest": {
+        "type": "object",
+        "required": ["productId"],
+        "properties": {
+          "productId": { "type": "string", "example": "lenovo-ideapad-pro-5-14" },
+          "quantity": { "type": "integer", "default": 1 },
+          "buyer": { "$ref": "#/components/schemas/BuyerInfo" },
+          "shippingAddress": { "$ref": "#/components/schemas/ShippingAddress" },
+          "approvalConfirmed": { "type": "boolean", "default": false }
+        }
+      },
+      "OrderDraftResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "orderId": { "type": "string", "example": "ord_91827" },
+              "status": { "type": "string", "example": "DRAFT" },
+              "totalUSD": { "type": "number", "example": 899 }
             }
           }
         }

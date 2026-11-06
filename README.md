@@ -53,11 +53,14 @@ Users can expand the **`>_ Inspect Agent Reasoning & Safety Pipeline`** console 
 * **Order Tracking & Digital Receipts:** View order history, status lifecycle (`PENDING_APPROVAL` → `COMPLETED`), and printable receipts.
 
 ### 🔌 6. Agent-to-Agent (A2A) Commerce API & SDKs (Powered by APIMatic)
-* **High-Value APIMatic Integration:** Built for the **"Best Use of APIMatic"** ($1,000 cash) prize track.
-* **OpenAPI 3.0 Standardized Specification:** Full OpenAPI 3.0 contract (`openapi.json` & `backend/docs/openapi.json`) covering all recommendation, comparison, and PayPal checkout endpoints.
-* **APIMatic Multi-Language SDK Generation:** Configured with `APIMATIC-META.json` to generate production-ready client SDKs in **Python**, **TypeScript**, **Java**, **C#**, and **Go**.
-* **Interactive Live API Portal:** Visit `http://localhost:5000/api/docs` (or `/api/docs` in production) to explore interactive request builders and code snippets.
-* **Autonomous Agent Integration Example (Python SDK via APIMatic):**
+* **High-Value APIMatic Integration:** Built for the **"Best Use of APIMatic"** ($1,000 cash + 6 months business subscription) prize track.
+* **OpenAPI 3.0 Standardized Specification:** Full OpenAPI 3.0 contract ([`openapi.json`](./openapi.json) & [`backend/docs/openapi.json`](./backend/docs/openapi.json)) covering all 12 assistant, catalog, comparison, and PayPal checkout endpoints with complete security schemas (`BearerAuth` JWT & `GuestTokenAuth`).
+* **APIMatic Multi-Language SDK Generation:** Pre-configured with [`APIMATIC-META.json`](./APIMATIC-META.json) to generate production-ready client SDKs in **Python**, **TypeScript**, **Java**, **C#**, and **Go**.
+* **Interactive Live API Portal:** Visit `http://localhost:5000/api/docs` (or `/api/docs` in production) to explore interactive request builders, schema inspectors, and live code generation.
+* **Runnable Reference Implementations:**
+  * 🐍 **Python:** [`examples/python/autonomous_buyer_bot.py`](./examples/python/autonomous_buyer_bot.py) — complete script demonstrating an autonomous agent executing query, spec comparison, and PayPal Sandbox order creation.
+  * 🟦 **TypeScript:** [`examples/typescript/autonomous_buyer_bot.ts`](./examples/typescript/autonomous_buyer_bot.ts) — typed agentic commerce workflow.
+* **Autonomous Agent Integration Snippet:**
   ```python
   from paypilot_sdk import PayPilotClient
 
