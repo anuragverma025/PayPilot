@@ -17,7 +17,9 @@ import {
   Sparkles,
   Layers,
   ChevronRight,
-  Printer
+  Printer,
+  LogIn,
+  ArrowRight
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
@@ -36,7 +38,9 @@ export function OrderReviewModal({
   isOpen,
   onClose,
   onOrderSuccess,
-  initialQuantity = 1
+  initialQuantity = 1,
+  user = null,
+  onOpenAuth = null
 }) {
   const [quantity, setQuantity] = useState(initialQuantity || 1);
   const [buyerName, setBuyerName] = useState('');
@@ -1147,6 +1151,40 @@ export function OrderReviewModal({
                   </div>
                 )}
               </div>
+
+              {/* Guest Claim Prompt — shown only when user is not logged in */}
+              {!user && (
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-paypilot-subtleViolet to-blue-50 border border-paypilot-brand/30 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-paypilot-brand/10 text-paypilot-brand flex items-center justify-center flex-shrink-0">
+                      <LogIn className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1 flex-1">
+                      <h4 className="text-sm font-bold text-paypilot-navy">
+                        Sign in to track this order 📦
+                      </h4>
+                      <p className="text-xs text-paypilot-muted leading-relaxed">
+                        Your order <strong className="text-paypilot-text font-mono">{completedOrder.orderNumber}</strong> was placed as a guest.
+                        Create an account or sign in to view order history, track delivery status, and claim this order to your profile.
+                      </p>
+                    </div>
+                  </div>
+                  {onOpenAuth && (
+                    <button
+                      type="button"
+                      onClick={() => { onClose(); onOpenAuth(); }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-paypilot-brand text-white text-xs font-bold hover:bg-paypilot-brand/90 transition-colors shadow-subtle"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      Sign In / Create Account
+                      <ArrowRight className="w-3.5 h-3.5 ml-auto" />
+                    </button>
+                  )}
+                  <p className="text-[11px] text-paypilot-muted text-center">
+                    Already have an account? Your guest orders are automatically linked via your guest session token.
+                  </p>
+                </div>
+              )}
 
               {/* Completion Actions */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">

@@ -544,6 +544,8 @@ export default function App() {
         onOrderSuccess={(order) => {
           setLatestPaidOrder(order);
         }}
+        user={user}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
       />
 
       {/* Cart Review Modal — explicit user approval before checkout */}
