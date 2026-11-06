@@ -3,6 +3,15 @@
 > **"Think smarter. Shop better. Stay in control."**  
 > Developed for the **PayPal AI Hackathon 2026**
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-paypilot--ghb5.onrender.com-00C7B7?style=for-the-badge&logo=render&logoColor=white)](https://paypilot-ghb5.onrender.com)
+[![API Portal](https://img.shields.io/badge/APIMatic-API%20Portal-635BFF?style=for-the-badge&logo=openapi-initiative&logoColor=white)](https://paypilot-ghb5.onrender.com/api/docs)
+[![AG Grid](https://img.shields.io/badge/AG%20Grid-Hardware%20Matrix-E0234E?style=for-the-badge&logo=ag-grid&logoColor=white)](https://paypilot-ghb5.onrender.com)
+[![PayPal](https://img.shields.io/badge/PayPal-Developer%20Sandbox-003087?style=for-the-badge&logo=paypal&logoColor=white)](https://paypilot-ghb5.onrender.com)
+
+* 🌐 **Production Live App:** [https://paypilot-ghb5.onrender.com](https://paypilot-ghb5.onrender.com)
+* 🔌 **APIMatic Interactive API Portal:** [https://paypilot-ghb5.onrender.com/api/docs](https://paypilot-ghb5.onrender.com/api/docs)
+* 📄 **OpenAPI 3.0 Specification:** [https://paypilot-ghb5.onrender.com/api/docs/openapi.json](https://paypilot-ghb5.onrender.com/api/docs/openapi.json)
+
 ---
 
 ## 🎯 Executive Product Vision

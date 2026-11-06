@@ -19,7 +19,7 @@
       "description": "Local Development Server"
     },
     {
-      "url": "https://paypilot-backend.onrender.com/api",
+      "url": "https://paypilot-ghb5.onrender.com/api",
       "description": "Render Production Cloud Server"
     }
   ],
