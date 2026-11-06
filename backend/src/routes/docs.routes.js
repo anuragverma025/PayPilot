@@ -19,7 +19,7 @@ router.get('/openapi.json', (req, res) => {
 });
 
 // Serve the interactive APIMatic / OpenAPI Documentation Portal
-router.get('/', (req, res) => {
+router.get(['/', ''], (req, res) => {
   const html = `<!doctype html>
 <html lang="en">
   <head>
