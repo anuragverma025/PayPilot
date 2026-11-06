@@ -39,6 +39,14 @@ export function HardwareSpecGrid({
     });
   }, []);
 
+  // Default Column Configuration for full interactivity
+  const defaultColDef = useMemo(() => ({
+    sortable: true,
+    filter: true,
+    resizable: true,
+    minWidth: 100
+  }), []);
+
   // Row Data mapped from verified catalog records
   const rowData = useMemo(() => {
     return products.map((p) => ({
@@ -327,6 +335,7 @@ export function HardwareSpecGrid({
         <AgGridReact
           ref={gridRef}
           theme={paypilotTheme}
+          defaultColDef={defaultColDef}
           rowData={rowData}
           columnDefs={columnDefs}
           quickFilterText={quickFilterText}
