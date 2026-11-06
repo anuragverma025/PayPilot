@@ -14,7 +14,12 @@ export const getProductsQuerySchema = z.object({
 
 export const compareRequestSchema = z.object({
   productIds: z
-    .array(z.string().min(1, 'Product ID cannot be empty'))
+    .array(
+      z.union([
+        z.string().min(1, 'Product ID cannot be empty'),
+        z.object({ id: z.string().min(1) }).transform((obj) => obj.id)
+      ])
+    )
     .min(2, 'At least 2 products are required for comparison')
     .max(3, 'At most 3 products can be compared simultaneously')
 });

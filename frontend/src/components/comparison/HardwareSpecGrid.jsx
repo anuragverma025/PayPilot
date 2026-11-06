@@ -17,6 +17,11 @@ export function HardwareSpecGrid({
   const gridRef = useRef(null);
   const [quickFilterText, setQuickFilterText] = useState('');
 
+  // Normalize compared IDs to strings
+  const cleanComparedIds = useMemo(() => {
+    return (comparedIds || []).map((c) => (typeof c === 'object' && c !== null ? c.id : c)).filter(Boolean);
+  }, [comparedIds]);
+
   // Custom Quartz Theme with PayPilot brand accents
   const paypilotTheme = useMemo(() => {
     return themeQuartz.withParams({
@@ -208,11 +213,11 @@ export function HardwareSpecGrid({
       cellRenderer: (params) => {
         const p = params.data?.rawProduct;
         if (!p) return null;
-        const isCompared = comparedIds.includes(p.id);
+        const isCompared = cleanComparedIds.includes(p.id);
         return (
           <div className="flex items-center gap-1.5 py-1">
             <button
-              onClick={() => onToggleCompare && onToggleCompare(p)}
+              onClick={() => onToggleCompare && onToggleCompare(p.id)}
               className={`p-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition-colors ${
                 isCompared
                   ? 'bg-paypilot-brand text-white'
@@ -234,7 +239,7 @@ export function HardwareSpecGrid({
         );
       }
     }
-  ], [comparedIds, onToggleCompare, onViewDetails]);
+  ], [cleanComparedIds, onToggleCompare, onViewDetails]);
 
   // Export to CSV using AG Grid's native API
   const handleExportCsv = useCallback(() => {

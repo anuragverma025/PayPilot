@@ -23,14 +23,21 @@ export function ComparisonModal({
   // Default to AG Grid tab if fewer than 2 products selected, else Side-by-Side
   const [activeTab, setActiveTab] = useState('diff');
 
+  // Normalize productIds to clean array of string IDs
+  const cleanProductIds = React.useMemo(() => {
+    return (productIds || [])
+      .map((p) => (typeof p === 'object' && p !== null ? p.id : p))
+      .filter((id) => typeof id === 'string' && id.trim().length > 0);
+  }, [productIds]);
+
   useEffect(() => {
     if (isOpen) {
-      if (productIds.length >= 2) {
+      if (cleanProductIds.length >= 2) {
         setActiveTab('diff');
         setLoading(true);
         setError(null);
         api
-          .compareProducts(productIds)
+          .compareProducts(cleanProductIds)
           .then((res) => {
             setData(res.data);
             setLoading(false);
@@ -43,7 +50,7 @@ export function ComparisonModal({
         setActiveTab('aggrid');
       }
     }
-  }, [isOpen, productIds]);
+  }, [isOpen, cleanProductIds]);
 
   if (!isOpen) return null;
 
@@ -60,7 +67,7 @@ export function ComparisonModal({
           <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200">
             <button
               onClick={() => setActiveTab('diff')}
-              disabled={productIds.length < 2}
+              disabled={cleanProductIds.length < 2}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 activeTab === 'diff'
                   ? 'bg-white text-paypilot-brand shadow-xs'
@@ -68,7 +75,7 @@ export function ComparisonModal({
               }`}
             >
               <Columns className="w-3.5 h-3.5" />
-              <span>Side-by-Side Analysis ({productIds.length})</span>
+              <span>Side-by-Side Analysis ({cleanProductIds.length})</span>
             </button>
 
             <button

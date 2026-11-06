@@ -308,25 +308,39 @@ export default function App() {
 
   // Direct comparison trigger from Decision Report
   const handleCompareDirectly = (primaryId, altId) => {
-    setComparedIds([primaryId, altId]);
+    const id1 = typeof primaryId === 'object' && primaryId !== null ? primaryId.id : primaryId;
+    const id2 = typeof altId === 'object' && altId !== null ? altId.id : altId;
+    setComparedIds([id1, id2].filter(Boolean));
     setIsCompareModalOpen(true);
   };
 
-  // Compare Toggle
-  const handleToggleCompare = (productId) => {
+  // Compare Toggle — handles string ID or product object gracefully
+  const handleToggleCompare = (productOrId) => {
+    const id = typeof productOrId === 'object' && productOrId !== null
+      ? productOrId.id
+      : productOrId;
+
+    if (!id || typeof id !== 'string') return;
+
     setComparedIds((prev) => {
-      if (prev.includes(productId)) {
-        return prev.filter((id) => id !== productId);
+      const cleanPrev = prev.map((item) => (typeof item === 'object' && item !== null ? item.id : item));
+      if (cleanPrev.includes(id)) {
+        return cleanPrev.filter((x) => x !== id);
       }
-      if (prev.length >= 3) {
-        return prev; // Maximum 3
+      if (cleanPrev.length >= 3) {
+        return cleanPrev; // Maximum 3
       }
-      return [...prev, productId];
+      return [...cleanPrev, id];
     });
   };
 
-  const handleRemoveCompare = (productId) => {
-    setComparedIds((prev) => prev.filter((id) => id !== productId));
+  const handleRemoveCompare = (productOrId) => {
+    const id = typeof productOrId === 'object' && productOrId !== null ? productOrId.id : productOrId;
+    setComparedIds((prev) =>
+      prev
+        .map((item) => (typeof item === 'object' && item !== null ? item.id : item))
+        .filter((x) => x !== id)
+    );
   };
 
   const handleClearCompare = () => {
