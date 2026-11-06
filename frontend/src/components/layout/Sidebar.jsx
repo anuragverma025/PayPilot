@@ -24,7 +24,12 @@ export function Sidebar({
   ordersCount = null,
   onNewSession
 }) {
-  const docsUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/docs`;
+  const docsUrl =
+    import.meta.env.VITE_API_BASE_URL
+      ? `${import.meta.env.VITE_API_BASE_URL}/docs`
+      : typeof window !== 'undefined' && window.location.origin.includes('localhost')
+      ? 'http://localhost:5000/api/docs'
+      : '/api/docs';
   const shoppingItems = [
     { id: 'workspace', label: 'AI Shopping Assistant', icon: Sparkles },
     { id: 'browse', label: 'Browse Products', icon: Compass },

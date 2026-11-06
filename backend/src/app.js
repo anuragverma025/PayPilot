@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -51,9 +52,22 @@ app.use('/api', routes);
 app.use(express.static(path.resolve(__dirname, '../../frontend/public')));
 app.use(express.static(path.resolve(__dirname, '../../frontend/dist')));
 
-// 404 Route Catch-all
-app.use('*', (req, res) => {
-  res.status(404).json({
+// SPA Catch-all: serve index.html for client-side pages, return 404 JSON for missing /api routes
+app.get('*', (req, res) => {
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(404).json({
+      success: false,
+      error: {
+        code: 'ROUTE_NOT_FOUND',
+        message: `The requested endpoint '${req.originalUrl}' does not exist on PayPilot API.`
+      }
+    });
+  }
+  const indexPath = path.resolve(__dirname, '../../frontend/dist/index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  return res.status(404).json({
     success: false,
     error: {
       code: 'ROUTE_NOT_FOUND',
