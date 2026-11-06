@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-community';
-import { Download, Search, Sparkles, Check, Plus, ExternalLink, Layers } from 'lucide-react';
+import { Download, Search, Sparkles, Check, Plus, ExternalLink, Layers, Columns } from 'lucide-react';
 import { formatINR, formatUSD } from '../../utils/formatters';
 
 // Register AG Grid Community modules
@@ -12,7 +12,8 @@ export function HardwareSpecGrid({
   comparedIds = [],
   onToggleCompare,
   onViewDetails,
-  onProceedToOrder
+  onProceedToOrder,
+  onSwitchToComparison
 }) {
   const gridRef = useRef(null);
   const [quickFilterText, setQuickFilterText] = useState('');
@@ -214,16 +215,26 @@ export function HardwareSpecGrid({
         const p = params.data?.rawProduct;
         if (!p) return null;
         const isCompared = cleanComparedIds.includes(p.id);
+        const isMaxReached = cleanComparedIds.length >= 3;
         return (
           <div className="flex items-center gap-1.5 py-1">
             <button
               onClick={() => onToggleCompare && onToggleCompare(p.id)}
+              disabled={!isCompared && isMaxReached}
               className={`p-1.5 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition-colors ${
                 isCompared
                   ? 'bg-paypilot-brand text-white'
+                  : isMaxReached
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                   : 'bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-paypilot-brand border border-slate-200'
               }`}
-              title={isCompared ? 'Remove from compare' : 'Add to compare'}
+              title={
+                isCompared
+                  ? 'Remove from compare tray'
+                  : isMaxReached
+                  ? 'Maximum 3 laptops selected for comparison'
+                  : 'Add to compare tray (max 3)'
+              }
             >
               {isCompared ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
               <span>{isCompared ? 'Added' : 'Compare'}</span>
@@ -254,14 +265,36 @@ export function HardwareSpecGrid({
     <div className="space-y-3">
       {/* AG Grid Banner & Quick Search Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-paypilot-subtleViolet/60 via-white to-paypilot-subtleViolet/60 border border-paypilot-brand/20 rounded-2xl">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="px-2.5 py-1 rounded-lg bg-paypilot-brand text-white font-bold text-[10px] tracking-wide flex items-center gap-1 shadow-subtle">
             <Layers className="w-3 h-3" />
             <span>AG Grid Spec Matrix</span>
           </div>
-          <span className="text-xs text-paypilot-muted">
-            Interactive OEM Hardware Matrix ({products.length} Laptops)
+          <span className="text-xs text-paypilot-muted hidden md:inline">
+            ({products.length} Laptops)
           </span>
+
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+              cleanComparedIds.length >= 3
+                ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                : cleanComparedIds.length > 0
+                ? 'bg-paypilot-subtleViolet text-paypilot-brand border border-paypilot-brand/30'
+                : 'bg-slate-100 text-slate-600 border border-slate-200'
+            }`}
+          >
+            Compare Tray: {cleanComparedIds.length}/3 max
+          </span>
+
+          {cleanComparedIds.length >= 2 && onSwitchToComparison && (
+            <button
+              onClick={onSwitchToComparison}
+              className="px-2.5 py-1 rounded-lg bg-paypilot-navy text-white text-[11px] font-semibold hover:bg-slate-800 transition-colors shadow-xs flex items-center gap-1"
+            >
+              <span>View Side-by-Side ({cleanComparedIds.length})</span>
+              <Columns className="w-3 h-3" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Layers, CheckCircle2, AlertCircle, X, ShieldAlert, Table, Columns } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
@@ -20,35 +20,53 @@ export function ComparisonModal({
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // Default to AG Grid tab if fewer than 2 products selected, else Side-by-Side
   const [activeTab, setActiveTab] = useState('diff');
+  const prevIsOpenRef = useRef(false);
 
-  // Normalize productIds to clean array of string IDs
-  const cleanProductIds = React.useMemo(() => {
+  // Normalize productIds to clean array of string IDs (max 3)
+  const cleanProductIds = useMemo(() => {
     return (productIds || [])
       .map((p) => (typeof p === 'object' && p !== null ? p.id : p))
-      .filter((id) => typeof id === 'string' && id.trim().length > 0);
+      .filter((id) => typeof id === 'string' && id.trim().length > 0)
+      .slice(0, 3);
   }, [productIds]);
 
+  // Tab initialization ONLY when modal opens for the first time
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !prevIsOpenRef.current) {
       if (cleanProductIds.length >= 2) {
         setActiveTab('diff');
-        setLoading(true);
-        setError(null);
-        api
-          .compareProducts(cleanProductIds)
-          .then((res) => {
-            setData(res.data);
-            setLoading(false);
-          })
-          .catch((err) => {
-            setError(err.message);
-            setLoading(false);
-          });
       } else {
         setActiveTab('aggrid');
       }
+    }
+    prevIsOpenRef.current = isOpen;
+  }, [isOpen, cleanProductIds.length]);
+
+  // If user removes items and drops below 2 while on diff tab, switch to aggrid
+  useEffect(() => {
+    if (isOpen && cleanProductIds.length < 2 && activeTab === 'diff') {
+      setActiveTab('aggrid');
+    }
+  }, [isOpen, cleanProductIds.length, activeTab]);
+
+  // Fetch comparison data when product IDs change and there are 2 or 3 items
+  useEffect(() => {
+    if (isOpen && cleanProductIds.length >= 2) {
+      setLoading(true);
+      setError(null);
+      api
+        .compareProducts(cleanProductIds)
+        .then((res) => {
+          setData(res.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
+    } else {
+      setData(null);
     }
   }, [isOpen, cleanProductIds]);
 
@@ -59,7 +77,7 @@ export function ComparisonModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Hardware Specification & Comparison Intelligence"
-      maxWidth={activeTab === 'aggrid' ? 'max-w-6xl' : 'max-w-4xl'}
+      maxWidth={activeTab === 'aggrid' || cleanProductIds.length >= 3 ? 'max-w-6xl' : 'max-w-4xl'}
     >
       <div className="space-y-4">
         {/* Navigation Tabs between Comparison Matrix and AG Grid */}
@@ -123,7 +141,11 @@ export function ComparisonModal({
             {data && !loading && (
               <>
                 {/* Products Header Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-4 border-b border-paypilot-border">
+                <div
+                  className={`grid grid-cols-1 gap-4 pb-4 border-b border-paypilot-border ${
+                    data.products.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'
+                  }`}
+                >
                   {data.products.map((p, idx) => (
                     <div
                       key={p.id}
@@ -238,13 +260,14 @@ export function ComparisonModal({
           <div className="pt-1">
             <HardwareSpecGrid
               products={allProducts}
-              comparedIds={productIds}
+              comparedIds={cleanProductIds}
               onToggleCompare={onToggleCompare}
               onViewDetails={(p) => {
                 onClose();
                 if (onViewDetails) onViewDetails(p);
               }}
               onProceedToOrder={onProceedToOrder}
+              onSwitchToComparison={() => setActiveTab('diff')}
             />
           </div>
         )}
