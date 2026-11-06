@@ -6,10 +6,12 @@ import assistantRoutes from './assistant.routes.js';
 import orderRoutes from './order.routes.js';
 import paypalRoutes from './paypal.routes.js';
 import authRoutes from './auth.routes.js';
+import docsRoutes from './docs.routes.js';
 
 const router = Router();
 
 router.get('/health', getHealth);
+router.use('/docs', docsRoutes);
 router.use('/auth', authRoutes);
 router.use('/products', productRoutes);
 router.use('/compare', comparisonRoutes);

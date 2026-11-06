@@ -1,0 +1,50 @@
+{
+  "$schema": "https://apimatic.io/schemas/apimatic-meta-schema.json",
+  "APIMATIC_CONFIG_VERSION": "1.0",
+  "Specification": "openapi.json",
+  "CodeGenSettings": {
+    "GenerateInterfaces": true,
+    "PackageName": "paypilot_sdk",
+    "Company": "PayPilot",
+    "Author": "PayPilot Agentic Commerce Team",
+    "Description": "Official APIMatic-generated SDK for PayPilot Server-Authoritative Agentic Shopping & PayPal Developer Sandbox Checkout",
+    "Platforms": [
+      {
+        "Platform": "Python",
+        "PackageName": "paypilot-agent-sdk",
+        "Namespace": "paypilot",
+        "Version": "1.0.0"
+      },
+      {
+        "Platform": "TypeScript",
+        "PackageName": "@paypilot/agent-sdk",
+        "Namespace": "PayPilot",
+        "Version": "1.0.0"
+      },
+      {
+        "Platform": "CSharp",
+        "PackageName": "PayPilot.AgentSdk",
+        "Namespace": "PayPilot.AgentSdk",
+        "Version": "1.0.0"
+      },
+      {
+        "Platform": "Java",
+        "PackageName": "com.paypilot.agentsdk",
+        "Namespace": "com.paypilot.agentsdk",
+        "Version": "1.0.0"
+      },
+      {
+        "Platform": "Go",
+        "PackageName": "github.com/anuragverma025/paypilot-sdk-go",
+        "Namespace": "paypilot",
+        "Version": "1.0.0"
+      }
+    ]
+  },
+  "DocumentationSettings": {
+    "InteractiveTesting": true,
+    "ShowCodeSnippets": true,
+    "DefaultLanguage": "Python",
+    "Languages": ["Python", "TypeScript", "cURL", "Go", "CSharp", "Java"]
+  }
+}

@@ -52,6 +52,32 @@ Users can expand the **`>_ Inspect Agent Reasoning & Safety Pipeline`** console 
 * **Dual-Currency Conversion:** Transparent real-time conversion between INR (catalog base) and USD (PayPal settlement).
 * **Order Tracking & Digital Receipts:** View order history, status lifecycle (`PENDING_APPROVAL` → `COMPLETED`), and printable receipts.
 
+### 🔌 6. Agent-to-Agent (A2A) Commerce API & SDKs (Powered by APIMatic)
+* **High-Value APIMatic Integration:** Built for the **"Best Use of APIMatic"** ($1,000 cash) prize track.
+* **OpenAPI 3.0 Standardized Specification:** Full OpenAPI 3.0 contract (`openapi.json` & `backend/docs/openapi.json`) covering all recommendation, comparison, and PayPal checkout endpoints.
+* **APIMatic Multi-Language SDK Generation:** Configured with `APIMATIC-META.json` to generate production-ready client SDKs in **Python**, **TypeScript**, **Java**, **C#**, and **Go**.
+* **Interactive Live API Portal:** Visit `http://localhost:5000/api/docs` (or `/api/docs` in production) to explore interactive request builders and code snippets.
+* **Autonomous Agent Integration Example (Python SDK via APIMatic):**
+  ```python
+  from paypilot_sdk import PayPilotClient
+
+  client = PayPilotClient(environment="sandbox")
+
+  # 1. Autonomous AI agent submits natural language hardware goal
+  decision = client.assistant.chat(
+      message="Need 32GB RAM coding laptop with dedicated GPU under ₹1,20,000"
+  )
+  print(f"Recommended: {decision.recommendation.name} (${decision.recommendation.price_usd})")
+
+  # 2. Programmatically stage server-authoritative PayPal order
+  order = client.paypal.create_order(
+      product_id=decision.recommendation.id,
+      buyer_info={"name": "Procurement Bot 7", "email": "procurement@corp.internal"},
+      shipping_address={"street": "123 Tech Blvd", "city": "San Jose", "state": "CA", "postal_code": "95131", "country_code": "US"}
+  )
+  print(f"PayPal Sandbox Order Created: {order.id}")
+  ```
+
 ---
 
 ## 🏗️ Architecture Diagram

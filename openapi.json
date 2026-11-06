@@ -1,0 +1,650 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PayPilot Agentic Commerce API (APIMatic Edition)",
+    "description": "Server-authoritative Agentic AI Shopping & Checkout API. Exposes verified OEM laptop catalog queries, 5-stage agentic reasoning pipelines, side-by-side hardware comparison matrices, and server-authoritative PayPal Developer Sandbox order settlement. Fully optimized for APIMatic multi-language SDK generation (Python, TypeScript, C#, Java, Go).",
+    "version": "1.0.0",
+    "contact": {
+      "name": "PayPilot Dev Team",
+      "url": "https://github.com/anuragverma025/PayPilot"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://paypilot-backend.onrender.com/api",
+      "description": "Render Production Cloud Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Assistant",
+      "description": "Multi-turn Gemini AI shopping assistant with 5-stage agentic safety pipeline"
+    },
+    {
+      "name": "Products",
+      "description": "Verified OEM hardware catalog and deterministic scoring"
+    },
+    {
+      "name": "Comparison",
+      "description": "Hardware specification intelligence and analytical trade-offs"
+    },
+    {
+      "name": "PayPal",
+      "description": "Server-authoritative PayPal Orders v2 Sandbox integration"
+    },
+    {
+      "name": "Orders",
+      "description": "Order management, drafts, and historical settlement verification"
+    },
+    {
+      "name": "Health",
+      "description": "Service heartbeat and diagnostic telemetry"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Check API Health & Catalog Status",
+        "description": "Returns operational status, database connectivity, and catalog record counts.",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "System operational",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assistant/chat": {
+      "post": {
+        "tags": ["Assistant"],
+        "summary": "Query Agentic Shopping Assistant",
+        "description": "Processes natural language shopping constraints, executes 5-stage reasoning, evaluates OEM catalog products, and returns grounded recommendations with audit logs.",
+        "operationId": "chatWithAssistant",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantChatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Assistant evaluation and grounded recommendation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantChatResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid message or constraint input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "List Verified Laptop Catalog",
+        "description": "Retrieves filtered and sorted OEM laptop models with specifications, upgradability, and pricing.",
+        "operationId": "getProducts",
+        "parameters": [
+          { "name": "search", "in": "query", "description": "Free-text search", "schema": { "type": "string" } },
+          { "name": "brand", "in": "query", "description": "Filter by OEM manufacturer", "schema": { "type": "string" } },
+          { "name": "minPrice", "in": "query", "description": "Minimum price in INR", "schema": { "type": "number" } },
+          { "name": "maxPrice", "in": "query", "description": "Maximum price in INR", "schema": { "type": "number" } },
+          { "name": "minRam", "in": "query", "description": "Minimum RAM in GB", "schema": { "type": "integer" } },
+          { "name": "gpu", "in": "query", "description": "Filter by GPU type (dedicated/integrated)", "schema": { "type": "string" } },
+          { "name": "upgradableOnly", "in": "query", "description": "Filter only laptops with SO-DIMM upgradable RAM", "schema": { "type": "boolean" } },
+          { "name": "audience", "in": "query", "description": "Target audience use-case", "schema": { "type": "string" } },
+          { "name": "sortBy", "in": "query", "description": "Sort criterion", "schema": { "type": "string", "enum": ["price_asc", "price_desc", "ram_desc", "weight_asc", "battery_desc"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching products and metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get Laptop Specifications by ID",
+        "description": "Returns verified OEM specifications for a single laptop configuration.",
+        "operationId": "getProductById",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "description": "Unique product ID", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compare": {
+      "post": {
+        "tags": ["Comparison"],
+        "summary": "Compare 2 or 3 Products Side-by-Side",
+        "description": "Evaluates trade-offs, highlights superior attributes, and produces a complete spec matrix.",
+        "operationId": "compareProducts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comparison matrix and analytical trade-offs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid product IDs supplied (must be 2 or 3)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paypal/config": {
+      "get": {
+        "tags": ["PayPal"],
+        "summary": "Get PayPal Sandbox Configuration",
+        "description": "Returns client environment details for the PayPal JS SDK integration.",
+        "operationId": "getPayPalConfig",
+        "responses": {
+          "200": {
+            "description": "PayPal client configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPalConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paypal/create-order": {
+      "post": {
+        "tags": ["PayPal"],
+        "summary": "Create Server-Authoritative PayPal Order",
+        "description": "Validates items against internal catalog pricing, calculates authoritative totals, and invokes PayPal Orders v2 API.",
+        "operationId": "createPayPalOrder",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayPalOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created successfully in PayPal Sandbox",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePayPalOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid order items or shipping information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/paypal/capture-order": {
+      "post": {
+        "tags": ["PayPal"],
+        "summary": "Capture PayPal Order Settlement",
+        "description": "Cryptographically verifies buyer payment approval with PayPal Orders v2 API and finalizes order status.",
+        "operationId": "capturePayPalOrder",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapturePayPalOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order captured and settled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapturePayPalOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Payment capture failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get Order History",
+        "description": "Retrieves recent orders with settlement status and tracking references.",
+        "operationId": "getOrders",
+        "responses": {
+          "200": {
+            "description": "List of user orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdersListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "example": "healthy" },
+              "timestamp": { "type": "string", "example": "2026-11-06T06:00:00.000Z" },
+              "catalogSize": { "type": "integer", "example": 32 },
+              "services": {
+                "type": "object",
+                "properties": {
+                  "catalog": { "type": "string", "example": "connected" },
+                  "paypal": { "type": "string", "example": "ready" },
+                  "ai": { "type": "string", "example": "active" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AssistantChatRequest": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string", "example": "I need a coding laptop under ₹75,000 with 16GB RAM and great battery life" },
+          "sessionId": { "type": "string", "example": "sess_91283" },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": { "type": "string", "enum": ["user", "assistant"] },
+                "content": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "AssistantChatResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "recommendation": { "$ref": "#/components/schemas/Product" },
+              "alternatives": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Product" }
+              },
+              "explanation": { "type": "string", "example": "The Lenovo IdeaPad Pro 5 matches your full development workload with 16GB LPDDR5X RAM and 9 hours of battery runtime." },
+              "tradeoffs": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "auditTrace": {
+                "type": "object",
+                "properties": {
+                  "stage": { "type": "string", "example": "Stage 5: PayPal Settlement Bridge" },
+                  "extractedConstraints": { "type": "object" },
+                  "antiHallucinationPassed": { "type": "boolean", "example": true }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "lenovo-ideapad-pro-5-14" },
+          "name": { "type": "string", "example": "Lenovo IdeaPad Pro 5 14" },
+          "brand": { "type": "string", "example": "Lenovo" },
+          "model": { "type": "string", "example": "IdeaPad Pro 5 14AHP9" },
+          "priceINR": { "type": "number", "example": 74990 },
+          "priceUSD": { "type": "number", "example": 899 },
+          "processor": {
+            "type": "object",
+            "properties": {
+              "brand": { "type": "string", "example": "AMD" },
+              "model": { "type": "string", "example": "Ryzen 7 8845HS" },
+              "cores": { "type": "integer", "example": 8 }
+            }
+          },
+          "ram": {
+            "type": "object",
+            "properties": {
+              "capacityGB": { "type": "integer", "example": 16 },
+              "type": { "type": "string", "example": "LPDDR5X" },
+              "isUpgradable": { "type": "boolean", "example": false }
+            }
+          },
+          "gpu": {
+            "type": "object",
+            "properties": {
+              "model": { "type": "string", "example": "Radeon 780M" },
+              "type": { "type": "string", "enum": ["integrated", "dedicated"] },
+              "vramGB": { "type": "integer", "example": 0 }
+            }
+          },
+          "storage": {
+            "type": "object",
+            "properties": {
+              "capacityGB": { "type": "integer", "example": 1024 },
+              "type": { "type": "string", "example": "PCIe 4.0 NVMe" },
+              "extraSlot": { "type": "boolean", "example": true }
+            }
+          },
+          "battery": {
+            "type": "object",
+            "properties": {
+              "realWorldHoursEstimate": { "type": "number", "example": 9.5 }
+            }
+          },
+          "weightKg": { "type": "number", "example": 1.46 }
+        }
+      },
+      "ProductsListResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Product" }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "total": { "type": "integer", "example": 32 }
+            }
+          }
+        }
+      },
+      "ProductDetailResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": { "$ref": "#/components/schemas/Product" }
+        }
+      },
+      "CompareRequest": {
+        "type": "object",
+        "required": ["productIds"],
+        "properties": {
+          "productIds": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 3,
+            "items": { "type": "string" },
+            "example": ["lenovo-ideapad-pro-5-14", "asus-zenbook-14-oled"]
+          }
+        }
+      },
+      "CompareResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "products": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Product" }
+              },
+              "differences": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "aspect": { "type": "string", "example": "Price Difference" },
+                    "detail": { "type": "string", "example": "Option 1 is ₹5,000 more affordable" }
+                  }
+                }
+              },
+              "matrix": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "attribute": { "type": "string", "example": "Chassis Weight" },
+                    "values": { "type": "array", "items": { "type": "string" } },
+                    "bestIndex": { "type": "integer", "nullable": true, "example": 0 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PayPalConfigResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "clientId": { "type": "string", "example": "sb-test-client-id" },
+              "currency": { "type": "string", "example": "USD" },
+              "environment": { "type": "string", "example": "sandbox" }
+            }
+          }
+        }
+      },
+      "CreatePayPalOrderRequest": {
+        "type": "object",
+        "required": ["buyerInfo", "shippingAddress"],
+        "properties": {
+          "productId": { "type": "string", "example": "lenovo-ideapad-pro-5-14" },
+          "buyerInfo": {
+            "type": "object",
+            "required": ["name", "email"],
+            "properties": {
+              "name": { "type": "string", "example": "Alex Buyer" },
+              "email": { "type": "string", "example": "alex.buyer@example.com" }
+            }
+          },
+          "shippingAddress": {
+            "type": "object",
+            "required": ["street", "city", "state", "postalCode", "countryCode"],
+            "properties": {
+              "street": { "type": "string", "example": "123 Innovation Way" },
+              "city": { "type": "string", "example": "San Jose" },
+              "state": { "type": "string", "example": "CA" },
+              "postalCode": { "type": "string", "example": "95131" },
+              "countryCode": { "type": "string", "example": "US" }
+            }
+          }
+        }
+      },
+      "CreatePayPalOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "example": "PAYPAL-ORDER-72648" },
+              "status": { "type": "string", "example": "CREATED" },
+              "orderDraftId": { "type": "string", "example": "ord_91827" },
+              "amount": {
+                "type": "object",
+                "properties": {
+                  "currency": { "type": "string", "example": "USD" },
+                  "value": { "type": "string", "example": "899.00" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CapturePayPalOrderRequest": {
+        "type": "object",
+        "required": ["orderId", "paypalOrderId"],
+        "properties": {
+          "orderId": { "type": "string", "example": "ord_91827" },
+          "paypalOrderId": { "type": "string", "example": "PAYPAL-ORDER-72648" }
+        }
+      },
+      "CapturePayPalOrderResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "object",
+            "properties": {
+              "orderId": { "type": "string", "example": "ord_91827" },
+              "paypalOrderId": { "type": "string", "example": "PAYPAL-ORDER-72648" },
+              "captureId": { "type": "string", "example": "CAPTURE-88192" },
+              "status": { "type": "string", "example": "COMPLETED" },
+              "totalPaid": { "type": "number", "example": 899 }
+            }
+          }
+        }
+      },
+      "OrdersListResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "example": "ord_91827" },
+                "status": { "type": "string", "example": "PAID" },
+                "productName": { "type": "string", "example": "Lenovo IdeaPad Pro 5 14" },
+                "amountUSD": { "type": "number", "example": 899 },
+                "createdAt": { "type": "string", "example": "2026-11-06T06:15:00.000Z" }
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string", "example": "VALIDATION_ERROR" },
+              "message": { "type": "string", "example": "Invalid input provided" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

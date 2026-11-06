@@ -11,7 +11,8 @@ import {
   ExternalLink,
   ShoppingBag,
   Clock,
-  ShieldCheck
+  ShieldCheck,
+  Code2
 } from 'lucide-react';
 
 export function Sidebar({
@@ -23,6 +24,7 @@ export function Sidebar({
   ordersCount = null,
   onNewSession
 }) {
+  const docsUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/docs`;
   const shoppingItems = [
     { id: 'workspace', label: 'AI Shopping Assistant', icon: Sparkles },
     { id: 'browse', label: 'Browse Products', icon: Compass },
@@ -186,6 +188,29 @@ export function Sidebar({
                 );
               })}
             </div>
+          </div>
+
+          {/* Developer Tools / APIMatic SDK Portal */}
+          <div className="space-y-1.5 pt-2 border-t border-[#E2E8F0]">
+            <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
+              Developer & SDKs
+            </span>
+            <a
+              href={docsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#635BFF] hover:bg-[#EEF2FF] transition-all group"
+              title="Open APIMatic-validated OpenAPI Documentation Portal"
+            >
+              <div className="flex items-center gap-2">
+                <Code2 className="w-4 h-4 text-[#635BFF]" />
+                <span>APIMatic Portal</span>
+              </div>
+              <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#635BFF]/10 text-[#635BFF]">
+                OpenAPI
+                <ExternalLink className="w-2.5 h-2.5" />
+              </span>
+            </a>
           </div>
         </nav>
 
