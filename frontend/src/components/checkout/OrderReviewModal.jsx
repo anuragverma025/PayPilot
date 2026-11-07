@@ -89,7 +89,38 @@ export function OrderReviewModal({
     };
   }, [paypalConfig?.clientId, paypalConfig?.currency]);
 
-  // Reset state when modal opens or closes
+  // Helper to clear all buyer-entered form fields
+  const clearBuyerForm = () => {
+    setBuyerName('');
+    setBuyerEmail('');
+    setShippingAddress({
+      recipientName: '',
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      countryCode: 'US'
+    });
+    setTouched({ name: false, email: false });
+    setShippingTouched({
+      recipientName: false,
+      addressLine1: false,
+      city: false,
+      state: false,
+      postalCode: false,
+      countryCode: false
+    });
+  };
+
+  // Clear form fields whenever the active user changes (login / logout / account switch)
+  // Prevents previous user's personal details leaking into a new session
+  useEffect(() => {
+    clearBuyerForm();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Reset ALL state when modal opens or closes
   useEffect(() => {
     if (isOpen) {
       setQuantity(initialQuantity || 1);
@@ -98,15 +129,9 @@ export function OrderReviewModal({
       setErrorMessage(null);
       setCompletedOrder(null);
       setApprovalConfirmed(false);
-      setTouched({ name: false, email: false });
-      setShippingTouched({
-        recipientName: false,
-        addressLine1: false,
-        city: false,
-        state: false,
-        postalCode: false,
-        countryCode: false
-      });
+      // Always clear buyer form on fresh modal open so a new user/session
+      // never sees a previous user's name, email, or address
+      clearBuyerForm();
       setIsConfigLoading(true);
 
       api.getPayPalConfig()
