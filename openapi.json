@@ -15,12 +15,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:5000/api",
-      "description": "Local Development Server"
-    },
-    {
       "url": "https://paypilot-ghb5.onrender.com/api",
       "description": "Render Production Cloud Server"
+    },
+    {
+      "url": "http://localhost:5000/api",
+      "description": "Local Development Server"
     }
   ],
   "tags": [
